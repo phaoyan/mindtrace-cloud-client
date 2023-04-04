@@ -1,0 +1,46 @@
+/* Reset CSS */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font-weight: normal;
+    vertical-align: baseline;
+}
+
+/* Remove default padding and border in IE 6/7/8/9 */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Set defaults for links */
+a {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Remove default outline in IE 6/7/8/9 */
+a:focus {
+    outline: none;
+}
+
+/* Define consistent typography */
+body {
+    line-height: 1;
+    font-family: sans-serif;
+}
+
+/* Correct list styles */
+ol, ul {
+    list-style: none;
+}

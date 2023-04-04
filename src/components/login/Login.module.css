@@ -1,0 +1,25 @@
+.login{
+    background: #f2f3f7;
+    border-radius: 20px;
+    margin: auto;
+    text-align: center;
+    justify-content: center;
+    padding: 51px 60px;
+}
+.form{
+    width: 30vw;
+}
+.info{
+    border-bottom: 1px solid #DCDCDC;
+}
+.container {
+    height: 100vh;
+    background: linear-gradient(180deg, #a0d7e7, #6c5dd3);
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.commit{
+    width:100%;
+}
