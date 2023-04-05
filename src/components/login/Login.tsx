@@ -1,7 +1,7 @@
 import React, {SetStateAction, useState} from 'react';
 import {Button, Form, Input, Typography} from "antd";
 import classes from "./Login.module.css"
-import {User} from "../../recoil/user/User"
+import {User} from "../../recoil/User"
 import {SetterOrUpdater, useRecoilState} from "recoil";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "../../constants";
@@ -14,7 +14,7 @@ const login = (user:{username:string, password: string, id:number},
                setError:SetStateAction<any>,
                setUser: SetterOrUpdater<any>)=>{
     // 发送请求
-    axios.post(BACK_HOST + "user/login", {username: user.username, password: user.password})
+    axios.post(`${BACK_HOST}/user/login`, {username: user.username, password: user.password})
         .then(({data})=> {
             console.log(data);
             // 若响应成功则跳转到主页，并将用户信息保存

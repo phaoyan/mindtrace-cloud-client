@@ -1,4 +1,4 @@
-import {atom} from "recoil";
+
 
 export interface Enhancer{
     id:number,
@@ -22,7 +22,3 @@ export interface Enhancer{
         createBy:string
     }>
 }
-export const EnhancerRepository = atom<Array<Enhancer>>({
-    key:"EnhancerRepository",
-    default:[]
-})

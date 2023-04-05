@@ -6,7 +6,7 @@ import Login from "./components/login/Login";
 import {Navigate} from "react-router-dom"
 import {ConfigProvider, theme} from "antd";
 import {useRecoilState} from "recoil";
-import {User} from "./recoil/user/User";
+import {User} from "./recoil/User";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "./constants";
 
@@ -16,7 +16,7 @@ function App() {
 
     useEffect( ()=>{
         // 尝试从后端拿登录数据
-        axios.get(BACK_HOST + "user")
+        axios.get(`${BACK_HOST}/user`)
             .then(({data})=>{
                 if(data.code === RESULT.OK)
                     setUser({...user,
