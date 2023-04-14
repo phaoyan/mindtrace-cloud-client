@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import {Route, Routes} from "react-router-dom";
-import Home from "./components/home/Home";
-import Main from "./components/main/Main";
+import Main from "./components/home/Main"
 import Login from "./components/login/Login";
 import {Navigate} from "react-router-dom"
 import {ConfigProvider, theme} from "antd";
@@ -9,6 +8,7 @@ import {useRecoilState} from "recoil";
 import {User} from "./recoil/User";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "./constants";
+import "./reset.css"
 
 function App() {
 
@@ -25,6 +25,8 @@ function App() {
                         id: data.data.id});
                 console.log("LOGIN",data)
             })
+
+
     // eslint-disable-next-line
     },[])
 
@@ -34,8 +36,7 @@ function App() {
             <div className="App">
                 <Routes>
                     <Route path="/" element={<Navigate to="/login"/>}/>
-                    <Route path="/home" element={<Home/>}/>
-                    <Route path="/main" element={<Main/>}/>
+                    <Route path="/home" element={<Main/>}/>
                     <Route path="/login" element={<Login/>}/>
                 </Routes>
             </div>

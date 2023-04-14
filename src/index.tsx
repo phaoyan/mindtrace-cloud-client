@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import {BrowserRouter as Router} from "react-router-dom";
 import {RecoilRoot} from "recoil";
-import "./reset.css"
 import axios from "axios";
+import 'react-resizable/css/styles.css';
+
+
 
 axios.defaults.withCredentials = true;
 

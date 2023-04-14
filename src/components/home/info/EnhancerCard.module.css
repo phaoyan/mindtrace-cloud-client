@@ -1,0 +1,43 @@
+.container{
+    min-height: 20vh;
+    padding-right: 0.5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.row{
+    min-height: 20vh;
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+}
+
+.title{
+    width: 40%;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666666;
+}
+
+.sidebar{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.option_wrapper{
+    direction: rtl;
+}
+.option{
+    scale: 130%;
+}
+
+.resource_delete{
+    position: relative;
+    top: 2vh;
+    z-index: 2;
+}

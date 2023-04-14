@@ -1,0 +1,18 @@
+.container{
+    -ms-overflow-style: none; /* 隐藏滚动条（IE, Edge 浏览器） */
+    scrollbar-width: none; /* 隐藏滚动条（Firefox 浏览器） */
+}
+
+.main > *{
+    margin-top: 2vw
+}
+.main_toolbar > *{
+    margin-left: 4vw;
+}
+.tree_wrapper{
+    margin-left: 2vw;
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+
