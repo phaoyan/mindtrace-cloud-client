@@ -1,3 +1,4 @@
+import {getKnode} from "../../recoil/home/Knode";
 
 
 export interface Knode {
@@ -88,3 +89,11 @@ export const getBrotherBranchIds = (ktree: Ktree, knodeId: number): number[] | u
     }
 }
 
+export const getStemChain = (ktree: Ktree, knode: Knode): Knode[]=>{
+    let res = [knode]
+    while (knode.stemId){
+        knode = getKnode(ktree, knode.stemId)!
+        res.push(knode)
+    }
+    return res.slice(1, res.length-1).reverse()
+}

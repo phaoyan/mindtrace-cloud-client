@@ -3,7 +3,7 @@ import { defaultValueCtx, Editor, rootCtx } from '@milkdown/core';
 import {Milkdown, useEditor} from '@milkdown/react'
 import { commonmark } from '@milkdown/preset-commonmark';
 import { nord } from '@milkdown/theme-nord';
-import {katexOptionsCtx, math, mathBlockInputRule, mathBlockSchema, mathInlineSchema} from '@milkdown/plugin-math';
+import {katexOptionsCtx, math} from '@milkdown/plugin-math';
 
 import '@milkdown/theme-nord/style.css';
 import 'katex/dist/katex.min.css';
@@ -16,6 +16,7 @@ import typescript from 'refractor/lang/typescript'
 import jsx from 'refractor/lang/jsx'
 import tsx from 'refractor/lang/tsx'
 import {listener, listenerCtx} from "@milkdown/plugin-listener";
+import {history} from "@milkdown/plugin-history";
 
 export const MilkdownEditor = (props:{md: string, onChange:(cur: string, prev: string)=>any}) => {
     useEditor((root) => {
@@ -31,9 +32,6 @@ export const MilkdownEditor = (props:{md: string, onChange:(cur: string, prev: s
             // LaTeX
             .config(ctx => ctx.set(katexOptionsCtx.key, {throwOnError: false}))
             .use(math)
-            .use(mathInlineSchema)
-            .use(mathBlockSchema)
-            .use(mathBlockInputRule)
 
             // Prism
             .use(prism)
@@ -58,6 +56,7 @@ export const MilkdownEditor = (props:{md: string, onChange:(cur: string, prev: s
                 })
             })
             .use(listener)
+            .use(history)
     }, [])
 
     return <Milkdown/>

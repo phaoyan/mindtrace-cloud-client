@@ -10,6 +10,7 @@ import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";
 import {loadData, submit} from "./PlayerUtils";
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
+import milkdown from "../../utils/markdown/MarkdownBasic.module.css"
 
 const MarkdownPlayer = (props: {meta: Resource}) => {
 
@@ -41,10 +42,19 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                     {data.config.hide ?
                         <FileTextFilled
                             className={utils.icon_button}
-                            onClick={()=>setData({...data, config: {...data.config, hide: false}})}/>:
+                            onClick={()=> {
+                                setData({...data, config: {...data.config, hide: false}})
+                                setTimeout(()=>submit(userId, props.meta.id!, data), 100)
+                            }}/>:
                         <FileTextOutlined
                             className={utils.icon_button}
-                            onClick={()=>setData({...data, config: {...data.config, hide: true}})}/>
+                            onClick={()=> {
+                                setData({...data, config: {...data.config, hide: true}})
+                                setTimeout(()=> {
+                                    console.log("test" , data.config)
+                                    submit(userId, props.meta.id!, data)
+                                }, 100)
+                            }}/>
                     }
                 </Col>
                 <Col span={22} offset={1}>
@@ -54,11 +64,12 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                         </>:
                         <>
                             {data.content === "" && <span className={general.placeholder}>知识概述 . . . </span>}
-                            <MilkdownProvider>
-                                <MilkdownEditor md={data.content} onChange={cur=>setData({...data, content: cur})} />
-                            </MilkdownProvider>
+                            <div className={milkdown.markdown}>
+                                <MilkdownProvider>
+                                    <MilkdownEditor md={data.content} onChange={cur=>setData({...data, content: cur})} />
+                                </MilkdownProvider>
+                            </div>
                         </>
-
                     }
                 </Col>
             </Row>

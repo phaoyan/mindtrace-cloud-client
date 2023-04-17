@@ -4,10 +4,19 @@ import {BACK_HOST, RESULT} from "../../constants";
 
 export const ENHANCER_HOST = `${BACK_HOST}/enhancer`
 
+export const getEnhancerById = async (userId: number, enhancerId: number): Promise<Enhancer>=>{
+    return await axios.get(`${ENHANCER_HOST}/user/${userId}/enhancer/${enhancerId}`)
+        .then(({data})=>{
+            console.log("get enhancer by id", data)
+            if(data.code === RESULT.OK)
+                return data.data
+        })
+}
+
 export const getEnhancersForKnode = async (userId: number, knodeId: number): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/user/${userId}/knode/${knodeId}/enhancer`)
         .then(({data})=>{
-            // console.log(`Get Enhancers For Knode ${knodeId}`,data);
+            console.log(`Get Enhancers For Knode ${knodeId}`,data);
             if(data.code===RESULT.OK)
                 return data.data
             else return []
@@ -33,4 +42,8 @@ export const removeEnhancerFromUser = async (userId: number, enhancerId: number)
         // console.log("remove enhancer from user", data)
         return data
     })
+}
+
+export const getEnhancerLabelRepository = async ()=>{
+
 }

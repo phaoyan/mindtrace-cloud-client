@@ -1,5 +1,5 @@
 import {atom, DefaultValue, selectorFamily} from "recoil";
-import {Enhancer} from "../../service/data/Enhancer";
+import {Enhancer, Label} from "../../service/data/Enhancer";
 
 export const EnhancersForSelectedKnodeAtom = atom<Enhancer[]>({
     key: "EnhancersForSelectedKnodeAtom",
@@ -16,4 +16,9 @@ export const EnhancerSelector = selectorFamily<Enhancer | undefined, number>({
                 .filter(enhancer => enhancer.id !== id),
                 newValue])
     }
+})
+
+export const EnhancerLabelRepositoryAtom = atom<Label[]>({
+    key:"EnhancerLabelRepositoryAtom",
+    default: []
 })

@@ -22,3 +22,9 @@ export interface Enhancer{
         createBy:string
     }>
 }
+
+export interface Label{
+    name: string,
+    createTime: string,
+    createBy: string
+}

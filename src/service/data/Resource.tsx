@@ -1,7 +1,7 @@
 import {addDataToResource} from "../api/ResourceApi";
 import {ENHANCER_HOST} from "../api/EnhancerApi";
 import {FileTextOutlined, SwitcherOutlined} from "@ant-design/icons";
-import classes from "../../components/home/info/EnhancerCard.module.css";
+import classes from "../../components/home/info/enhancer/EnhancerCard.module.css";
 import React from "react";
 import QuizcardPlayer from "../../components/home/resource/QuizcardPlayer";
 import MarkdownPlayer from "../../components/home/resource/MarkdownPlayer";

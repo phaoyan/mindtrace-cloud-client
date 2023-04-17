@@ -9,6 +9,7 @@ import {SwitcherFilled, SwitcherOutlined} from "@ant-design/icons";
 import utils from "../../../utils.module.css"
 import classes from "./Player.module.css"
 import {loadData, submit} from "./PlayerUtils";
+import milkdown from "../../utils/markdown/MarkdownBasic.module.css"
 
 const QuizcardPlayer = (props: { meta: Resource }) => {
 
@@ -48,15 +49,19 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
                             {/*似乎缺少这个react不能检测到变化从而响应渲染*/}
                             <></>
                             {data.front === "" && <span className={classes.placeholder}>卡片正面 . . . </span>}
-                            <MilkdownProvider>
-                                <MilkdownEditor md={data.front} onChange={cur => setData({...data, front: cur})}/>
-                            </MilkdownProvider>
+                            <div className={milkdown.markdown}>
+                                <MilkdownProvider>
+                                    <MilkdownEditor md={data.front} onChange={cur => setData({...data, front: cur})}/>
+                                </MilkdownProvider>
+                            </div>
                         </div>:
                         <div className={classes.back_wrapper}>
                             {data.back === "" && <span className={classes.placeholder}>卡片背面 . . . </span>}
-                            <MilkdownProvider>
-                                <MilkdownEditor md={data.back} onChange={cur=>setData({...data, back: cur})}/>
-                            </MilkdownProvider>
+                            <div className={milkdown.markdown}>
+                                <MilkdownProvider>
+                                    <MilkdownEditor md={data.back} onChange={cur=>setData({...data, back: cur})}/>
+                                </MilkdownProvider>
+                            </div>
                         </div>
                     }
                 </Col>

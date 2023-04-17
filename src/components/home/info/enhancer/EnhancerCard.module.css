@@ -16,10 +16,25 @@
 }
 
 .title{
-    width: 40%;
     font-size: 1.2em;
     font-weight: bold;
     color: #666666;
+}
+
+.tag_wrapper{
+    display: flex;
+    justify-items: center;
+}
+.tag_wrapper >*{
+    margin: auto 2.5%;
+}
+.tag{
+    height:80%;
+    max-width: 25%;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    width: auto;
 }
 
 .sidebar{

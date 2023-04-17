@@ -1,0 +1,17 @@
+.timeline_item_title{
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #666666;
+    margin-right: 1em;
+}
+.timeline_item_time{
+    font-size: 1em;
+    font-weight: bold;
+    color: #aaaaaa;
+}
+.knode_tag{
+    font-size: 1.1em;
+    padding: 0.4em;
+    font-weight: 500;
+    margin: 0.8em;
+}

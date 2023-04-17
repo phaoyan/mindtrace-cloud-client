@@ -36,5 +36,25 @@
     opacity: 50%;
 }
 
+.tiny_font{
+    color: #666666;
+    font-size: 0.5em;
+}
 
+.title_font{
+    color: #666666;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.text_vertical_center{
+    display: flex;
+    align-items: center;
+}
+
+.ghost_vertical_divider{
+    height: 100%;
+    position: absolute;
+    margin: -0.5em;
+}
 

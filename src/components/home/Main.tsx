@@ -25,6 +25,7 @@ import {KtreeAtom, SelectedKnodeIdAtom} from "../../recoil/home/Knode";
 import {MarkdownInlineContext} from "../../recoil/utils/MarkdownInline";
 import KnodeTitle from "./KnodeTitle";
 import {RESULT} from "../../constants";
+import TraceInfo from "./trace/TraceInfo";
 
 
 const Main = () => {
@@ -303,6 +304,7 @@ const Main = () => {
 
             </div>
             {selectedId !== 0 && <InfoRight/>}
+            <TraceInfo/>
         </div>
     );
 };

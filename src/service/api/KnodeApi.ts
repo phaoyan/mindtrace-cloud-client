@@ -31,17 +31,6 @@ export const updateKnode = async (updated: Knode, userId:number)=>{
     return await axios.post(`${KNODE_HOST}/user/${userId}/knode/${updated.id}`, {title: updated.title})
 }
 
-export const getChainStyleTitle = async (userId: number, knodeId: number)=>{
-    return await
-        axios.get(`${KNODE_HOST}/user/${userId}/knode/${knodeId}/chainStyleTitle`)
-            .then(({data})=>{
-                // console.log("get chain style title", data)
-                if(data.code === RESULT.OK)
-                    return data.data
-                return ""
-            })
-}
-
 export const shiftKnode = async (userId: number, stemId: number , branchId: number)=>{
     return await
         axios.post(`${KNODE_HOST}/user/${userId}/knode/${stemId}/branch/${branchId}`)
@@ -55,4 +44,26 @@ export const shiftKnode = async (userId: number, stemId: number , branchId: numb
 export const swapBranchIndex = async (userId: number, stemId: number, index1: number, index2: number)=>{
     return await
         axios.post(`${KNODE_HOST}/user/${userId}/knode/${stemId}/branch/index/${index1}/${index2}`).then(({data})=>data)
+}
+
+export const getChainStyleTitle = async (userId: number, knodeId: number)=>{
+    return await
+        axios.get(`${KNODE_HOST}/user/${userId}/knode/${knodeId}/chainStyleTitle`)
+            .then(({data})=>{
+                // console.log("get chain style title", data)
+                if(data.code === RESULT.OK)
+                    return data.data
+                return ""
+            })
+}
+
+export const getLeaves = async (userId: number, knodeId: number)=>{
+    return await
+        axios.get(`${KNODE_HOST}/user/${userId}/knode/${knodeId}/leaves`)
+            .then(({data})=>{
+                console.log("get leaves", data)
+                if(data.code === RESULT.OK)
+                    return data.data
+                return []
+            })
 }

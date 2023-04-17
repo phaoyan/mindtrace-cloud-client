@@ -9,8 +9,9 @@ import {UserID} from "../../../recoil/User";
 import {getChainStyleTitle} from "../../../service/api/KnodeApi";
 import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
 import {BarChartOutlined, EditOutlined} from "@ant-design/icons";
-import EnhancerPanel from "./EnhancerPanel";
+import EnhancerPanel from "./enhancer/EnhancerPanel";
 import utils from "../../../utils.module.css"
+import RecordPanel from "./record/RecordPanel";
 
 const InfoRight = () => {
 
@@ -32,7 +33,7 @@ const InfoRight = () => {
     const breadcrumbTitle = ():BreadcrumbItemType[] =>{
         return chainStyleTitle.split(".")
             .filter(title=>title !== selectedKnode?.title && title !== "ROOT")
-            .map(title=>({title: <MdPreview>{title}</MdPreview>}))
+            .map(title=>({title: <MdPreview>{title}</MdPreview>})).reverse()
     }
 
     return (
@@ -69,7 +70,7 @@ const InfoRight = () => {
                                     <span>记录</span>
                                 </div>),
                                 key: "traces",
-                                children: <div>这里是记录</div>
+                                children: <RecordPanel/>
                             }
                         ]}/>
                 </div>:<></>
