@@ -1,42 +1,103 @@
-import React, {useEffect} from 'react';
-import {Route, Routes} from "react-router-dom";
+import React, {useEffect, useMemo, useState} from 'react';
+import {Route, Routes, useLocation, useNavigate} from "react-router-dom";
 import Main from "./components/home/Main"
 import Login from "./components/login/Login";
 import {Navigate} from "react-router-dom"
-import {ConfigProvider, theme} from "antd";
-import {useRecoilState} from "recoil";
-import {User} from "./recoil/User";
+import {ConfigProvider, Menu, MenuProps, theme} from "antd";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {IsLogin, User} from "./recoil/User";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "./constants";
+import {HomeOutlined, LoginOutlined, LogoutOutlined, UserOutlined} from "@ant-design/icons";
+import classes from "./App.module.css"
+import {Header} from "antd/es/layout/layout";
+import logo from "./static/img/logo.png"
+import {CurrentPageAtom} from "./recoil/utils/DocumentData";
+import {logout} from "./service/api/LoginApi";
 import "./reset.css"
 
-function App() {
+const App = ()=> {
 
-    const [user, setUser] = useRecoilState(User);
+    const [user, setUser] = useRecoilState(User)
+    const isLogin = useRecoilValue(IsLogin)
 
-    useEffect( ()=>{
-        // 尝试从后端拿登录数据
-        axios.get(`${BACK_HOST}/user`)
-            .then(({data})=>{
+    // Menu
+    const [current, setCurrent] = useRecoilState(CurrentPageAtom)
+    const navigate = useNavigate()
+    const [items, setItems] = useState<MenuProps['items']>([])
+    useEffect(()=>{
+        setItems([
+            {
+                label: "主页",
+                key: "main",
+                icon: <HomeOutlined/>
+            },
+            {
+                label: "我的",
+                key: "user",
+                icon: <UserOutlined/>
+            },
+            {
+                label: <>{isLogin ? "登出" : "登录"}</>,
+                key: "login",
+                icon: <>{isLogin ? <LogoutOutlined/> : <LoginOutlined/>}</>,
+                onClick: ()=> {
+                    console.log("isLogin?" , isLogin)
+                    if(isLogin) logout().then(()=>{
+                        setUser({username: "", password: "", id:-1})
+                        navigate("/login")
+                    })
+                }
+            },
+        ])
+    },[user])
+
+    // 尝试从后端拿登录数据
+    useMemo(async ()=>{
+        if(!isLogin && current !== "login"){
+            try{
+                let {data} = await axios.get(`${BACK_HOST}/user`);
                 if(data.code === RESULT.OK)
-                    setUser({...user,
+                    setUser({
+                        ...user,
                         username: data.data.username,
                         password: data.data.password,
-                        id: data.data.id});
-                console.log("LOGIN",data)
-            })
+                        id: data.data.id
+                    });
+            }catch (err){
+                // 未登录则跳转至登陆页面
+                setCurrent("login")
+            }
+        }
+        else navigate(`/${current}`)
+        //eslint-disable-next-line
+    },[current])
 
-
-    // eslint-disable-next-line
-    },[])
+    let location = useLocation()
+    useEffect(()=>{
+        setCurrent(location.pathname.replace("/",""))
+    }, [location])
 
     return (
         <ConfigProvider
             theme={{algorithm: theme.defaultAlgorithm}}>
-            <div className="App">
+            <div className={classes.app}>
+                <Header className={classes.header}>
+                    <div className={classes.logo}>
+                        <img src={logo} alt={""} style={{scale:"80%", height: "10vh"}}/>
+                    </div>
+                    <div className={classes.menu}>
+                        <Menu
+                            selectedKeys={[current]}
+                            onClick={({key})=>{setCurrent(key)}}
+                            mode={"horizontal"}
+                            items={items}/>
+                    </div>
+                </Header>
+
                 <Routes>
                     <Route path="/" element={<Navigate to="/login"/>}/>
-                    <Route path="/home" element={<Main/>}/>
+                    <Route path="/main" element={<Main/>}/>
                     <Route path="/login" element={<Login/>}/>
                 </Routes>
             </div>

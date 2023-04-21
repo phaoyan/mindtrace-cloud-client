@@ -112,6 +112,9 @@ const LearningTraceTimeline = () => {
         })))
     }, [wrappedTraces])
 
+
+    if(wrappedTraces.length === 0)
+        return <div className={classes.placeholder}>暂无记录</div>
     return (
         <div>
             <Timeline items={timelineItems}/>

@@ -24,7 +24,7 @@ import {CascaderOption} from "../../../service/utils/AntdUtils";
 import {getLeaves} from "../../../service/api/KnodeApi";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
-import {calculateDuration, Mindtrace} from "../../../service/data/Mindtrace";
+import {calculateDuration, masteryDesc, Mindtrace} from "../../../service/data/Mindtrace";
 import {LearningTraceSubmitSignalAtom} from "../../../recoil/home/Mindtrace";
 
 const TraceInfo = () => {
@@ -126,8 +126,8 @@ const TraceInfo = () => {
                 knodeId: knode.id,
                 createBy: userId,
                 createTime: "",
-                retentionAfter: retentionMap[knode.id][1] / 4,
-                retentionBefore: retentionMap[knode.id][0] / 4,
+                retentionAfter: retentionMap[knode.id][1],
+                retentionBefore: retentionMap[knode.id][0],
                 reviewLayer: -1
             })
         }
@@ -188,14 +188,10 @@ const TraceInfo = () => {
                         <Slider
                             value={retentionMap[props.leaf.id][0]}
                             onChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [value, retentionMap[props.leaf.id][1]]})}
-                            max={4} min={0}
+                            max={1} min={0}
+                            step={0.25}
                             tooltip={{
-                                formatter: value =>
-                                    value === 0 ? "完全没懂" :
-                                    value === 1 ? "懵懵懂懂" :
-                                    value === 2 ? "大致明白" :
-                                    value === 3 ? "基本理解" :
-                                    value === 4 ? "完全理解" : ""
+                                formatter: value => masteryDesc(value)
                             }}/>}
                 </Col>
             </Row>

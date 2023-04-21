@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useContext, useEffect, useRef} from 'react';
+import React, {ChangeEvent, useContext, useEffect, useRef, useState} from 'react';
 import {Input, InputRef} from "antd";
 import MdPreview from "./MdPreview";
 import {useRecoilState} from "recoil";
@@ -37,6 +37,21 @@ const MarkdownInline = (props:{
     // eslint-disable-next-line
     },[editContext])
 
+
+    // onSubmit的shift+enter和onBlur有时会同时触发，设置一个最小间隔避免这个情况
+    const [ephemeral, setEphemeral] = useState(false)
+    useEffect(()=>{
+        if(ephemeral){
+            setTimeout(()=>{
+                setEphemeral(false)
+            }, 2000)
+            props.onSubmit()
+            setEdit(false)
+            props.possessorRef && props.possessorRef.focus()
+        }
+    },[ephemeral])
+
+
     return (
         <div>
             {edit?
@@ -46,17 +61,10 @@ const MarkdownInline = (props:{
                     value={props.initialText}
                     onChange={props.onTextChange}
                     onKeyPress={({shiftKey, key})=> {
-                        if(shiftKey && key === "Enter"){
-                            props.onSubmit()
-                            setEdit(false)
-                            props.possessorRef && props.possessorRef.focus()
-                        }
+                        if(shiftKey && key === "Enter")
+                            setEphemeral(true)
                     }}
-                    onBlur={()=>{
-                        props.onSubmit()
-                        setEdit(false)
-                        props.possessorRef && props.possessorRef.focus()
-                    }}
+                    onBlur={()=>setEphemeral(true)}
                     bordered={false}/>:
                 <div
                     className={props.className}

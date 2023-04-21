@@ -1,6 +1,24 @@
-.display{
+.container{
+    display: flex;
+}
+
+.title{
     min-width: 50px;
     padding: 3px;
     font-size: 120%;
 }
 
+.info{
+    position: absolute;
+    right: -8vw;
+    top: 1vh;
+    font-size: 0.7em;
+    color: #cccccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time{
+    margin-right: 1vw;
+}

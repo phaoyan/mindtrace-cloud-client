@@ -13,8 +13,7 @@
     border-bottom: 1px solid #DCDCDC;
 }
 .container {
-    height: 100vh;
-    background: linear-gradient(180deg, #a0d7e7, #6c5dd3);
+    flex-grow: 1;
     text-align: center;
     justify-content: center;
     display: flex;

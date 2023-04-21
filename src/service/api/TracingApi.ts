@@ -124,3 +124,13 @@ export const getRelatedKnodeIdsOfLearningTrace = async (userId: number, traceId:
             return []
         })
 }
+
+export const getMindtracesByKnodeId = async (userId: number, knodeId: number): Promise<Mindtrace[]>=>{
+    return await axios.get(`${TRACING_HOST}/user/${userId}/mind/knode/${knodeId}/trace`)
+        .then(({data})=>{
+            console.log("get mindtraces by knode id", data)
+            if(data.code === RESULT.OK)
+                return data.data
+            return []
+        })
+}

@@ -15,3 +15,12 @@
     font-weight: 500;
     margin: 0.8em;
 }
+.placeholder{
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #aaaaaa;
+}

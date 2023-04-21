@@ -58,3 +58,8 @@
     margin: -0.5em;
 }
 
+.ghost_horizontal_divider{
+    position: absolute;
+    margin: 0;
+    width: 20vw;
+}

@@ -13,3 +13,8 @@ export const UserID = selector<number>({
     key:"UserID",
     get: ({get})=>get(User).id
 })
+
+export const IsLogin = selector<boolean>({
+    key: "IsLogin",
+    get: ({get})=>get(UserID) !== -1
+})

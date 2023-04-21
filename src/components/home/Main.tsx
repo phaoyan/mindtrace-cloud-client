@@ -1,22 +1,23 @@
 import React, {Key, useEffect, useRef, useState} from 'react';
 import {User} from "../../recoil/User";
-import {useRecoilState, useRecoilValue} from "recoil";
-import {Tree} from "antd";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {Divider, Input, Popover, Tree} from "antd";
 import {
     CheckOutlined,
     MinusOutlined,
     NodeCollapseOutlined,
     NodeExpandOutlined,
-    PlusOutlined,
+    PlusOutlined, QuestionCircleOutlined,
+    QuestionOutlined,
     ScissorOutlined
 } from "@ant-design/icons";
 import "../../service/api/api.ts"
 import {branch, getKnodes, removeKnode, shiftKnode, swapBranchIndex} from "../../service/api/KnodeApi";
 import {
     appendToKtree,
-    constructKtree, getBrotherBranchIds,
+    constructKtree, getBrotherBranchIds, Knode,
     Ktree,
-    KtreeAntd, removeFromKtree
+    KtreeAntd, removeFromKtree, updateKtree, updateKtreeBatch
 } from "../../service/data/Knode";
 import classes from "./Main.module.css"
 import utils from "../../utils.module.css"
@@ -26,11 +27,27 @@ import {MarkdownInlineContext} from "../../recoil/utils/MarkdownInline";
 import KnodeTitle from "./KnodeTitle";
 import {RESULT} from "../../constants";
 import TraceInfo from "./trace/TraceInfo";
+import {MainPageHeightAtom, MainPageWidthAtom} from "../../recoil/utils/DocumentData";
+import {MilkdownEditor} from "../utils/markdown/MilkdownEditor";
+import {MilkdownProvider} from "@milkdown/react";
 
 
 const Main = () => {
-    const {id: userId} = useRecoilValue(User);
 
+    // 指定Main页面的宽高：本组件和InfoRight的ResizableBox需要用到
+    const mainPageRef = useRef<HTMLDivElement>(null)
+    const [mainPageHeight, setMainPageHeight] = useRecoilState(MainPageHeightAtom)
+    const setMainPageWidth = useSetRecoilState(MainPageWidthAtom)
+    useEffect(()=>{
+        if(mainPageRef.current){
+            setMainPageHeight(mainPageRef.current.scrollHeight)
+            setMainPageWidth(mainPageRef.current.scrollWidth)
+        }
+        // eslint-disable-next-line
+    },[])
+
+
+    const {id: userId} = useRecoilValue(User);
     const [selectedId, setSelectedId] = useRecoilState<number>(SelectedKnodeIdAtom)
 
     const loadKtree = ()=>{
@@ -83,7 +100,22 @@ const Main = () => {
         console.log(ktreeAntd)
     }, [ktreeAntd])
 
-
+    // 实现搜索Knode
+    const [searchTxt, setSearchTxt] = useState<string>("")
+    const getKnodeList = (tree: Ktree): Knode[]=>{
+        let res: Knode[] = [tree.knode]
+        for(let br of tree.branches)
+            res = [...res, ...getKnodeList(br)]
+        return res
+    }
+    const onSearchChange = (txt: string)=>{
+        setSearchTxt(txt)
+        let newExpandedKeys = getKnodeList(ktree)
+            .filter(knode=>txt !== "" && knode.title.includes(txt))
+            .map(knode=>knode.id);
+        if(newExpandedKeys.length !== 0)
+            setExpendedKeys(newExpandedKeys)
+    }
 
     const getKtreeById = (id: number)=>{
         let temp = [ktree]
@@ -182,18 +214,40 @@ const Main = () => {
         let branchIds = getBrotherBranchIds(ktree, selectedId)!;
         let index = branchIds?.indexOf(selectedId);
         if(index === 0) return
-        selectedKtree!.knode.stemId &&
-        swapBranchIndex(userId, selectedKtree!.knode.stemId, index, index-1)
-            .then((data)=>data.code === RESULT.OK && loadKtree())
+        let stemId = selectedKtree!.knode.stemId;
+        stemId &&
+        swapBranchIndex(userId, stemId, index, index-1)
+            .then((data)=> {
+                if(data.code === RESULT.OK){
+                    let stem = getKtreeById(stemId!)!;
+                    setKtree(constructKtree(
+                        getKnodeList(updateKtreeBatch({...ktree},
+                        [
+                            {...stem.branches[index].knode, index: index-1},
+                            {...stem.branches[index-1].knode, index: index}
+                        ]))))
+                }
+            })
     }
 
     const knodeShiftDown = ()=>{
         let branchIds = getBrotherBranchIds(ktree, selectedId)!;
         let index = branchIds?.indexOf(selectedId);
         if(index === branchIds.length - 1) return
-        selectedKtree!.knode.stemId &&
-        swapBranchIndex(userId, selectedKtree!.knode.stemId, index, index+1)
-            .then((data)=>data.code === RESULT.OK && loadKtree())
+        let stemId = selectedKtree!.knode.stemId;
+        stemId &&
+        swapBranchIndex(userId, stemId, index, index+1)
+            .then((data)=>{
+                if(data.code === RESULT.OK){
+                    let stem = getKtreeById(stemId!)!
+                    setKtree(constructKtree(
+                        getKnodeList(updateKtreeBatch({...ktree},
+                            [
+                                {...stem.branches[index].knode, index: index+1},
+                                {...stem.branches[index+1].knode, index: index}
+                            ]))))
+                }
+            })
     }
 
     const [scissoredId, setScissoredId] = useState<number | undefined>(undefined)
@@ -254,14 +308,40 @@ const Main = () => {
             scissorSelectedKnode()
         else if(event.ctrlKey && event.altKey && event.key === "v")
             pasteSelectedKnode()
-
     }
+
+    const hotkeyHelp =
+`
+### 快捷键汇总  
+> $ctrl$ + $\\leftarrow$ / $\\rightarrow$ / $\\uparrow$ / $\\downarrow$ : 移动光标  
+> $ctrl$ + $enter$ : 添加当前知识点的子知识点  
+> $ctrl$ + $backspace$ : 删除当前知识点  
+> $enter$ : 编辑当前知识点  
+> $shift + enter$ : 完成对当前知识点的编辑  
+> $ctrl + alt + X$ : 剪切当前知识点  
+> $ctrl + alt + V$ : 粘贴知识点  
+> $alt$ + $\\uparrow$ / $\\downarrow$ : 上下移动当前知识点的位置
+`
 
     // @ts-ignore
     return (
-        <div className={classes.container}>
-            <div className={classes.main} tabIndex={0} onKeyDown={ktreeHotkey} ref={markdownInlinePossessor}>
+        <div className={classes.container} ref={mainPageRef}>
+            <div
+                className={classes.main}
+                style={{height: mainPageHeight * 0.85 }}
+                tabIndex={0}
+                onKeyDown={ktreeHotkey} ref={markdownInlinePossessor}>
                 <div className={classes.main_toolbar}>
+                    <div className={classes.search_wrapper}>
+                        <Input
+                            bordered={false}
+                            placeholder={"搜索知识. . ."}
+                            className={classes.search}
+                            value={searchTxt}
+                            onChange={({target: {value}})=>onSearchChange(value)}/>
+                        <Divider className={utils.ghost_horizontal_divider} style={{minWidth:"20vw"}}/>
+                    </div>
+
                     <PlusOutlined
                         className={utils.icon_button}
                         onClick={handleBranch}/>
@@ -284,6 +364,18 @@ const Main = () => {
                             setExpendedKeys([...expandedKeys, ...getOffspringIdsOfSelected()])
                         }}/>
                     }
+                    <Popover
+                        placement={"bottomLeft"}
+                        arrow={false}
+                        content={(
+                            <div className={classes.help_hotkey}>
+                                <MilkdownProvider>
+                                    <MilkdownEditor md={hotkeyHelp} onChange={(cur, prev)=>{}}/>
+                                </MilkdownProvider>
+                            </div>
+                        )}>
+                        <QuestionCircleOutlined className={utils.icon_button}/>
+                    </Popover>
                 </div>
                 <div className={`${classes.tree_wrapper} ${utils.custom_scrollbar} ${utils.left_scrollbar}`}>
                         <MarkdownInlineContext.Provider value={markdownInlineEdit}>
@@ -296,12 +388,12 @@ const Main = () => {
                                 }}
                                 treeData={ktreeAntd}
                                 expandedKeys={expandedKeys}
+                                autoExpandParent={true}
                                 onExpand={(expandedKeys) => {
                                     setExpendedKeys(expandedKeys)
                                 }}/>
                         </MarkdownInlineContext.Provider>
                 </div>
-
             </div>
             {selectedId !== 0 && <InfoRight/>}
             <TraceInfo/>

@@ -7,6 +7,7 @@ import {katexOptionsCtx, math} from '@milkdown/plugin-math';
 
 import '@milkdown/theme-nord/style.css';
 import 'katex/dist/katex.min.css';
+import './MarkdownBasic.module.css'
 
 import {prism, prismConfig} from "@milkdown/plugin-prism";
 import markdown from 'refractor/lang/markdown'

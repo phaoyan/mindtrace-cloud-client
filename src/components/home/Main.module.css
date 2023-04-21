@@ -1,21 +1,34 @@
 .container{
     -ms-overflow-style: none; /* 隐藏滚动条（IE, Edge 浏览器） */
     scrollbar-width: none; /* 隐藏滚动条（Firefox 浏览器） */
+    position: relative;
+    flex-grow: 1;
 }
 
 .main > *{
     margin-top: 2vw
 }
+.main_toolbar{
+    display: flex;
+}
 .main_toolbar > *{
-    margin-left: 4vw;
+    margin-left: 2vw;
+}
+.main_toolbar:first-child{
+    margin-left: 2vw;
+}
+.search{
+    width: 20vw;
 }
 .tree_wrapper{
     margin-left: 2vw;
-    max-height: 88vh;
+    max-height: 100%;
     overflow-y: auto;
 }
 .tree_wrapper > *{
     margin-bottom: 50vh;
 }
+.help_hotkey{
 
+}
 

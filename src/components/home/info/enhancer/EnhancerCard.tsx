@@ -73,28 +73,28 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                             bordered={false}/>
                     </Col>
                     <Col span={13} className={classes.tag_wrapper}>
-                        <Tag closable={true} bordered={false} className={classes.tag}>例题</Tag>
-                        <Tag closable={true} bordered={false} className={classes.tag}>计算</Tag>
-                        {enhancer?.labels.map(label=>
-                            <Tag
-                                key={label.name}
-                                closable
-                                bordered={false}
-                                className={classes.tag}>
-                                {label.name}
-                            </Tag>)}
-                        {readonly ? <></>:
-                            <Dropdown
-                                menu={{
-                                    items:[{
-                                        key: "example",
-                                        label: "例题"
-                                    }]
-                                }}>
-                                <Tag bordered={false} className={classes.tag}>
-                                    <PlusOutlined style={{scale: "100%"}} className={utils.icon_button}/>
-                                </Tag>
-                            </Dropdown>}
+                        {/*<Tag closable={true} bordered={false} className={classes.tag}>例题</Tag>*/}
+                        {/*<Tag closable={true} bordered={false} className={classes.tag}>计算</Tag>*/}
+                        {/*{enhancer?.labels.map(label=>*/}
+                        {/*    <Tag*/}
+                        {/*        key={label.name}*/}
+                        {/*        closable*/}
+                        {/*        bordered={false}*/}
+                        {/*        className={classes.tag}>*/}
+                        {/*        {label.name}*/}
+                        {/*    </Tag>)}*/}
+                        {/*{readonly ? <></>:*/}
+                        {/*    <Dropdown*/}
+                        {/*        menu={{*/}
+                        {/*            items:[{*/}
+                        {/*                key: "example",*/}
+                        {/*                label: "例题"*/}
+                        {/*            }]*/}
+                        {/*        }}>*/}
+                        {/*        <Tag bordered={false} className={classes.tag}>*/}
+                        {/*            <PlusOutlined style={{scale: "100%"}} className={utils.icon_button}/>*/}
+                        {/*        </Tag>*/}
+                        {/*    </Dropdown>}*/}
                     </Col>
                     <Col span={1}>
                         {readonly ? <></>:

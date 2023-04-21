@@ -9,8 +9,10 @@ export interface Knode {
     stemId: number | null,
     branchIds: number[],
     connectionIds: number[],
+    createBy: number,
     createTime: string,
-    privacy: string
+    privacy: string,
+    isLeaf?:boolean
 }
 
 
@@ -62,13 +64,19 @@ export const appendToKtree = (ktree: Ktree, newBranch: Ktree)=>{
     return ktree
 }
 
-export const updateKtree = (ktree: Ktree, updatedKnode: Knode)=>{
+export const updateKtree = (ktree: Ktree, updatedKnode: Knode): Ktree=>{
     if(updatedKnode.id === ktree.knode.id) {
         ktree.knode = updatedKnode
         return ktree
     }
     else for (let branch of ktree.branches)
         updateKtree(branch, updatedKnode)
+    return ktree
+}
+
+export const updateKtreeBatch = (ktree: Ktree, updatedKnodes: Knode[]): Ktree=>{
+    for(let knode of updatedKnodes)
+        updateKtree(ktree, knode)
     return ktree
 }
 

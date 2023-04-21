@@ -46,7 +46,7 @@ export const swapBranchIndex = async (userId: number, stemId: number, index1: nu
         axios.post(`${KNODE_HOST}/user/${userId}/knode/${stemId}/branch/index/${index1}/${index2}`).then(({data})=>data)
 }
 
-export const getChainStyleTitle = async (userId: number, knodeId: number)=>{
+export const getChainStyleTitle = async (userId: number, knodeId: number): Promise<string[]>=>{
     return await
         axios.get(`${KNODE_HOST}/user/${userId}/knode/${knodeId}/chainStyleTitle`)
             .then(({data})=>{

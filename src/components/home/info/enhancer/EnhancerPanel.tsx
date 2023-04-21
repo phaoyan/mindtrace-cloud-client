@@ -46,7 +46,6 @@ const EnhancerPanel = () => {
             })
     }
 
-
     return (
         <div className={classes.container}>
             <div className={classes.main}>
@@ -59,12 +58,11 @@ const EnhancerPanel = () => {
             </div>
 
             <Dropdown
-                menu={{
-                    items: addResourceDropdownItems(addEnhancerWithResource, userId)
-                }}
+                menu={{items: addResourceDropdownItems(addEnhancerWithResource, userId)}}
                 placement={"topLeft"}>
                 <PlusOutlined className={utils.icon_button}/>
             </Dropdown>
+            <span className={classes.placeholder}>在这里添加笔记 . . . </span>
 
 
         </div>

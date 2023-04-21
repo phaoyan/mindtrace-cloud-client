@@ -2,14 +2,15 @@ import {atom, DefaultValue, selectorFamily} from "recoil";
 import {Knode, Ktree, updateKtree} from "../../service/data/Knode";
 
 export const defaultKnode = {
-    id: -999,
+    id: -1,
     title: "default",
     labels: [],
-    stemId: -1000,
+    stemId: -1,
     branchIds: [],
     connectionIds: [],
     index: 0,
     createTime: "2000-1-1T00:00:00",
+    createBy: -1,
     privacy: "private"
 }
 

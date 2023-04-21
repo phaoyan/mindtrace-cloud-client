@@ -1,5 +1,3 @@
-import {SetStateAction} from "react";
-import {Enhancer} from "./Enhancer";
 import dayjs from "dayjs";
 import {DEFAULT_DATE_TIME_PATTERN} from "../../constants";
 
@@ -46,6 +44,18 @@ export interface Mindtrace{
     remark?: string
 }
 
+export const defaultMindtrace: Mindtrace = {
+    id: -1,
+    enhancerId: -1,
+    knodeId: -1,
+    createBy: -1,
+    retentionAfter: 0,
+    retentionBefore: 0,
+    reviewLayer: 0,
+    createTime: "2000-01-01T00:00:00",
+    remark: ""
+}
+
 export const  calculateDuration = (learningTrace: LearningTrace)=>{
     if(!learningTrace) return 0
 
@@ -55,4 +65,14 @@ export const  calculateDuration = (learningTrace: LearningTrace)=>{
     for(let i in left)
         duration += dayjs(right[i]).diff(dayjs(left[i]))
     return duration
+}
+
+
+export const masteryDesc = (value: number | undefined) =>{
+    if(!value) return "初识"
+    return  value === 0 ? "完全没懂" :
+            value < 0.25 ? "懵懵懂懂" :
+            value < 0.5 ? "大致明白" :
+            value < 0.75 ? "基本理解" :
+            value < 1 ? "完全理解" : ""
 }
