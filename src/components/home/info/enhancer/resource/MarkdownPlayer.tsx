@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {Resource} from "../../../service/data/Resource";
+import {Resource} from "../../../../../service/data/Resource";
 import {useRecoilValue} from "recoil";
-import {UserID} from "../../../recoil/User";
+import {UserID} from "../../../../../recoil/User";
 import {Col, Row} from "antd";
-import utils from "../../../utils.module.css"
+import utils from "../../../../../utils.module.css"
 import general from "./Player.module.css"
 import {FileTextFilled, FileTextOutlined} from "@ant-design/icons";
 import {MilkdownProvider} from "@milkdown/react";
-import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";
+import {MilkdownEditor} from "../../../../utils/markdown/MilkdownEditor";
 import {loadData, submit} from "./PlayerUtils";
-import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
-import milkdown from "../../utils/markdown/MarkdownBasic.module.css"
+import {KnodeSelector, SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 
 const MarkdownPlayer = (props: {meta: Resource}) => {
 

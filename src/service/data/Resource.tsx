@@ -3,8 +3,8 @@ import {ENHANCER_HOST} from "../api/EnhancerApi";
 import {FileTextOutlined, SwitcherOutlined} from "@ant-design/icons";
 import classes from "../../components/home/info/enhancer/EnhancerCard.module.css";
 import React from "react";
-import QuizcardPlayer from "../../components/home/resource/QuizcardPlayer";
-import MarkdownPlayer from "../../components/home/resource/MarkdownPlayer";
+import QuizcardPlayer from "../../components/home/info/enhancer/resource/QuizcardPlayer";
+import MarkdownPlayer from "../../components/home/info/enhancer/resource/MarkdownPlayer";
 
 
 export interface Resource {

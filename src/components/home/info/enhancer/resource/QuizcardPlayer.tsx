@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Resource} from "../../../service/data/Resource";
+import {Resource} from "../../../../../service/data/Resource";
 import {useRecoilValue} from "recoil";
-import {UserID} from "../../../recoil/User";
+import {UserID} from "../../../../../recoil/User";
 import {MilkdownProvider} from "@milkdown/react";
-import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";
+import {MilkdownEditor} from "../../../../utils/markdown/MilkdownEditor";
 import {Col, Row} from "antd";
 import {SwitcherFilled, SwitcherOutlined} from "@ant-design/icons";
-import utils from "../../../utils.module.css"
+import utils from "../../../../../utils.module.css"
 import classes from "./Player.module.css"
 import {loadData, submit} from "./PlayerUtils";
-import milkdown from "../../utils/markdown/MarkdownBasic.module.css"
+import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 
 const QuizcardPlayer = (props: { meta: Resource }) => {
 

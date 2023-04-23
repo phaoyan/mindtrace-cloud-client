@@ -255,8 +255,8 @@ const TraceInfo = () => {
                     <Row>
                         <Col span={18}>
                             <EnhancerCard readonly={true} id={learningTrace.enhancerId}/>
+
                         </Col>
-                        <Col></Col>
                     </Row>
                     <Row>
                         <Col span={22}></Col>

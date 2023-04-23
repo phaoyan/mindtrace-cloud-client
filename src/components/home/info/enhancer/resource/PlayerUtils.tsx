@@ -1,4 +1,4 @@
-import {addDataToResource, getAllDataFromResource} from "../../../service/api/ResourceApi";
+import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
 import {SetStateAction} from "react";
 
 export const submit = (userId: number, resourceId: number, data: any) => {

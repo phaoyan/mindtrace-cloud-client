@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {getDataFromResourceByUrl} from "../../../service/api/ResourceApi";
+import {getDataFromResourceByUrl} from "../../../../../service/api/ResourceApi";
 import {Image} from "antd";
 
 /**
