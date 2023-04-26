@@ -8,7 +8,7 @@ export const TRACING_HOST = `${BACK_HOST}/tracing`
 export const checkNow = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/now`)
         .then(({data})=>{
-            console.log("check learn now", data)
+            // console.log("check learn now", data)
             if(data.code === RESULT.OK) return data.data
         })
 }
@@ -128,7 +128,7 @@ export const getRelatedKnodeIdsOfLearningTrace = async (userId: number, traceId:
 export const getMindtracesByKnodeId = async (userId: number, knodeId: number): Promise<Mindtrace[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/mind/knode/${knodeId}/trace`)
         .then(({data})=>{
-            console.log("get mindtraces by knode id", data)
+            // console.log("get mindtraces by knode id", data)
             if(data.code === RESULT.OK)
                 return data.data
             return []

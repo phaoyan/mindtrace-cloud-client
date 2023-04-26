@@ -4,18 +4,12 @@ import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer, Label} from "../../../../service/data/Enhancer";
 import {addEnhancerToKnode, getEnhancersForKnode} from "../../../../service/api/EnhancerApi";
 import {UserID} from "../../../../recoil/User";
-import {Divider, Dropdown} from "antd";
+import {Divider} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {EnhancerCard} from "./EnhancerCard";
 import classes from "./EnhancerPanel.module.css";
 import utils from "../../../../utils.module.css"
 import {EnhancerLabelRepositoryAtom, EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
-import {addResourceToEnhancer} from "../../../../service/api/ResourceApi";
-import {
-    addResourceDropdownItems,
-    ResourceWithData
-} from "../../../../service/data/Resource";
-
 const EnhancerPanel = () => {
 
     const userId = useRecoilValue(UserID)
@@ -34,15 +28,10 @@ const EnhancerPanel = () => {
         // eslint-disable-next-line
     }, [selectedKnodeId])
 
-    useEffect(() => {
-
-    },[])
-
-    const addEnhancerWithResource = (resourceWithData: ResourceWithData)=>{
+    const addEnhancerRaw = ()=>{
         addEnhancerToKnode(userId, selectedKnodeId)
             .then((data)=>{
                 setEnhancers([...enhancers, data])
-                addResourceToEnhancer(userId, data.id,resourceWithData).then(()=>{})
             })
     }
 
@@ -57,12 +46,12 @@ const EnhancerPanel = () => {
                 ))}
             </div>
 
-            <Dropdown
-                menu={{items: addResourceDropdownItems(addEnhancerWithResource, userId)}}
-                placement={"topLeft"}>
-                <PlusOutlined className={utils.icon_button}/>
-            </Dropdown>
-            <span className={classes.placeholder}>在这里添加笔记 . . . </span>
+            <div className={classes.add_card_wrapper}>
+                <PlusOutlined
+                    className={utils.icon_button}
+                    onClick={()=>addEnhancerRaw()}/>
+                <span className={classes.placeholder}>在这里添加笔记 . . . </span>
+            </div>
 
 
         </div>

@@ -1,0 +1,21 @@
+.loading{
+    color: #666666;
+    font-style: oblique;
+}
+
+.url_wrapper{
+    display: flex;
+}
+
+.type_select{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    cursor: pointer;
+    color: #666666;
+    font-weight: 350;
+}
+.type_select:hover{
+    color: #333333;
+}

@@ -1,10 +1,12 @@
 import {addDataToResource} from "../api/ResourceApi";
 import {ENHANCER_HOST} from "../api/EnhancerApi";
-import {FileTextOutlined, SwitcherOutlined} from "@ant-design/icons";
+import {FileSearchOutlined, FileTextOutlined, LinkOutlined, SwitcherOutlined} from "@ant-design/icons";
 import classes from "../../components/home/info/enhancer/EnhancerCard.module.css";
 import React from "react";
 import QuizcardPlayer from "../../components/home/info/enhancer/resource/QuizcardPlayer";
 import MarkdownPlayer from "../../components/home/info/enhancer/resource/MarkdownPlayer";
+import LinkoutPlayer from "../../components/home/info/enhancer/resource/LinkoutPlayer";
+import ClozePlayer from "../../components/home/info/enhancer/resource/ClozePlayer";
 
 
 export interface Resource {
@@ -24,6 +26,8 @@ export interface ResourceWithData {
 export const ResourceType = {
     QUIZCARD: "quizcard",
     MARKDOWN: "markdown",
+    LINKOUT: "linkout",
+    CLOZE: "cloze",
     GPT_PROMPTS: "gpt prompts",
     AUDIO: "audio",
     VIDEO: "video",
@@ -37,7 +41,7 @@ export const ResourceType = {
 export const quizcardTemplate = (userId:number)=> (
     {
         meta: {
-            type: "quizcard",
+            type: ResourceType.QUIZCARD,
             createBy: userId
         },
         data: {
@@ -48,18 +52,36 @@ export const quizcardTemplate = (userId:number)=> (
     }
 )
 
-export const markdownTemplate = (userId: number)=>(
-    {
-        meta: {
-            type: "markdown",
-            createBy: userId
-        },
-        data: {
-            content: ""
-        }
+export const markdownTemplate = (userId: number)=>({
+    meta: {
+        type: ResourceType.MARKDOWN,
+        createBy: userId
+    },
+    data: {
+        content: ""
     }
-)
+})
 
+export const linkoutTemplate = (userId: number)=>({
+    meta:{
+        type: ResourceType.LINKOUT,
+        createBy: userId
+    },
+    data:{
+        type:"default",
+        url:"www.bilibili.com"
+    }
+})
+
+export const clozeTemplate = (userId: number)=>({
+    meta:{
+        type: ResourceType.CLOZE,
+        createBy: userId
+    },
+    data:{
+        raw: ""
+    }
+})
 /**
  *  在此处注册 Resource
  */
@@ -75,6 +97,18 @@ export const addResourceDropdownItems = (handleAddAction: (resourceWithData: Res
         label: "知识概述",
         icon: <FileTextOutlined className={classes.option}/>,
         onClick: ()=>handleAddAction(markdownTemplate(userId))
+    },
+    {
+        key: ResourceType.CLOZE,
+        label: "填空卡片",
+        icon: <FileSearchOutlined className={classes.option}/>,
+        onClick: ()=>handleAddAction(clozeTemplate(userId))
+    },
+    {
+        key: ResourceType.LINKOUT,
+        label: "资源链接",
+        icon: <LinkOutlined className={classes.option}/>,
+        onClick: ()=>handleAddAction(linkoutTemplate(userId))
     }
 ]
 /**
@@ -82,7 +116,9 @@ export const addResourceDropdownItems = (handleAddAction: (resourceWithData: Res
  */
 export const resourceTypePlayerMapper = {
     [ResourceType.QUIZCARD]: (meta: Resource) => <QuizcardPlayer meta={meta}/>,
-    [ResourceType.MARKDOWN]: (meta: Resource) => <MarkdownPlayer meta={meta}/>
+    [ResourceType.MARKDOWN]: (meta: Resource) => <MarkdownPlayer meta={meta}/>,
+    [ResourceType.LINKOUT]:  (meta: Resource) => <LinkoutPlayer  meta={meta}/>,
+    [ResourceType.CLOZE]:    (meta: Resource) => <ClozePlayer    meta={meta}/>
 }
 
 export const handleUploadImage =

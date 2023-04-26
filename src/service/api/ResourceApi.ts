@@ -30,7 +30,7 @@ export const getResourcesFromEnhancer = async (userId: number, enhancerId: numbe
         })
 }
 
-export const addDataToResource = (userId: number, resourceId: number, data: object)=>{
+export const addDataToResource = async (userId: number, resourceId: number, data: object)=>{
     axios.post(`${ENHANCER_HOST}/user/${userId}/resource/${resourceId}/data`, data)
         .then(({data})=>{
             console.log("add data to resource", data)
@@ -40,7 +40,7 @@ export const addDataToResource = (userId: number, resourceId: number, data: obje
 export const getAllDataFromResource = async (userId: number, resourceId: number): Promise<any> =>{
     return await axios.get(`${ENHANCER_HOST}/user/${userId}/resource/${resourceId}/data`)
         .then(({data})=>{
-            // console.log("get all data from resource", data)
+            console.log("get all data from resource", data)
             if(data.code === RESULT.OK)
                 return data.data
             else return {}

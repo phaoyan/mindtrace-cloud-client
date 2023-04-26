@@ -8,15 +8,25 @@
     font-size: 120%;
 }
 
-.info{
+.options{
     position: absolute;
-    right: -8vw;
+    right: -10em;
+    display: flex;
+    justify-content: center;
+}
+
+.record{
+    margin-left: 2em;
+}
+
+.info{
     top: 1vh;
     font-size: 0.7em;
     color: #cccccc;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-right: 1em;
 }
 
 .time{

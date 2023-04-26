@@ -51,7 +51,10 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
                             {data.front === "" && <span className={classes.placeholder}>卡片正面 . . . </span>}
                             <div className={milkdown.markdown}>
                                 <MilkdownProvider>
-                                    <MilkdownEditor md={data.front} onChange={cur => setData({...data, front: cur})}/>
+                                    <MilkdownEditor
+                                        md={data.front}
+                                        editable={true}
+                                        onChange={cur => setData({...data, front: cur})}/>
                                 </MilkdownProvider>
                             </div>
                         </div>:
@@ -59,7 +62,10 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
                             {data.back === "" && <span className={classes.placeholder}>卡片背面 . . . </span>}
                             <div className={milkdown.markdown}>
                                 <MilkdownProvider>
-                                    <MilkdownEditor md={data.back} onChange={cur=>setData({...data, back: cur})}/>
+                                    <MilkdownEditor
+                                        md={data.back}
+                                        editable={true}
+                                        onChange={cur=>setData({...data, back: cur})}/>
                                 </MilkdownProvider>
                             </div>
                         </div>

@@ -64,7 +64,6 @@ const LearningTraceTimeline = () => {
             setWrappedTraces(result)
         })
         // eslint-disable-next-line
-
     }, [selectedKnodeId, userId, learningTraceSubmitSignal])
 
     const TimelineItem = (props:{wrappedTrace: WrappedLearningTrace})=>{

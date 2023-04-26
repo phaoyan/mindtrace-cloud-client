@@ -3,7 +3,7 @@
 }
 
 .content{
-    min-width: 500px;
+    min-width: 600px;
     max-width: 700px;
     width: 50vw;
     min-height: 30vh;
@@ -17,6 +17,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.selected_knode_title_wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.selected_knode_title_wrapper > *{
+    margin-right: 1vw;
+}
+
+.selected_knode_title_wrapper:first-child{
+    color: #666666;
+}
+
+.selected_leaf_wrapper{
+    display: flex;
+    align-items: center;
+}
+
+.selected_leaf_wrapper > *{
+    margin-right: 1vw;
 }
 
 .float{

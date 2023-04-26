@@ -1,14 +1,13 @@
 import React, {Key, useEffect, useRef, useState} from 'react';
 import {User} from "../../recoil/User";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {Divider, Input, Popover, Tree} from "antd";
+import {Divider, Input, message, Popover, Tree} from "antd";
 import {
     CheckOutlined,
     MinusOutlined,
     NodeCollapseOutlined,
     NodeExpandOutlined,
     PlusOutlined, QuestionCircleOutlined,
-    QuestionOutlined,
     ScissorOutlined
 } from "@ant-design/icons";
 import "../../service/api/api.ts"
@@ -22,7 +21,7 @@ import {
 import classes from "./Main.module.css"
 import utils from "../../utils.module.css"
 import InfoRight from "./info/InfoRight";
-import {KtreeAtom, SelectedKnodeIdAtom} from "../../recoil/home/Knode";
+import {getKnode, KtreeAtom, SelectedKnodeIdAtom, SelectedKnodeSelector} from "../../recoil/home/Knode";
 import {MarkdownInlineContext} from "../../recoil/utils/MarkdownInline";
 import KnodeTitle from "./KnodeTitle";
 import {RESULT} from "../../constants";
@@ -30,6 +29,8 @@ import TraceInfo from "./trace/TraceInfo";
 import {MainPageHeightAtom, MainPageWidthAtom} from "../../recoil/utils/DocumentData";
 import {MilkdownEditor} from "../utils/markdown/MilkdownEditor";
 import {MilkdownProvider} from "@milkdown/react";
+import {SelectedLeafIdsAtom} from "../../recoil/home/Mindtrace";
+import {LearningTraceAtom} from "../../recoil/LearningTrace";
 
 
 const Main = () => {
@@ -141,23 +142,45 @@ const Main = () => {
         else return []
     }
 
+    const learningTrace = useRecoilValue(LearningTraceAtom)
+    const [selectedLeafIds, setSelectedLeafIds] = useRecoilState(SelectedLeafIdsAtom)
+    const selectedKnode = useRecoilValue(SelectedKnodeSelector)
     const handleBranch = () => {
         branch(userId, selectedId)
             .then((data) => {
                 console.log("handle branch", data)
+                const stemId = selectedId
+                updateKtree(ktree, {
+                    ...selectedKnode!,
+                    branchIds: [...selectedKnode?.branchIds!, data.id]
+                })
                 setKtree(appendToKtree({...ktree}, {knode: data, branches: []}))
                 setExpendedKeys([...expandedKeys, selectedId])
                 setSelectedId(data.id)
+                // 默认添加branch的时候尝试将它放到learning trace中，当然如果没有开启learning trace的话不算
+                learningTrace &&
+                setSelectedLeafIds([...selectedLeafIds.filter(id=>id !== stemId), data.id])
             })
     }
+
+    const [messageApi, contextHolder] = message.useMessage()
     const handleRemove = () => {
-        removeKnode(userId, selectedId)
-            .then(() => {
-                let temp = selectedKtree?.knode.stemId
-                console.log("temp", temp)
-                setKtree(removeFromKtree({...ktree}, selectedId))
-                setSelectedId(temp as number)
-            })
+        if(selectedKtree?.branches.length === 0)
+            removeKnode(userId, selectedId)
+                .then(() => {
+                    let temp = selectedKtree?.knode.stemId
+                    let stem = getKnode(ktree, temp!)
+                    updateKtree(ktree, {
+                        ...stem!,
+                        branchIds: stem!.branchIds.filter(id=>id !== selectedId)
+                    })
+                    setSelectedLeafIds(selectedLeafIds.filter(id=>id!==selectedId))
+                    setKtree(removeFromKtree({...ktree}, selectedId))
+                    setSelectedId(temp as number)
+                })
+        else {
+            messageApi.info("请先删除这个知识点的所有子节点")
+        }
     }
 
     // 实现按上箭头向上选中knode
@@ -326,6 +349,7 @@ const Main = () => {
     // @ts-ignore
     return (
         <div className={classes.container} ref={mainPageRef}>
+            {contextHolder}
             <div
                 className={classes.main}
                 style={{height: mainPageHeight * 0.85 }}
@@ -370,7 +394,10 @@ const Main = () => {
                         content={(
                             <div className={classes.help_hotkey}>
                                 <MilkdownProvider>
-                                    <MilkdownEditor md={hotkeyHelp} onChange={(cur, prev)=>{}}/>
+                                    <MilkdownEditor
+                                        md={hotkeyHelp}
+                                        editable={true}
+                                        onChange={(cur, prev)=>{}}/>
                                 </MilkdownProvider>
                             </div>
                         )}>

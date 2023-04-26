@@ -28,6 +28,9 @@
     background-color: #e3e3e3; /* 滑块颜色（悬停时） */
 }
 
+.grey{
+    color: #666666;
+}
 .icon_button{
     scale: 150%;
 }
@@ -62,4 +65,24 @@
     position: absolute;
     margin: 0;
     width: 20vw;
+}
+
+.top_margin_horizontal_divider{
+    margin-bottom: 0;
+    width: 20vw;
+}
+
+.bottom_margin_horizontal_divider{
+    margin-top: 0;
+    width: 20vw;
+}
+
+.no_data{
+    font-size: 1.3em;
+    color: #666666;
+    font-style: italic;
+    font-weight: lighter;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

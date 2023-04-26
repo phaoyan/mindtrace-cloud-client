@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Resource} from "../../../../../service/data/Resource";
 import {useRecoilValue} from "recoil";
-import {UserID} from "../../../../../recoil/User";
 import {Col, Row} from "antd";
 import utils from "../../../../../utils.module.css"
 import general from "./Player.module.css"
@@ -14,7 +13,6 @@ import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 
 const MarkdownPlayer = (props: {meta: Resource}) => {
 
-    const userId = useRecoilValue(UserID)
     const [data, setData ] = useState({content: "", config:{hide: false}})
     const [loading, setLoading] = useState(true)
 
@@ -22,11 +20,11 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
 
     // eslint-disable-next-line
-    useEffect(()=>loadData(userId, props.meta.id!, setData, setLoading),[])
+    useEffect(()=>loadData(props.meta.createBy!, props.meta.id!, setData, setLoading),[])
 
     const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.shiftKey && event.key === "Enter")
-            submit(userId, props.meta.id!, data)
+            submit(props.meta.createBy!, props.meta.id!, data)
     }
 
     if(loading) return <></>
@@ -36,7 +34,7 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
             className={general.container}
             tabIndex={0}
             onKeyDown={hotkey}
-            onBlur={()=>submit(userId, props.meta.id!, data)}>
+            onBlur={()=>submit(props.meta.createBy!, props.meta.id!, data)}>
             <Row>
                 <Col span={1} className={general.sidebar}>
                     {data.config.hide ?
@@ -44,7 +42,7 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                             className={utils.icon_button}
                             onClick={()=> {
                                 setData({...data, config: {...data.config, hide: false}})
-                                setTimeout(()=>submit(userId, props.meta.id!, data), 100)
+                                setTimeout(()=>submit(props.meta.createBy!, props.meta.id!, data), 100)
                             }}/>:
                         <FileTextOutlined
                             className={utils.icon_button}
@@ -52,7 +50,7 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                                 setData({...data, config: {...data.config, hide: true}})
                                 setTimeout(()=> {
                                     console.log("test" , data.config)
-                                    submit(userId, props.meta.id!, data)
+                                    submit(props.meta.createBy!, props.meta.id!, data)
                                 }, 100)
                             }}/>
                     }
@@ -66,7 +64,10 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                             {data.content === "" && <span className={general.placeholder}>知识概述 . . . </span>}
                             <div className={milkdown.markdown}>
                                 <MilkdownProvider>
-                                    <MilkdownEditor md={data.content} onChange={cur=>setData({...data, content: cur})} />
+                                    <MilkdownEditor
+                                        md={data.content}
+                                        editable={true}
+                                        onChange={cur=>setData({...data, content: cur})} />
                                 </MilkdownProvider>
                             </div>
                         </>

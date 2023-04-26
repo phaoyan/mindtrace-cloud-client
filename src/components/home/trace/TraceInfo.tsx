@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import classes from "./TraceInfo.module.css";
-import {Breadcrumb, Button, Cascader, Col, FloatButton, message, Modal, Popover, Row, Slider} from "antd";
+import {Breadcrumb, Button, Cascader, Col, FloatButton, message, Modal, Popover, Row, Slider, Tag, Tooltip} from "antd";
 import {
-    CheckOutlined,
+    CheckOutlined, CloseOutlined,
     EditOutlined,
     FieldTimeOutlined,
     MinusOutlined,
     PauseOutlined,
-    PlaySquareOutlined,
+    PlaySquareOutlined, PlusOutlined,
     TagOutlined
 } from "@ant-design/icons";
 import {formatMillisecondsToHHMMSS} from "../../../service/utils/TimeUtils";
@@ -17,7 +17,7 @@ import {checkNow, continueLearning, pauseLearning, settleLearning} from "../../.
 import {UserID} from "../../../recoil/User";
 import {EnhancerCard} from "../info/enhancer/EnhancerCard";
 import utils from "../../../utils.module.css"
-import {KtreeAtom} from "../../../recoil/home/Knode";
+import {getKnode, KtreeAtom, SelectedKnodeSelector} from "../../../recoil/home/Knode";
 import {getStemChain, Knode, Ktree} from "../../../service/data/Knode";
 import {Divider} from "antd/lib";
 import {CascaderOption} from "../../../service/utils/AntdUtils";
@@ -25,7 +25,10 @@ import {getLeaves} from "../../../service/api/KnodeApi";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
 import {calculateDuration, masteryDesc, Mindtrace} from "../../../service/data/Mindtrace";
-import {LearningTraceSubmitSignalAtom} from "../../../recoil/home/Mindtrace";
+import {LearningTraceSubmitSignalAtom, SelectedLeafIdsAtom} from "../../../recoil/home/Mindtrace";
+import InfoRightCss from "../info/InfoRight.module.css"
+import LearningTraceTimeLineCss from "../info/record/LearningTraceTimeline.module.css"
+
 
 const TraceInfo = () => {
 
@@ -90,6 +93,7 @@ const TraceInfo = () => {
             ...breadcrumbStemChainMap,
             ...getBreadcrumbStemChainOfLeaves(ktree)
         })
+        // eslint-disable-next-line
     }, [userId, selectedStemId])
 
     const getDefaultRetentionMap = async ()=>{
@@ -106,10 +110,11 @@ const TraceInfo = () => {
     const [retentionMap, setRetentionMap] = useState<{[id: number]: [number, number]}>({})
     useEffect(()=>{
         getDefaultRetentionMap().then((map)=>setRetentionMap(map))
+        //eslint-disable-next-line
     }, [ktree])
 
     // modal右半框已被选中的leaf节点
-    const [selected, setSelected] = useState<Knode[]>([])
+    const [selectedLeafIds, setSelectedLeafIds] = useRecoilState<number[]>(SelectedLeafIdsAtom)
 
     // signal用于告知record页面刷新
     const [submitSignal, setSubmitSignal] = useRecoilState(LearningTraceSubmitSignalAtom)
@@ -119,15 +124,15 @@ const TraceInfo = () => {
         messageApi.info("学习完成！（在相关知识点的“记录”页面查看）")
 
         let mindtraces: Mindtrace[] = []
-        for(let knode of selected){
+        for(let id of selectedLeafIds){
             mindtraces.push({
                 id: -1,
                 enhancerId: learningTrace.enhancerId,
-                knodeId: knode.id,
+                knodeId: id,
                 createBy: userId,
                 createTime: "",
-                retentionAfter: retentionMap[knode.id][1],
-                retentionBefore: retentionMap[knode.id][0],
+                retentionAfter: retentionMap[id][1],
+                retentionBefore: retentionMap[id][0],
                 reviewLayer: -1
             })
         }
@@ -135,7 +140,7 @@ const TraceInfo = () => {
             .then(()=> {
                 setSettleLearningModal(false)
                 setLearningTrace(undefined)
-                setSelected([])
+                setSelectedLeafIds([])
                 setSelectedStemId(0)
                 setSubmitSignal(!submitSignal)
             })
@@ -205,18 +210,27 @@ const TraceInfo = () => {
                             value={retentionMap[props.leaf.id][1]}
                             onAfterChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [retentionMap[props.leaf.id][0], value]})}
                             max={4} min={0}
-                            tooltip={{
-                                formatter: value =>
-                                    value === 0 ? "完全没懂" :
-                                    value === 1 ? "懵懵懂懂" :
-                                    value === 2 ? "大致明白" :
-                                    value === 3 ? "基本理解" :
-                                    value === 4 ? "完全理解" : ""
-                            }}/>}
+                            tooltip={{formatter: value => masteryDesc(value)}}/>
+                    }
                 </Col>
             </Row>
         </div>
     )
+
+    const selectedKnode = useRecoilValue(SelectedKnodeSelector)
+    // 链式标题
+    const [selectedKnodeStemChain, setSelectedKnodeStemChain] = useState<Knode[]>([])
+    useEffect(()=>{
+        selectedKnode &&
+        setSelectedKnodeStemChain(getStemChain(ktree, selectedKnode))
+        //eslint-disable-next-line
+    }, [selectedKnode])
+
+    const addSelectedKnodeToSelectedLeaves = ()=>{
+        selectedKnode?.branchIds.length === 0 &&
+        setSelectedLeafIds([...selectedLeafIds, selectedKnode.id])
+    }
+
 
     if(!learningTrace) return <div>{contextHolder}</div>
     return (
@@ -230,8 +244,31 @@ const TraceInfo = () => {
                 content={
                 <div className={classes.content}>
                     <Row>
-                        <Col span={22}>
+                        <Col span={10}>
                             <TimeBar/>
+                        </Col>
+                        <Col span={12}>
+                            <div className={classes.selected_knode_title_wrapper}>
+                                {
+                                    // 当这个knode不是叶子，或这个knode已经被选中后，不显示这个加号
+                                    selectedKnode?.branchIds.length === 0 &&
+                                    !selectedLeafIds.includes(selectedKnode.id) &&
+                                    <Tooltip title={"加入本次学习"}>
+                                        <PlusOutlined
+                                            className={utils.icon_button}
+                                            onClick={()=>addSelectedKnodeToSelectedLeaves()}/>
+                                    </Tooltip>}
+                                <Popover
+                                    placement={"topLeft"}
+                                    arrow={false}
+                                    content={<div>
+                                        <Breadcrumb items={selectedKnodeStemChain}/>
+                                    </div>}>
+                                    <span className={InfoRightCss.title} style={{cursor: "default"}}>
+                                        <MdPreview>{selectedKnode?.title}</MdPreview>
+                                    </span>
+                                </Popover>
+                            </div>
                         </Col>
                         <Col span={2} className={classes.icon_button_wrapper}>
                             {pause ?
@@ -253,19 +290,41 @@ const TraceInfo = () => {
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={18}>
+                        <Col span={24}>
                             <EnhancerCard readonly={true} id={learningTrace.enhancerId}/>
-
+                            <Divider className={utils.bottom_margin_horizontal_divider}/>
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={22}></Col>
+                        <Col span={22}>
+                            <div>
+                                {selectedLeafIds.map(id=>(
+                                    <Tag
+                                        key={id}
+                                        className={LearningTraceTimeLineCss.knode_tag}
+                                        bordered={false}>
+                                        <div className={classes.selected_leaf_wrapper}>
+                                            <div>
+                                                <MdPreview>{getKnode(ktree, id)?.title}</MdPreview>
+                                            </div>
+                                            <CloseOutlined 
+                                                className={utils.icon_button} style={{scale:"100%"}}
+                                                onClick={()=>setSelectedLeafIds(selectedLeafIds.filter(_id=>_id !== id))}/>
+                                        </div>
+                                    </Tag>
+                                ))}
+                            </div>
+                        </Col>
                         <Col span={2} className={classes.icon_button_wrapper}>
                             <CheckOutlined
                                 style={{scale:"200%"}}
                                 className={utils.icon_button}
                                 onClick={()=>setSettleLearningModal(true)}/>
                         </Col>
+                    </Row>
+                    <Row>
+                        <Col span={22}></Col>
+
                     </Row>
 
                 </div>}>
@@ -280,12 +339,15 @@ const TraceInfo = () => {
                 onCancel={()=>setSettleLearningModal(false)}
                 onOk={()=>setSettleLearningModal(false)}
                 footer={[
-                    <Button
-                        key={1}
-                        type={"primary"}
-                        onClick={submit}>
-                        完成！
-                    </Button>
+                    (
+                        selectedLeafIds.length !== 0 &&
+                        <Button
+                            key={1}
+                            type={"primary"}
+                            onClick={submit}>
+                            完成！
+                        </Button>
+                    )
                 ]}>
                 <div className={classes.settle_learning_modal}>
                     <Row>
@@ -321,7 +383,7 @@ const TraceInfo = () => {
                                                 <CheckOutlined
                                                     style={{scale:"100%"}}
                                                     className={utils.icon_button}
-                                                    onClick={()=>setSelected([...selected, leaf])}/>
+                                                    onClick={()=>setSelectedLeafIds([...selectedLeafIds, leaf.id])}/>
                                             </Col>
                                         </Row>
                                         <Divider style={{margin:"1vh 0"}}/>
@@ -330,21 +392,21 @@ const TraceInfo = () => {
                         </Col>
                         <Col span={12} className={`${classes.modal_content_right} ${utils.custom_scrollbar}`}>
                             <Divider type={"vertical"} className={classes.modal_divider}/>
-                            {selected.length === 0 ?
+                            {selectedLeafIds.length === 0 ?
                                 <div className={classes.modal_content_left_placeholder_wrapper}>
                                     <span className={classes.modal_content_left_placeholder}>
                                         No Data
                                     </span>
                                 </div>:
-                                selected.map(_selected=>(
-                                    <div key={_selected.id}>
-                                        <LeafItem leaf={_selected}/>
+                                selectedLeafIds.map(id=>(
+                                    <div key={id}>
+                                        <LeafItem leaf={getKnode(ktree, id)!}/>
                                         <Row>
                                             <Col span={3} offset={21}>
                                                 <MinusOutlined
                                                     style={{scale:"100%"}}
                                                     className={utils.icon_button}
-                                                    onClick={()=>setSelected(selected.filter(knode=>knode.id !== _selected.id))}/>
+                                                    onClick={()=>setSelectedLeafIds(selectedLeafIds.filter(_id=>_id !== id))}/>
                                             </Col>
                                         </Row>
                                         <Divider style={{margin:"1vh 0"}}/>

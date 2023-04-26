@@ -1,4 +1,4 @@
-import { defaultValueCtx, Editor, rootCtx } from '@milkdown/core';
+import {defaultValueCtx, Editor, editorState, editorViewCtx, editorViewOptionsCtx, rootCtx} from '@milkdown/core';
 
 import {Milkdown, useEditor} from '@milkdown/react'
 import { commonmark } from '@milkdown/preset-commonmark';
@@ -18,14 +18,28 @@ import jsx from 'refractor/lang/jsx'
 import tsx from 'refractor/lang/tsx'
 import {listener, listenerCtx} from "@milkdown/plugin-listener";
 import {history} from "@milkdown/plugin-history";
+import {useEffect} from "react";
+import {Ctx} from "@milkdown/ctx";
+import {editableInputTypes} from "@testing-library/user-event/dist/utils";
 
-export const MilkdownEditor = (props:{md: string, onChange:(cur: string, prev: string)=>any}) => {
-    useEditor((root) => {
-        return Editor
+export const MilkdownEditor = (props:{
+    md: string,
+    onChange:(cur: string, prev: string)=>any,
+    editable: boolean,
+    command?: (ctx: Ctx)=>any,
+    // 父组件可以通过使用一个state并修改state来告知milkdown editor需要执行command命令了
+    trigger?: any }) => {
+    let useEditorReturn = useEditor((root) => {
+        return  Editor
             .make()
             .config(ctx => {
                 ctx.set(rootCtx, root)
                 ctx.set(defaultValueCtx, props.md)
+                // 设置只读与否
+                ctx.update(editorViewOptionsCtx, (prev) => ({
+                    ...prev,
+                    editable: ()=>props.editable,
+                }))
             })
             .config(nord)
             .use(commonmark)
@@ -58,7 +72,14 @@ export const MilkdownEditor = (props:{md: string, onChange:(cur: string, prev: s
             })
             .use(listener)
             .use(history)
-    }, [])
+    }, []);
+
+    let editor = useEditorReturn.get()
+
+
+    useEffect(()=>{
+        editor && editor.action(props.command!)
+    },[props.trigger])
 
     return <Milkdown/>
 }

@@ -3,3 +3,8 @@
     font-style: italic;
     margin-left: 1vw;
 }
+
+.add_card_wrapper{
+    position: relative;
+    top: -1em;
+}

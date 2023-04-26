@@ -1,0 +1,17 @@
+.title_link{
+    color: #666666;
+    font-size: 1.1em;
+}
+.page_link{
+    color: #666666;
+}
+
+.page_index{
+    color: #aaaaaa;
+}
+.page_list_wrapper{
+    max-height: 50vh;
+}
+.page_line > *{
+    margin-right: 1em;
+}

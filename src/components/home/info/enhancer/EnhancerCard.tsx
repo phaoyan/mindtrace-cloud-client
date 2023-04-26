@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
-import {Button, Col, Dropdown, Input, Row, Tag} from "antd";
+import {Button, Col, Dropdown, Input, Row} from "antd";
 import {DeleteOutlined, EditOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import {removeEnhancerFromUser, updateEnhancerOfUser} from "../../../../service/api/EnhancerApi";

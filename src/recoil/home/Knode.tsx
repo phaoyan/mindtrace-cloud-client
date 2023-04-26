@@ -1,4 +1,4 @@
-import {atom, DefaultValue, selectorFamily} from "recoil";
+import {atom, DefaultValue, selector, selectorFamily} from "recoil";
 import {Knode, Ktree, updateKtree} from "../../service/data/Knode";
 
 export const defaultKnode = {
@@ -41,6 +41,10 @@ export const SelectedKnodeIdAtom = atom<number>({
     dangerouslyAllowMutability: true
 })
 
+export const SelectedKnodeSelector = selector<Knode | undefined>({
+    key: "SelectedKnodeSelector",
+    get: ({get})=>get(KnodeSelector(get(SelectedKnodeIdAtom)))
+})
 
 export const getKnode = (ktree: Ktree, id: number): Knode | undefined=>{
     if(ktree.knode.id === id) return ktree.knode
