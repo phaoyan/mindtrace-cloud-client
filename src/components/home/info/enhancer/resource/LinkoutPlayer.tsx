@@ -49,7 +49,7 @@ const LinkoutPlayer = (props:{meta: Resource}) => {
     return (
         <div className={classes.container}>
             <Row>
-                <Col span={24}>
+                <Col span={22} offset={2}>
                     {
                         supportedWebsites[data.type] ?
                             supportedWebsites[data.type](data) :
@@ -60,7 +60,7 @@ const LinkoutPlayer = (props:{meta: Resource}) => {
                 </Col>
             </Row>
             <Row>
-                <Col span={18}>
+                <Col span={16} offset={2}>
                     <div className={classes.url_wrapper}>
                         <Input
                             bordered={false}

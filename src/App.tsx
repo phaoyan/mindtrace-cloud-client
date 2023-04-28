@@ -8,7 +8,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {IsLogin, User} from "./recoil/User";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "./constants";
-import {HomeOutlined, LoginOutlined, LogoutOutlined, UserOutlined} from "@ant-design/icons";
+import {HomeOutlined, LoginOutlined, LogoutOutlined, ShareAltOutlined, UserOutlined} from "@ant-design/icons";
 import classes from "./App.module.css"
 import {Header} from "antd/es/layout/layout";
 import logo from "./static/img/logo.png"
@@ -38,6 +38,11 @@ const App = ()=> {
                 icon: <UserOutlined/>
             },
             {
+                label: "Mindtrace Hub",
+                key: "hub",
+                icon: <ShareAltOutlined />
+            },
+            {
                 label: <>{isLogin ? "登出" : "登录"}</>,
                 key: "login",
                 icon: <>{isLogin ? <LogoutOutlined/> : <LoginOutlined/>}</>,
@@ -57,6 +62,7 @@ const App = ()=> {
         if(!isLogin && current !== "login"){
             try{
                 let {data} = await axios.get(`${BACK_HOST}/user`);
+                console.log("test login", data)
                 if(data.code === RESULT.OK)
                     setUser({
                         ...user,

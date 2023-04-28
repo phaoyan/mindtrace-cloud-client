@@ -10,7 +10,7 @@ import {EnhancerSelector, EnhancersForSelectedKnodeAtom} from "../../../../recoi
 import {RESULT} from "../../../../constants";
 import {
     addResourceDropdownItems,
-    Resource, resourceTypePlayerMapper,
+    Resource, ResourceType, resourceTypePlayerMapper,
     ResourceWithData
 } from "../../../../service/data/Resource";
 import {
@@ -30,6 +30,11 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
     const [learningTrace, setLearningTrace] = useRecoilState(LearningTraceAtom)
     const [resources, setResources] = useState<Resource[]>([])
 
+    const [title, setTitle] = useState("")
+    useEffect(()=>{
+        setTitle(enhancer?.title!)
+    },[enhancer])
+
     const [readonly, setReadonly] = useState(false)
     useEffect(()=> {
         props.readonly && setReadonly(props.readonly)
@@ -40,21 +45,25 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
             .then((data) => setResources(data))
         // eslint-disable-next-line
     }, [])
-
-    useEffect(() => {
-        console.log("Resources", resources)
-    }, [resources])
-
     const handleAddResource = (resourceWithData: ResourceWithData)=>{
         addResourceToEnhancer(userId, props.id, resourceWithData)
             .then((data) => setResources([...resources, data]))
     }
-
     const handleStartLearning = ()=>{
         startLearning(userId, enhancer?.id!)
             .then((data)=>{
                 setLearningTrace(data)
             })
+    }
+
+    const handleSubmit = ()=>{
+        updateEnhancerOfUser(userId, props.id, {...enhancer!, title})
+    }
+
+    const ResourcePlayer = (props:{resource: Resource})=>{
+        if(props.resource.type && Object.values(ResourceType).includes(props.resource.type!))
+            return resourceTypePlayerMapper[props.resource.type!](props.resource)
+        return <></>
     }
 
     return (
@@ -63,11 +72,11 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                 <Row>
                     <Col span={10}>
                         <Input
-                            value={enhancer?.title}
+                            value={title}
                             onChange={({target: {value}}) =>
                                 enhancer &&
-                                setEnhancer({...enhancer, title: value})}
-                            onBlur={() => updateEnhancerOfUser(userId, props.id, enhancer!)}
+                                setTitle(value)}
+                            onBlur={() => handleSubmit()}
                             placeholder={". . ."}
                             className={classes.title}
                             bordered={false}/>
@@ -110,7 +119,7 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                 {resources.map(resource => (
                     <Row key={resource.id}>
                         <Col span={23}>
-                            {resourceTypePlayerMapper[resource.type!](resource)}
+                            <ResourcePlayer resource={resource}/>
                         </Col>
                         <Col span={1}>
                             {readonly ? <></>:

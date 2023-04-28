@@ -60,36 +60,37 @@
     color: #666666;
 }
 
-.settle_learning_modal{
+.settle_learning{
     height: 60vh;
+    overflow: hidden;
 }
-.modal_cascader{
-    width: 80%;
+.settle_cascader{
+    width: 100%;
 
 }
-.modal_content{
-    height: 85%;
+.settle_content{
+    height: 80%;
 }
-.modal_content_left{
+.settle_content_left{
     max-height: 100%;
 }
-.modal_content_left_placeholder{
+.settle_content_left_placeholder{
     font-size: 1.3em;
     color: #666666;
     font-style: italic;
     font-weight: lighter;
 }
-.modal_content_left_placeholder_wrapper{
+.settle_content_left_placeholder_wrapper{
     height: 100%;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.modal_content_right{
+.settle_content_right{
     max-height: 100%;
 }
-.modal_divider{
+.settle_divider{
     height: 100%;
     position: absolute;
     margin: 0;

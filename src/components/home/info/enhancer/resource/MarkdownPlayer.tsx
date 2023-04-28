@@ -22,10 +22,10 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
     // eslint-disable-next-line
     useEffect(()=>loadData(props.meta.createBy!, props.meta.id!, setData, setLoading),[])
 
-    const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.shiftKey && event.key === "Enter")
-            submit(props.meta.createBy!, props.meta.id!, data)
-    }
+        const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.shiftKey && event.key === "Enter")
+                submit(props.meta.createBy!, props.meta.id!, data)
+        }
 
     if(loading) return <></>
 

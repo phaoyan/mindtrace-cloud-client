@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
-import {Button, Form, Input, Typography} from "antd";
+import {Button, Col, Form, Input, Row, Typography} from "antd";
 import classes from "./Login.module.css"
 import {User} from "../../recoil/User"
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {RESULT} from "../../constants";
-import {login as loginAxios} from "../../service/api/LoginApi"
+import {login as loginAxios, register as registerAxios} from "../../service/api/LoginApi"
 import {CurrentPageAtom} from "../../recoil/utils/DocumentData";
+import useMessage from "antd/es/message/useMessage";
+
 
 const {Title, Paragraph} = Typography
 
@@ -13,6 +15,8 @@ const Login = () => {
     const [user, setUser] = useRecoilState(User);
     const setCurrentPage = useSetRecoilState(CurrentPageAtom);
     const [error, setError] = useState(null);
+
+
 
     const login = ()=>{
         loginAxios(user.username, user.password)
@@ -24,9 +28,19 @@ const Login = () => {
             })
     }
 
+    let [messageApi, contextHolder] = useMessage();
+    const register = ()=>{
+        registerAxios(user.username, user.password)
+            .then((data)=>{
+                if(data.code === RESULT.OK) messageApi.success("注册成功！")
+                else messageApi.error("注册失败：" + data.msg)
+            })
+    }
+
     return (
         <div className={classes.container}>
             <div className={classes.login}>
+                {contextHolder}
                 <Typography>
                     <Title>
                         Mindtrace
@@ -56,11 +70,25 @@ const Login = () => {
                             </Form.Item>
 
                             <Form.Item wrapperCol={{span: 24}}>
-                                <Button
-                                    className={classes.commit} type="primary" htmlType="submit"
-                                    onClick={()=>login()}>
-                                    登录
-                                </Button>
+                                <Row>
+                                    <Col span={18}>
+                                        <Button
+                                            className={classes.commit}
+                                            type="primary" htmlType="submit"
+                                            onClick={()=>login()}>
+                                            登录
+                                        </Button>
+                                    </Col>
+                                    <Col span={4} offset={2}>
+                                        <Button
+                                            className={classes.commit}
+                                            type="primary" htmlType="submit"
+
+                                            onClick={()=>register()}>
+                                            注册
+                                        </Button>
+                                    </Col>
+                                </Row>
                             </Form.Item>
                         </Form>
                         {error && <span>用户名或密码错误</span>}

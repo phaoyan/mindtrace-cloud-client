@@ -18,6 +18,10 @@ export const logout = async ()=>{
         })
 }
 
-export const register = ()=>{
-
+export const register = async (username: string, password: string)=>{
+    return await axios.post(`${GATEWAY_HOST}/user/register`, {username: username, password: password})
+        .then(({data})=>{
+            console.log("register: ", data)
+            return data
+        })
 }

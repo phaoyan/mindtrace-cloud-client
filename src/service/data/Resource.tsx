@@ -1,5 +1,3 @@
-import {addDataToResource} from "../api/ResourceApi";
-import {ENHANCER_HOST} from "../api/EnhancerApi";
 import {FileSearchOutlined, FileTextOutlined, LinkOutlined, SwitcherOutlined} from "@ant-design/icons";
 import classes from "../../components/home/info/enhancer/EnhancerCard.module.css";
 import React from "react";
@@ -117,24 +115,6 @@ export const addResourceDropdownItems = (handleAddAction: (resourceWithData: Res
 export const resourceTypePlayerMapper = {
     [ResourceType.QUIZCARD]: (meta: Resource) => <QuizcardPlayer meta={meta}/>,
     [ResourceType.MARKDOWN]: (meta: Resource) => <MarkdownPlayer meta={meta}/>,
-    [ResourceType.LINKOUT]:  (meta: Resource) => <LinkoutPlayer  meta={meta}/>,
-    [ResourceType.CLOZE]:    (meta: Resource) => <ClozePlayer    meta={meta}/>
+    [ResourceType.LINKOUT]: (meta: Resource) => <LinkoutPlayer  meta={meta}/>,
+    [ResourceType.CLOZE]: (meta: Resource) => <ClozePlayer    meta={meta}/>,
 }
-
-export const handleUploadImage =
-    (imageFile: File, userId: number, resourceId: number) =>
-        new Promise<string>(resolve => {
-            const reader = new FileReader()
-            reader.readAsDataURL(imageFile)
-            reader.onload = async (event) => {
-                const imgName = new Date().toISOString().slice(0, 19).replaceAll(":", "-") + "." + imageFile.type.replace("image/", "")
-                event.target &&
-                resourceId &&
-                await addDataToResource(userId, resourceId, {
-                    imgs: {
-                        [imgName]: event.target.result
-                    }
-                })
-                resolve(`![](${ENHANCER_HOST}/user/${userId}/resource/${resourceId}/data/${imgName})`)
-            }
-        })

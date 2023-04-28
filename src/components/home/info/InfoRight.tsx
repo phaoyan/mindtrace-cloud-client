@@ -50,7 +50,7 @@ const InfoRight = () => {
             width={mainPageWidth / 2} height={mainPageHeight * 0.98}
             handle={<div className={classes.resize_handle}/>}
             minConstraints={[mainPageWidth / 4, mainPageHeight * 0.98]}
-            maxConstraints={[mainPageWidth * 3 / 4, mainPageHeight * 0.98]}
+            maxConstraints={[mainPageWidth * 31 / 32, mainPageHeight * 0.98]}
             resizeHandles={["w"]}
             axis={"x"}>
             {selectedKnodeId ?

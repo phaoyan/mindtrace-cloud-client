@@ -4,7 +4,7 @@ import {getAllDataFromResource} from "../../../../../service/api/ResourceApi";
 import classes from "./ClozePlayer.module.css";
 import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../../../utils/markdown/MilkdownEditor";
-import {Col, Row} from "antd";
+import {Col, Row, Tooltip} from "antd";
 import general from "./Player.module.css"
 import {
     CheckOutlined,
@@ -15,10 +15,8 @@ import {
     PlusOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
-import {Ctx} from "@milkdown/ctx";
 import {insertStringAt} from "../../../../../service/utils/JsUtils";
 import {submit} from "./PlayerUtils";
-import useMessage from "antd/es/message/useMessage";
 import {replaceAll} from "@milkdown/utils"
 
 const ClozePlayer = (props:{meta:Resource}) => {
@@ -47,9 +45,6 @@ const ClozePlayer = (props:{meta:Resource}) => {
 
     // 实际显示的markdown text，和index有关
     const [displayTxt, setDisplayTxt] = useState("")
-    useEffect(()=>{
-        setDisplayTxt(data.noAnswer)
-    },[data.noAnswer])
     // 用于告知milkdown更新渲染
     const [displayChangeTrigger, setDisplayChangeTrigger] = useState(true)
     useEffect(()=>{
@@ -63,20 +58,26 @@ const ClozePlayer = (props:{meta:Resource}) => {
         setRaw(data.raw)
     }, [data])
     const indexAnswer = ()=>{
-        if(index === -1) return data.noAnswer
-        let indexData = data.indexes[index]
-        return insertStringAt(data.noAnswer, indexData.txt, indexData.insert)
+        let offset = 0
+        let res = data.noAnswer
+        for(let i = 0; i < data.indexes.length; i ++){
+            if(i !== index){
+                res = insertStringAt(res, " -- ? -- ", data.indexes[i].insert + offset)
+                offset += 9
+            }else {
+                res = insertStringAt(res, data.indexes[i].txt, data.indexes[i].insert + offset)
+                offset += data.indexes[i].txt.length
+            }
+        }
+        return res
     }
     useEffect(()=>{
         setDisplayTxt(indexAnswer())
-    }, [index])
-
-    let [messageApi, contextHolder] = useMessage();
+    }, [index, data.noAnswer])
     const handleSubmit = ()=>{
         submit(props.meta.createBy!, props.meta.id!, {raw : raw})
             .then(()=>{
                 // 由于后端数据持久化有非阻塞的部分，有时候url还没有替换完成就被重新加载。故设置一个延时
-                setLoading(true)
                 setTimeout(()=>{
                     loadData()
                 },100)
@@ -88,10 +89,17 @@ const ClozePlayer = (props:{meta:Resource}) => {
         setTimeout(()=>setRawChangeTrigger(!rawChangeTrigger), 50)
     }
 
+    const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.ctrlKey && event.key === "Enter")
+            addCloze()
+    }
+
     if(loading) return <></>
     return (
-        <div className={general.container}>
-            {contextHolder}
+        <div
+            className={general.container}
+            tabIndex={0}
+            onKeyDown={hotkey}>
             <Row>
                 <Col span={1} className={classes.left_options}>
                     {
@@ -106,15 +114,12 @@ const ClozePlayer = (props:{meta:Resource}) => {
                     }
                     {
                         mode === "edit" &&
-                        <CheckOutlined
-                            className={utils.icon_button}
-                            onClick={handleSubmit}/>
-                    }
-                    {
-                        mode === "edit" &&
-                        <PlusOutlined
-                            className={utils.icon_button}
-                            onClick={addCloze}/>
+                        <Tooltip
+                            title={"添加完型空（Ctrl + Enter）"}>
+                            <PlusOutlined
+                                className={utils.icon_button}
+                                onClick={addCloze}/>
+                        </Tooltip>
                     }
                 </Col>
 
@@ -122,7 +127,9 @@ const ClozePlayer = (props:{meta:Resource}) => {
                     <div className={classes.display}>
                         {
                             mode === "edit" ?
-                                <div className={classes.edit_wrapper}>
+                                <div
+                                    className={classes.edit_wrapper}
+                                    onBlur={handleSubmit}>
                                     <></>
                                     {raw === "" && <span className={classes.placeholder}>在这里编辑卡片 . . . </span>}
                                     <MilkdownProvider>

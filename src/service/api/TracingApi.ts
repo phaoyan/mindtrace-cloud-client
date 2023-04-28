@@ -104,6 +104,19 @@ export const settleLearning = async (userId: number, traceId:number, mindtraces:
     })
 }
 
+export const dropLearning = async (userId: number, traceId: number)=>{
+    return await axios.post(`${TRACING_HOST}/user/${userId}/learn`, {
+        type:"drop learning",
+        data:{
+            id: traceId
+        }
+    }).then(({data})=>{
+        console.log("drop learning", data)
+        if(data.code === RESULT.OK)
+            return true
+    })
+}
+
 
 export const getKnodeRelatedLearningTrace = async (userId: number, knodeId: number): Promise<LearningTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/knode/${knodeId}`)
