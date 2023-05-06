@@ -27,7 +27,7 @@ const LearningTraceTimeline = () => {
 
     const wrapTrace = async (learningTrace: LearningTrace): Promise<WrappedLearningTrace>=>{
 
-        let enhancer = await getEnhancerById(userId, learningTrace.enhancerId)
+        let enhancer = await getEnhancerById(learningTrace.enhancerId)
         let knodeIds = await getRelatedKnodeIdsOfLearningTrace(userId, learningTrace.id)
 
         return {
@@ -70,7 +70,7 @@ const LearningTraceTimeline = () => {
 
         const removeLearningTrace = ()=>{
             removeLearningTraceById(userId, props.wrappedTrace.id)
-                .then((success)=>success && setWrappedTraces(wrappedTraces.filter(tr=>tr.id !== props.wrappedTrace.id)))
+                .then(()=>setWrappedTraces(wrappedTraces.filter(tr=>tr.id !== props.wrappedTrace.id)))
         }
 
         return (

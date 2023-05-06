@@ -11,7 +11,7 @@ import {loadData, submit} from "./PlayerUtils";
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 
-const MarkdownPlayer = (props: {meta: Resource}) => {
+const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
 
     const [data, setData ] = useState({content: "", config:{hide: false}})
     const [loading, setLoading] = useState(true)
@@ -22,10 +22,15 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
     // eslint-disable-next-line
     useEffect(()=>loadData(props.meta.createBy!, props.meta.id!, setData, setLoading),[])
 
-        const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
-            if (event.shiftKey && event.key === "Enter")
-                submit(props.meta.createBy!, props.meta.id!, data)
-        }
+    const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.shiftKey && event.key === "Enter")
+            handleSubmit(props.meta.id!, data)
+    }
+
+    const handleSubmit = (resourceId: number, data: any)=>{
+        !props.readonly &&
+        submit(resourceId, data)
+    }
 
     if(loading) return <></>
 
@@ -34,7 +39,7 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
             className={general.container}
             tabIndex={0}
             onKeyDown={hotkey}
-            onBlur={()=>submit(props.meta.createBy!, props.meta.id!, data)}>
+            onBlur={()=>handleSubmit(props.meta.id!, data)}>
             <Row>
                 <Col span={1} className={general.sidebar}>
                     {data.config.hide ?
@@ -42,15 +47,14 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                             className={utils.icon_button}
                             onClick={()=> {
                                 setData({...data, config: {...data.config, hide: false}})
-                                setTimeout(()=>submit(props.meta.createBy!, props.meta.id!, data), 100)
+                                setTimeout(()=>handleSubmit(props.meta.id!, data), 100)
                             }}/>:
                         <FileTextOutlined
                             className={utils.icon_button}
                             onClick={()=> {
                                 setData({...data, config: {...data.config, hide: true}})
                                 setTimeout(()=> {
-                                    console.log("test" , data.config)
-                                    submit(props.meta.createBy!, props.meta.id!, data)
+                                    handleSubmit(props.meta.id!, data)
                                 }, 100)
                             }}/>
                     }
@@ -66,7 +70,7 @@ const MarkdownPlayer = (props: {meta: Resource}) => {
                                 <MilkdownProvider>
                                     <MilkdownEditor
                                         md={data.content}
-                                        editable={true}
+                                        editable={!props.readonly}
                                         onChange={cur=>setData({...data, content: cur})} />
                                 </MilkdownProvider>
                             </div>

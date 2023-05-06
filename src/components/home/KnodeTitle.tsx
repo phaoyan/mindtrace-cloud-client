@@ -18,6 +18,7 @@ const KnodeTitle = (props: { id: number, possessorRef: HTMLDivElement}) => {
     const userId = useRecoilValue(UserID);
     const [knode, setKnode] = useRecoilState(KnodeSelector(props.id))
     const [lastTrace, setLastTrace] = useState<Mindtrace>(defaultMindtrace)
+    const [title, setTitle] = useState<string>(knode?.title!)
 
     useEffect(()=>{
         knode &&
@@ -49,10 +50,15 @@ const KnodeTitle = (props: { id: number, possessorRef: HTMLDivElement}) => {
                     possessorRef={props.possessorRef}
                     editKey={props.id}
                     className={classes.title}
-                    initialText={knode.title}
+                    initialText={title}
                     // @ts-ignore
-                    onTextChange={({target: {value}})=>setKnode({...knode, title: value})}
-                    onSubmit={()=>updateKnode(knode, userId)}/>
+                    onTextChange={({target: {value}})=> {
+                        setTitle(value)
+                    }}
+                    onSubmit={()=> {
+                        setKnode({...knode, title: title})
+                        updateKnode({...knode, title: title})
+                    }}/>
             </div>
             <div className={classes.options}>
                 {

@@ -113,8 +113,8 @@ export const addResourceDropdownItems = (handleAddAction: (resourceWithData: Res
  *  在此处注册 Resource
  */
 export const resourceTypePlayerMapper = {
-    [ResourceType.QUIZCARD]: (meta: Resource) => <QuizcardPlayer meta={meta}/>,
-    [ResourceType.MARKDOWN]: (meta: Resource) => <MarkdownPlayer meta={meta}/>,
-    [ResourceType.LINKOUT]: (meta: Resource) => <LinkoutPlayer  meta={meta}/>,
-    [ResourceType.CLOZE]: (meta: Resource) => <ClozePlayer    meta={meta}/>,
+    [ResourceType.QUIZCARD]: (meta: Resource, readonly:boolean) => <QuizcardPlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.MARKDOWN]: (meta: Resource, readonly:boolean) => <MarkdownPlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.LINKOUT]: (meta: Resource, readonly:boolean) => <LinkoutPlayer  meta={meta} readonly={readonly}/>,
+    [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
 }

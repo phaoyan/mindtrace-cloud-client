@@ -34,10 +34,14 @@
 .icon_button{
     scale: 150%;
 }
-.icon_button:hover{
+.icon_button_large{
+    scale: 200%;
+}
+.icon_button:hover, .icon_button_normal:hover, .icon_button_large:hover{
     cursor: pointer;
     opacity: 50%;
 }
+
 
 .tiny_font{
     color: #666666;

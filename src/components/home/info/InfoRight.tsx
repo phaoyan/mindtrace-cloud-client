@@ -25,7 +25,7 @@ const InfoRight = () => {
 
     useEffect(()=>{
         selectedKnodeId && selectedKnodeId !== 0 &&
-        getChainStyleTitle(userId, selectedKnodeId)
+        getChainStyleTitle(selectedKnodeId)
             .then((data)=> {
                 setChainStyleTitle(data)
             })

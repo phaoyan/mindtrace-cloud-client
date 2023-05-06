@@ -11,7 +11,7 @@ import classes from "./Player.module.css"
 import {loadData, submit} from "./PlayerUtils";
 import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 
-const QuizcardPlayer = (props: { meta: Resource }) => {
+const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
 
     const userId = useRecoilValue(UserID)
     const [data, setData] = useState({front: "", back: "", imgs: {}})
@@ -22,7 +22,12 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
     useEffect(() => loadData(userId, props.meta.id!, setData, setLoading), [])
     const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.shiftKey && event.key === "Enter")
-            submit(userId, props.meta.id!, data)
+            handleSubmit(props.meta.id!, data)
+    }
+
+    const handleSubmit = (resourceId: number, data: any)=>{
+        !props.readonly &&
+        submit(resourceId, data)
     }
 
     if (loading) return <></>
@@ -31,7 +36,7 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
             className={classes.container}
             tabIndex={0}
             onKeyDown={hotkey}
-            onBlur={()=>submit(userId, props.meta.id!, data)}>
+            onBlur={()=>handleSubmit(props.meta.id!, data)}>
             <Row>
                 <Col span={1} className={classes.sidebar}>
                     {isFront ?
@@ -53,7 +58,7 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
                                 <MilkdownProvider>
                                     <MilkdownEditor
                                         md={data.front}
-                                        editable={true}
+                                        editable={!props.readonly}
                                         onChange={cur => setData({...data, front: cur})}/>
                                 </MilkdownProvider>
                             </div>
@@ -64,7 +69,7 @@ const QuizcardPlayer = (props: { meta: Resource }) => {
                                 <MilkdownProvider>
                                     <MilkdownEditor
                                         md={data.back}
-                                        editable={true}
+                                        editable={!props.readonly}
                                         onChange={cur=>setData({...data, back: cur})}/>
                                 </MilkdownProvider>
                             </div>

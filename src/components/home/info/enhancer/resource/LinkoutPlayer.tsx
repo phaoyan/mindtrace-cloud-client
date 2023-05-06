@@ -20,7 +20,7 @@ const linkoutTypeItems: MenuProps['items'] = [
         label: "bilibili"
     }
 ]
-const LinkoutPlayer = (props:{meta: Resource}) => {
+const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
 
     const userId = useRecoilValue(UserID)
     const [data, setData ] = useState({
@@ -33,7 +33,8 @@ const LinkoutPlayer = (props:{meta: Resource}) => {
     // 如果输入正确则可以正常显示url资源
     const [submitState, setSubmitState] = useState(false)
     const reload = ()=>{
-        submit(props.meta.createBy!, props.meta.id!, data)
+        !props.readonly &&
+        submit(props.meta.id!, data)
             .then(()=>{
                 // 由于后端数据持久化有非阻塞的部分，有时候url还没有替换完成就被重新加载。故设置一个延时
                 setTimeout(()=>{

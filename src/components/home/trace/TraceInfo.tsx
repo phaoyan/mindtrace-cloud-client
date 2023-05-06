@@ -78,30 +78,15 @@ const TraceInfo = () => {
     // 左半框待选leaf节点
     const [leaves, setLeaves] = useState<Knode[]>([])
     useEffect(()=>{
-        getLeaves(userId, selectedStemId)
+        getLeaves(selectedStemId)
             .then((data)=>{
                 setLeaves(data)
             })
     }, [userId, selectedStemId])
 
-    // 实现 breadcrumb
-    const getBreadcrumbStemChainOfLeaves = (ktree: Ktree): {[id: number] : BreadcrumbItemType[]}=>{
-        let res: {[id: number] : BreadcrumbItemType[]} = {}
-        for(let leaf of leaves)
-            res[leaf.id] = getStemChain(ktree, leaf).map(knode => ({title: <MdPreview>{knode.title}</MdPreview>}))
-        return res
-    }
-    const [breadcrumbStemChainMap, setBreadcrumbSteamChainMap] = useState<{[id: number] : BreadcrumbItemType[]}>({})
-    useEffect(()=>{
-        setBreadcrumbSteamChainMap({
-            ...breadcrumbStemChainMap,
-            ...getBreadcrumbStemChainOfLeaves(ktree)
-        })
-        // eslint-disable-next-line
-    }, [userId, selectedStemId])
-
     const getDefaultRetentionMap = async ()=>{
-        let allLeaves = await getLeaves(userId, ktree.knode.id)
+        console.log("ktree test",ktree)
+        let allLeaves = await getLeaves(ktree.knode.id)
         console.log("all leaves" , allLeaves)
         let res: {[id:number]: [number, number]} = {}
         for(let leaf of allLeaves)
@@ -170,55 +155,62 @@ const TraceInfo = () => {
         </div>)
     }
 
-    const LeafItem = (props:{leaf: Knode})=>(
-        <div key={props.leaf.id}>
-            <Row>
-                <Col span={2}>
-                    <Popover
-                        arrow={false}
-                        content={
-                            <div>
-                                <Breadcrumb items={breadcrumbStemChainMap[props.leaf.id]}/>
-                            </div>}>
-                        <TagOutlined/>
-                    </Popover>
-                </Col>
-                <Col span={21} offset={1} >
-                    <MdPreview>{props.leaf.title}</MdPreview>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={5} offset={2} className={utils.text_vertical_center}>
-                    <span className={utils.tiny_font}>before</span>
-                </Col>
-                <Col span={15}>
-                    {retentionMap[props.leaf.id] &&
-                        <Slider
-                            value={retentionMap[props.leaf.id][0]}
-                            onChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [value, retentionMap[props.leaf.id][1]]})}
-                            max={1} min={0}
-                            step={0.25}
-                            tooltip={{
-                                formatter: value => masteryDesc(value)
-                            }}/>}
-                </Col>
-            </Row>
-            <Row>
-                <Col span={5} offset={2} className={utils.text_vertical_center}>
-                    <span className={utils.tiny_font}>after</span>
-                </Col>
-                <Col span={15}>
-                    {retentionMap[props.leaf.id] &&
-                        <Slider
-                            value={retentionMap[props.leaf.id][1]}
-                            onAfterChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [retentionMap[props.leaf.id][0], value]})}
-                            max={1} min={0} step={0.25}
-                            tooltip={{formatter: value => masteryDesc(value)}}/>
-                    }
-                </Col>
-            </Row>
-        </div>
-    )
+    const LeafItem = (props:{leaf: Knode})=>{
+        const [breadcrumbTitle, setBreadcrumbTitle] = useState<BreadcrumbItemType[]>([])
+        useEffect(()=>{
+            setBreadcrumbTitle(getStemChain(ktree, props.leaf).map(knode => ({title: <MdPreview>{knode.title}</MdPreview>})))
+        }, [])
+
+        return (
+            <div key={props.leaf.id}>
+                <Row>
+                    <Col span={2}>
+                        <Popover
+                            arrow={false}
+                            content={
+                                <div>
+                                    <Breadcrumb items={breadcrumbTitle}/>
+                                </div>}>
+                            <TagOutlined/>
+                        </Popover>
+                    </Col>
+                    <Col span={21} offset={1} >
+                        <MdPreview>{props.leaf.title}</MdPreview>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={5} offset={2} className={utils.text_vertical_center}>
+                        <span className={utils.tiny_font}>before</span>
+                    </Col>
+                    <Col span={15}>
+                        {retentionMap[props.leaf.id] &&
+                            <Slider
+                                value={retentionMap[props.leaf.id][0]}
+                                onChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [value, retentionMap[props.leaf.id][1]]})}
+                                max={1} min={0}
+                                step={0.25}
+                                tooltip={{
+                                    formatter: value => masteryDesc(value)
+                                }}/>}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={5} offset={2} className={utils.text_vertical_center}>
+                        <span className={utils.tiny_font}>after</span>
+                    </Col>
+                    <Col span={15}>
+                        {retentionMap[props.leaf.id] &&
+                            <Slider
+                                value={retentionMap[props.leaf.id][1]}
+                                onAfterChange={(value)=>setRetentionMap({...retentionMap, [props.leaf.id]: [retentionMap[props.leaf.id][0], value]})}
+                                max={1} min={0} step={0.25}
+                                tooltip={{formatter: value => masteryDesc(value)}}/>
+                        }
+                    </Col>
+                </Row>
+            </div>
+        )
+    }
 
     const SettlePanel = ()=>{
         if(!open) return <></>
@@ -284,7 +276,10 @@ const TraceInfo = () => {
                                         No Data
                                     </span>
                             </div>:
-                            selectedLeafIds.map(id=>(
+                            selectedLeafIds.slice(
+                                (rightLeavesPage-1) * rightLeavesPageCapacity,
+                                rightLeavesPage * rightLeavesPageCapacity)
+                                .map(id=>(
                                 <div key={id}>
                                     <LeafItem leaf={getKnode(ktree, id)!}/>
                                     <Row>
@@ -297,6 +292,14 @@ const TraceInfo = () => {
                                     </Row>
                                     <Divider style={{margin:"1vh 0"}}/>
                                 </div>))}
+                        <Pagination
+                            size="small"
+                            current={rightLeavesPage}
+                            onChange={(page)=>setRightLeavesPage(page)}
+                            pageSize={rightLeavesPageCapacity}
+                            total={selectedLeafIds.length}
+                            hideOnSinglePage={true}
+                            showSizeChanger={false}/>
                     </Col>
                 </Row>
 
@@ -319,7 +322,9 @@ const TraceInfo = () => {
     }
 
     const [leftLeavesPage, setLeftLeavesPage] = useState(1)
-    const [leftLeavesPageCapacity, setLeftLeavesPageCapacity] = useState(20)
+    const [leftLeavesPageCapacity,] = useState(3)
+    const [rightLeavesPage, setRightLeavesPage] = useState(1)
+    const [rightLeavesPageCapacity,] = useState(3)
 
     if(!learningTrace) return <div>{contextHolder}</div>
     return (
@@ -380,7 +385,7 @@ const TraceInfo = () => {
                     </Row>
                     <Row>
                         <Col span={24}>
-                            <Divider className={utils.top_margin_horizontal_divider}/>
+                            <Divider className={utils.ghost_horizontal_divider}/>
                             <Tabs
                                 defaultActiveKey={"info"}
                                 tabPosition={"left"}
@@ -422,9 +427,7 @@ const TraceInfo = () => {
                                     style={{scale:"200%"}}
                                     onClick={()=> {
                                         dropLearning(userId, learningTrace?.id)
-                                            .then((success)=>{
-                                                success && setLearningTrace(undefined)
-                                            })
+                                            .then(()=>{setLearningTrace(undefined)})
                                     }}/>
                             }
                         </Col>

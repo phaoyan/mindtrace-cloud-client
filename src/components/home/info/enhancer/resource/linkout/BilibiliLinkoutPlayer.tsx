@@ -4,7 +4,7 @@ import {Col, List, Row} from "antd";
 import utils from "../../../../../../utils.module.css"
 
 const BilibiliLinkoutPlayer = (props:{data: any}) => {
-
+    console.log("bilibili", props.data)
     return (
         <div className={classes.container}>
             <Row>
@@ -21,6 +21,7 @@ const BilibiliLinkoutPlayer = (props:{data: any}) => {
                 <Col span={22} offset={2}>
                     <div className={`${classes.page_list_wrapper} ${utils.custom_scrollbar}`}>
                         {
+                            props.data.pages &&
                             props.data.pages.length > 1 &&
                             <List
                                 itemLayout={"horizontal"}

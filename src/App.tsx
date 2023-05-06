@@ -4,8 +4,8 @@ import Main from "./components/home/Main"
 import Login from "./components/login/Login";
 import {Navigate} from "react-router-dom"
 import {ConfigProvider, Menu, MenuProps, theme} from "antd";
-import {useRecoilState, useRecoilValue} from "recoil";
-import {IsLogin, User} from "./recoil/User";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {IsLogin, User, UserShareAtom} from "./recoil/User";
 import axios from "axios";
 import {BACK_HOST, RESULT} from "./constants";
 import {HomeOutlined, LoginOutlined, LogoutOutlined, ShareAltOutlined, UserOutlined} from "@ant-design/icons";
@@ -15,6 +15,7 @@ import logo from "./static/img/logo.png"
 import {CurrentPageAtom} from "./recoil/utils/DocumentData";
 import {logout} from "./service/api/LoginApi";
 import "./reset.css"
+import {getUserShare} from "./service/api/ShareApi";
 
 const App = ()=> {
 
@@ -57,19 +58,24 @@ const App = ()=> {
         ])
     },[user])
 
+
+    const setUserShare = useSetRecoilState(UserShareAtom)
     // 尝试从后端拿登录数据
     useMemo(async ()=>{
         if(!isLogin && current !== "login"){
             try{
                 let {data} = await axios.get(`${BACK_HOST}/user`);
                 console.log("test login", data)
-                if(data.code === RESULT.OK)
+                if(data.code === RESULT.OK){
                     setUser({
                         ...user,
                         username: data.data.username,
                         password: data.data.password,
                         id: data.data.id
                     });
+                    setUserShare(await getUserShare(data.data.id))
+                }
+
             }catch (err){
                 // 未登录则跳转至登陆页面
                 setCurrent("login")
@@ -83,6 +89,7 @@ const App = ()=> {
     useEffect(()=>{
         setCurrent(location.pathname.replace("/",""))
     }, [location])
+
 
     return (
         <ConfigProvider
@@ -100,7 +107,6 @@ const App = ()=> {
                             items={items}/>
                     </div>
                 </Header>
-
                 <Routes>
                     <Route path="/" element={<Navigate to="/login"/>}/>
                     <Route path="/main" element={<Main/>}/>

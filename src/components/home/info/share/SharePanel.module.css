@@ -1,0 +1,22 @@
+.placeholder_container{
+    margin: 1em;
+    font-size: 1.1em;
+}
+.placeholder{
+
+}
+.confirm{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1em;
+    font-size: 200%;
+    font-weight: bold;
+    cursor: pointer;
+}
+.confirm:hover{
+    background-color: #dddddd;
+}
+.share_wrapper{
+    margin-bottom: 5vh;
+}

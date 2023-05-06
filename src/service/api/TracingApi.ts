@@ -1,5 +1,5 @@
 import axios from "axios";
-import {BACK_HOST, DEFAULT_DATE_TIME_PATTERN, RESULT} from "../../constants";
+import {BACK_HOST, DEFAULT_DATE_TIME_PATTERN} from "../../constants";
 import dayjs from "dayjs";
 import {LearningTrace, Mindtrace} from "../data/Mindtrace";
 
@@ -9,7 +9,7 @@ export const checkNow = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/now`)
         .then(({data})=>{
             // console.log("check learn now", data)
-            if(data.code === RESULT.OK) return data.data
+            return data
         })
 }
 
@@ -17,7 +17,7 @@ export const checkLatest = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/latest`)
         .then(({data})=>{
             console.log("check learn latest", data)
-            if(data.code === RESULT.OK) return data.data
+            return data
         })
 }
 
@@ -25,7 +25,7 @@ export const checkAll = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn`)
         .then(({data})=>{
             console.log("check learn all", data)
-            if(data.code === RESULT.OK) return data.data
+            return data
         })
 }
 
@@ -33,7 +33,6 @@ export const removeLearningTraceById = async (userId: number, traceId: number)=>
     return await axios.delete(`${TRACING_HOST}/user/${userId}/learn/trace/${traceId}`)
         .then(({data})=>{
             console.log("remove learning trace", data)
-            return data.code === RESULT.OK;
         })
 }
 
@@ -45,7 +44,7 @@ export const startLearning = async (userId: number, enhancerId: number)=>{
         }
     }).then(({data})=>{
         console.log("start learning", data)
-        return data.data
+        return data
     })
 }
 
@@ -70,8 +69,7 @@ export const pauseLearning = async (userId: number, traceId: number)=>{
         }
     }).then(({data})=>{
         console.log("pause learning", data)
-        if(data.code === RESULT.OK)
-            return data.data
+        return data
     })
 }
 
@@ -84,8 +82,7 @@ export const continueLearning = async (userId: number, traceId: number)=>{
         }
     }).then(({data})=>{
         console.log("continue learning", data)
-        if(data.code === RESULT.OK)
-            return data.data
+        return data
     })
 }
 
@@ -98,9 +95,8 @@ export const settleLearning = async (userId: number, traceId:number, mindtraces:
         },
         dtos: mindtraces
     }).then(({data})=>{
-        console.log("settle learning", data)
-        if(data.code === RESULT.OK)
-            return data.data
+        // console.log("settle learning", data)
+        return data
     })
 }
 
@@ -111,9 +107,7 @@ export const dropLearning = async (userId: number, traceId: number)=>{
             id: traceId
         }
     }).then(({data})=>{
-        console.log("drop learning", data)
-        if(data.code === RESULT.OK)
-            return true
+        // console.log("drop learning", data)
     })
 }
 
@@ -121,20 +115,16 @@ export const dropLearning = async (userId: number, traceId: number)=>{
 export const getKnodeRelatedLearningTrace = async (userId: number, knodeId: number): Promise<LearningTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/knode/${knodeId}`)
         .then(({data})=>{
-            console.log("get knode related learning trace", data)
-            if(data.code === RESULT.OK)
-                return data.data
-            else return []
+            // console.log("get knode related learning trace", data)
+            return data
         })
 }
 
 export const getRelatedKnodeIdsOfLearningTrace = async (userId: number, traceId: number): Promise<number[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/trace/${traceId}/knode`)
         .then(({data})=>{
-            console.log("get related knode ids of learning trace", data)
-            if(data.code === RESULT.OK)
-                return data.data
-            return []
+            // console.log("get related knode ids of learning trace", data)
+            return data
         })
 }
 
@@ -142,8 +132,6 @@ export const getMindtracesByKnodeId = async (userId: number, knodeId: number): P
     return await axios.get(`${TRACING_HOST}/user/${userId}/mind/knode/${knodeId}/trace`)
         .then(({data})=>{
             // console.log("get mindtraces by knode id", data)
-            if(data.code === RESULT.OK)
-                return data.data
-            return []
+            return data
         })
 }

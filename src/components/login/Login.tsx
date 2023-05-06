@@ -16,8 +16,6 @@ const Login = () => {
     const setCurrentPage = useSetRecoilState(CurrentPageAtom);
     const [error, setError] = useState(null);
 
-
-
     const login = ()=>{
         loginAxios(user.username, user.password)
             .then((data)=>{

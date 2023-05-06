@@ -1,5 +1,14 @@
 
-
+export const defaultEnhancer: Enhancer = {
+    id:-1,
+    title:"",
+    introduction:"",
+    length:-1,
+    createTime:"",
+    createBy:-1,
+    resources:[],
+    labels:[]
+}
 export interface Enhancer{
     id:number,
     title:string,
@@ -7,7 +16,6 @@ export interface Enhancer{
     length:number,
     createTime:string,
     createBy:number,
-    privacy:boolean,
     resources:Array<{
         id:number,
         title:string,

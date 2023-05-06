@@ -1,0 +1,27 @@
+.container{
+    margin-bottom: 5vh;
+}
+.knode_title{
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666666;
+    cursor: default;
+}
+.breadcrumb{
+
+}
+.share_info{
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.info_item > *{
+    margin-right: 0.5em;
+    color: #666666;
+    font-weight: bold;
+}
+.fork{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

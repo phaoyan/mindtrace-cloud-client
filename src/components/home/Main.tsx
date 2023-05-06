@@ -31,6 +31,7 @@ import {MilkdownEditor} from "../utils/markdown/MilkdownEditor";
 import {MilkdownProvider} from "@milkdown/react";
 import {SelectedLeafIdsAtom} from "../../recoil/home/Mindtrace";
 import {LearningTraceAtom} from "../../recoil/LearningTrace";
+import {getUserShare} from "../../service/api/ShareApi";
 
 
 const Main = () => {
@@ -51,11 +52,11 @@ const Main = () => {
     const {id: userId} = useRecoilValue(User);
     const [selectedId, setSelectedId] = useRecoilState<number>(SelectedKnodeIdAtom)
 
+
     const loadKtree = ()=>{
         console.log(`user:${userId} -> ktree`)
         getKnodes(userId)
             .then((data) => {
-                console.log(data)
                 try {
                     setKtree(constructKtree(data))
                 } catch (e) {}
@@ -146,7 +147,7 @@ const Main = () => {
     const [selectedLeafIds, setSelectedLeafIds] = useRecoilState(SelectedLeafIdsAtom)
     const selectedKnode = useRecoilValue(SelectedKnodeSelector)
     const handleBranch = () => {
-        branch(userId, selectedId)
+        branch(selectedId)
             .then((data) => {
                 console.log("handle branch", data)
                 const stemId = selectedId
@@ -166,7 +167,7 @@ const Main = () => {
     const [messageApi, contextHolder] = message.useMessage()
     const handleRemove = () => {
         if(selectedKtree?.branches.length === 0)
-            removeKnode(userId, selectedId)
+            removeKnode(selectedId)
                 .then(() => {
                     let temp = selectedKtree?.knode.stemId
                     let stem = getKnode(ktree, temp!)
@@ -239,17 +240,15 @@ const Main = () => {
         if(index === 0) return
         let stemId = selectedKtree!.knode.stemId;
         stemId &&
-        swapBranchIndex(userId, stemId, index, index-1)
-            .then((data)=> {
-                if(data.code === RESULT.OK){
-                    let stem = getKtreeById(stemId!)!;
-                    setKtree(constructKtree(
-                        getKnodeList(updateKtreeBatch({...ktree},
-                        [
-                            {...stem.branches[index].knode, index: index-1},
-                            {...stem.branches[index-1].knode, index: index}
-                        ]))))
-                }
+        swapBranchIndex(stemId, index, index-1)
+            .then(()=> {
+                let stem = getKtreeById(stemId!)!;
+                setKtree(constructKtree(
+                    getKnodeList(updateKtreeBatch({...ktree},
+                    [
+                        {...stem.branches[index].knode, index: index-1},
+                        {...stem.branches[index-1].knode, index: index}
+                    ]))))
             })
     }
 
@@ -259,17 +258,15 @@ const Main = () => {
         if(index === branchIds.length - 1) return
         let stemId = selectedKtree!.knode.stemId;
         stemId &&
-        swapBranchIndex(userId, stemId, index, index+1)
-            .then((data)=>{
-                if(data.code === RESULT.OK){
-                    let stem = getKtreeById(stemId!)!
-                    setKtree(constructKtree(
-                        getKnodeList(updateKtreeBatch({...ktree},
-                            [
-                                {...stem.branches[index].knode, index: index+1},
-                                {...stem.branches[index+1].knode, index: index}
-                            ]))))
-                }
+        swapBranchIndex(stemId, index, index+1)
+            .then(()=>{
+                let stem = getKtreeById(stemId!)!
+                setKtree(constructKtree(
+                    getKnodeList(updateKtreeBatch({...ktree},
+                        [
+                            {...stem.branches[index].knode, index: index+1},
+                            {...stem.branches[index+1].knode, index: index}
+                        ]))))
             })
     }
 
@@ -280,7 +277,7 @@ const Main = () => {
     }
     const pasteSelectedKnode = ()=>{
         scissoredId &&
-        shiftKnode(userId, selectedId, scissoredId)
+        shiftKnode(selectedId, scissoredId)
             .then((data)=> {
                 setKtree(constructKtree(data))
             })
@@ -294,9 +291,6 @@ const Main = () => {
         setSelectedKtree(getKtreeById(selectedId))
     // eslint-disable-next-line
     }, [ktree, selectedId])
-    // useEffect(()=>{
-    //     console.log("selected ktree", selectedKtree)
-    // }, [selectedKtree])
 
     // selected knode expanded
     const [expandedKeys, setExpendedKeys] = useState<Key[]>([])
