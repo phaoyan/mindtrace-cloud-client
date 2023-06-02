@@ -1,0 +1,14 @@
+.placeHolder{
+    min-height: 20vh;
+}
+.basic_info{
+    color: #666666;
+    font-style: oblique;
+}
+.quiz_title{
+    font-size: 1.2em;
+    margin-left: 2em;
+}
+.timer{
+    color: #aaaaaa;
+}

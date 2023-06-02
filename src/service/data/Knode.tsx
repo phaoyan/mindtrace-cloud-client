@@ -1,4 +1,7 @@
 import {getKnode} from "../../recoil/home/Knode";
+import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
+import MdPreview from "../../components/utils/markdown/MdPreview";
+import React from "react";
 
 
 export interface Knode {
@@ -104,4 +107,15 @@ export const getStemChain = (ktree: Ktree, knode: Knode): Knode[]=>{
         res.push(knode)
     }
     return res.slice(1, res.length-1).reverse()
+}
+
+export const breadcrumbTitle = (chainStyleTitle: string[], include?: boolean):BreadcrumbItemType[] =>{
+    if(chainStyleTitle)
+        return chainStyleTitle
+            .filter(title=>{
+                if(include) return chainStyleTitle.indexOf(title) !== chainStyleTitle.length-1
+                else return chainStyleTitle.indexOf(title) !== 0 && chainStyleTitle.indexOf(title) !== chainStyleTitle.length-1
+            })
+            .map(title=>({title: <MdPreview>{title}</MdPreview>})).reverse()
+    return []
 }

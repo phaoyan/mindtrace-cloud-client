@@ -1,7 +1,7 @@
 import axios from "axios";
 import {BACK_HOST, DEFAULT_DATE_TIME_PATTERN} from "../../constants";
 import dayjs from "dayjs";
-import {LearningTrace, Mindtrace} from "../data/Mindtrace";
+import {defaultMindtrace, LearningTrace, Mindtrace} from "../data/Mindtrace";
 
 export const TRACING_HOST = `${BACK_HOST}/tracing`
 
@@ -16,7 +16,7 @@ export const checkNow = async (userId: number) => {
 export const checkLatest = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/latest`)
         .then(({data})=>{
-            console.log("check learn latest", data)
+            // console.log("check learn latest", data)
             return data
         })
 }
@@ -24,7 +24,7 @@ export const checkLatest = async (userId: number) => {
 export const checkAll = async (userId: number) => {
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn`)
         .then(({data})=>{
-            console.log("check learn all", data)
+            // console.log("check learn all", data)
             return data
         })
 }
@@ -132,6 +132,16 @@ export const getMindtracesByKnodeId = async (userId: number, knodeId: number): P
     return await axios.get(`${TRACING_HOST}/user/${userId}/mind/knode/${knodeId}/trace`)
         .then(({data})=>{
             // console.log("get mindtraces by knode id", data)
+            if(data.code)
+                return [defaultMindtrace]
             return data
         })
+}
+
+export const getTraceCache = async (userId: number, key: string): Promise<any>=>{
+    return await axios.get(`${TRACING_HOST}/user/${userId}/cache?key=${key}`).then(({data})=>data)
+}
+
+export const updateTraceCache = async (userId: number, data: any)=>{
+    return await axios.post(`${TRACING_HOST}/user/${userId}/cache`, data).then(({data})=>data)
 }

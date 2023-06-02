@@ -22,3 +22,9 @@ export const EnhancerLabelRepositoryAtom = atom<Label[]>({
     key:"EnhancerLabelRepositoryAtom",
     default: []
 })
+
+// 第一个number：enhancerId；第二个number：knodeId
+export const EnhancerCardIdClipboardAtom = atom<number[] | undefined>({
+    key:"EnhancerCardIdClipboardAtom",
+    default: undefined
+})

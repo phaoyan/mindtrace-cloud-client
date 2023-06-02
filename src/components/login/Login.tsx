@@ -66,7 +66,6 @@ const Login = () => {
                                     onChange={(e)=>setUser({...user, password:e.target.value})}
                                     bordered={false} placeholder="请输入密码"/>
                             </Form.Item>
-
                             <Form.Item wrapperCol={{span: 24}}>
                                 <Row>
                                     <Col span={18}>
@@ -92,6 +91,9 @@ const Login = () => {
                         {error && <span>用户名或密码错误</span>}
                     </Paragraph>
                 </Typography>
+            </div>
+            <div>
+
             </div>
         </div>
     );

@@ -37,7 +37,11 @@
 .icon_button_large{
     scale: 200%;
 }
-.icon_button:hover, .icon_button_normal:hover, .icon_button_large:hover{
+.icon_button_grey{
+    scale: 150%;
+    color: #666666;
+}
+.icon_button:hover, .icon_button_normal:hover, .icon_button_large:hover, .icon_button_grey:hover{
     cursor: pointer;
     opacity: 50%;
 }
@@ -62,7 +66,7 @@
 .ghost_vertical_divider{
     height: 100%;
     position: absolute;
-    margin: -0.5em;
+    margin: 0;
 }
 
 .ghost_horizontal_divider{
@@ -89,4 +93,31 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.text_button{
+    font-size: 1.3em;
+    color: #666666;
+    font-style: italic;
+    font-weight: lighter;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.text_button:hover{
+    opacity: 50%;
+}
+
+.menu_item{
+    color: #666666;
+    font-style: oblique;
+}
+
+.form_prompt{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666666;
+
 }

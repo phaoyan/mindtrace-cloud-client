@@ -4,25 +4,32 @@ import classes from "./InfoRight.module.css";
 import { useRecoilValue} from "recoil";
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
 import MdPreview from "../../utils/markdown/MdPreview";
-import {Breadcrumb, Tabs} from "antd";
-import {UserID} from "../../../recoil/User";
+import {Breadcrumb, Col, Row, Tabs} from "antd";
 import {getChainStyleTitle} from "../../../service/api/KnodeApi";
-import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
-import {BarChartOutlined, ClockCircleOutlined, EditOutlined, ShareAltOutlined} from "@ant-design/icons";
+import {
+    BarChartOutlined,
+    ClockCircleOutlined,
+    EditOutlined,
+    ShareAltOutlined
+} from "@ant-design/icons";
 import EnhancerPanel from "./enhancer/EnhancerPanel";
 import utils from "../../../utils.module.css"
 import RecordPanel from "./record/RecordPanel";
 import AnalysisPanel from "./analyze/AnalysisPanel";
 import SharePanel from "./share/SharePanel";
 import {MainPageHeightAtom, MainPageWidthAtom} from "../../../recoil/utils/DocumentData";
+import {breadcrumbTitle} from "../../../service/data/Knode";
 
 const InfoRight = () => {
 
-    const userId = useRecoilValue(UserID)
+    const mainPageHeight = useRecoilValue(MainPageHeightAtom)
+    const mainPageWidth = useRecoilValue(MainPageWidthAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
     const [chainStyleTitle, setChainStyleTitle] = useState<string[]>([])
 
+
+    // title相关
     useEffect(()=>{
         selectedKnodeId && selectedKnodeId !== 0 &&
         getChainStyleTitle(selectedKnodeId)
@@ -33,17 +40,7 @@ const InfoRight = () => {
     }, [selectedKnodeId])
 
 
-    const breadcrumbTitle = ():BreadcrumbItemType[] =>{
-        if(chainStyleTitle)
-        return chainStyleTitle
-            .filter(title=>title !== selectedKnode?.title && title !== "ROOT")
-            .map(title=>({title: <MdPreview>{title}</MdPreview>})).reverse()
-        return []
-    }
 
-
-    const mainPageHeight = useRecoilValue(MainPageHeightAtom)
-    const mainPageWidth = useRecoilValue(MainPageWidthAtom)
     return (
         <ResizableBox
             className={classes.resize_box}
@@ -56,10 +53,14 @@ const InfoRight = () => {
             {selectedKnodeId ?
                 <div className={`${classes.container} ${utils.custom_scrollbar}`} >
                     <div className={classes.title}>
-                        <Breadcrumb items={breadcrumbTitle()}/>
-                        <MdPreview>
-                            {" > "+selectedKnode?.title}
-                        </MdPreview>
+                        <Breadcrumb items={breadcrumbTitle(chainStyleTitle)}/>
+                        <Row>
+                            <Col span={24}  className={classes.title}>
+                                <MdPreview>
+                                    {" > "+selectedKnode?.title}
+                                </MdPreview>
+                            </Col>
+                        </Row>
                     </div>
                     <Tabs
                         defaultActiveKey={"notes"}
@@ -95,7 +96,6 @@ const InfoRight = () => {
                                 key: "share",
                                 children: <SharePanel/>
                             }
-
                         ]}/>
                 </div>:<></>
 

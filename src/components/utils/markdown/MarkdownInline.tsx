@@ -49,6 +49,7 @@ const MarkdownInline = (props:{
             setEdit(false)
             props.possessorRef && props.possessorRef.focus()
         }
+        //eslint-disable-next-line
     },[ephemeral])
 
 

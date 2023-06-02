@@ -71,8 +71,8 @@ export const  calculateDuration = (learningTrace: LearningTrace)=>{
 export const masteryDesc = (value: number | undefined) =>{
     if(!value) return "初识"
     return  value === 0 ? "完全没懂" :
-            value < 0.25 ? "懵懵懂懂" :
-            value < 0.5 ? "大致明白" :
-            value < 0.75 ? "基本理解" :
-            value < 1 ? "完全理解" : ""
+            value <= 0.25 ? "懵懵懂懂" :
+            value <= 0.5 ? "大致明白" :
+            value <= 0.75 ? "基本理解" :
+            value <= 1 ? "完全理解" : ""
 }

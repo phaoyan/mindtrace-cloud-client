@@ -14,3 +14,8 @@ export const CurrentPageAtom = atom({
     key: "CurrentPageAtom",
     default: "login"
 })
+
+export const EnhancerPanelKeyAtom = atom<number>({
+    key: "EnhancerPanelKeyAtom",
+    default: 0
+})

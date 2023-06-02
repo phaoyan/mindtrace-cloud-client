@@ -1,6 +1,7 @@
 import axios from "axios";
 import {ENHANCER_HOST} from "./EnhancerApi";
 import {Resource, ResourceWithData} from "../data/Resource";
+import {KnodeData} from "../../components/home/info/enhancer/resource/UnfoldingPlayer";
 
 
 export const addResourceToEnhancer = async (
@@ -23,6 +24,10 @@ export const getResourcesFromEnhancer = async (enhancerId: number): Promise<Reso
             // console.log("get resources from enhancer", data)
             return data
         })
+}
+
+export const getResourceById = async (resourceId: number): Promise<Resource>=>{
+    return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/meta`).then(({data})=>data)
 }
 
 export const addDataToResource = async (resourceId: number, data: object)=>{
@@ -50,4 +55,8 @@ export const getDataFromResourceByUrl = async (url: string)=>{
 
 export const removeResource = async (resourceId: number): Promise<any>=>{
     return await axios.delete(`${ENHANCER_HOST}/resource/${resourceId}`)
+}
+
+export const getUnfoldingKnodeData = async (rootId: number): Promise<KnodeData[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/resource/serv/unfolding?rootId=${rootId}`).then(({data})=>data)
 }

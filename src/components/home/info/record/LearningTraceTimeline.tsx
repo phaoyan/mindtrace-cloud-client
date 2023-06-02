@@ -57,10 +57,10 @@ const LearningTraceTimeline = () => {
         getKnodeRelatedLearningTrace(userId, selectedKnodeId)
             .then(async (data)=>{
             let result: WrappedLearningTrace[] = []
-            for(let tr of data)
-                await wrapTrace(tr).then((wrapped)=>{
-                    result.push(wrapped)
-                })
+            // for(let tr of data)
+            //     await wrapTrace(tr).then((wrapped)=>{
+            //         result.push(wrapped)
+            //     })
             setWrappedTraces(result)
         })
         // eslint-disable-next-line

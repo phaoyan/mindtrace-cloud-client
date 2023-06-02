@@ -37,10 +37,6 @@ const KnodeShareCard = (props:{knodeShare: KnodeShare}) => {
         updateKnodeShare(knodeShare.knodeId, {...knodeShare, likes: knodeShare.likes + 1})
     }
 
-    const handleFork = ()=>{
-
-    }
-
     if(enhancerShares.length === 0) return <></>
     return (
         <div className={classes.container}>

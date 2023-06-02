@@ -30,3 +30,9 @@ export const removeEnhancer = async (enhancerId: number)=>{
         return data
     })
 }
+
+export const scissorEnhancer = async (enhancerId:number, oriKnodeId: number, tarKnodeId: number)=>{
+    console.log("scissor enhancer", enhancerId, oriKnodeId, tarKnodeId)
+    await axios.post(`${ENHANCER_HOST}/knode/${tarKnodeId}/enhancer/${enhancerId}`)
+    await axios.delete(`${ENHANCER_HOST}/knode/${oriKnodeId}/enhancer/${enhancerId}`)
+}

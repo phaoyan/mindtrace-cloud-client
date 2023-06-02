@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
-import { Col, Dropdown, Input, Row} from "antd";
-import {MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {Col, Dropdown, Input, Row, Tooltip} from "antd";
+import {MinusOutlined, PlusOutlined, PushpinOutlined, ScissorOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import {getEnhancerById, updateEnhancer} from "../../../../service/api/EnhancerApi";
-import {useRecoilValue} from "recoil";
+import { useRecoilValue, useSetRecoilState} from "recoil";
 import {UserID} from "../../../../recoil/User";
 import {
     addResourceDropdownItems,
-    Resource, ResourceType, resourceTypePlayerMapper,
+    Resource, ResourcePlayer, ResourceType, resourceTypePlayerMapper,
     ResourceWithData
 } from "../../../../service/data/Resource";
 import {
@@ -17,11 +17,14 @@ import {
     removeResource
 } from "../../../../service/api/ResourceApi";
 import {defaultEnhancer, Enhancer} from "../../../../service/data/Enhancer";
-
+import {EnhancerCardIdClipboardAtom} from "../../../../recoil/home/Enhancer";
+import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
+import useMessage from "antd/es/message/useMessage";
 
 export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
 
     const userId = useRecoilValue(UserID)
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [enhancer, setEnhancer] = useState<Enhancer>(defaultEnhancer)
     const [resources, setResources] = useState<Resource[]>([])
     const [title, setTitle] = useState("")
@@ -35,9 +38,8 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
         setTitle(enhancer.title)
     },[enhancer])
 
-    const handleAddResource = (resourceWithData: ResourceWithData)=>{
-        addResourceToEnhancer(props.id, resourceWithData)
-            .then((data) => setResources([...resources, data]))
+    const handleAddResource = async (resourceWithData: ResourceWithData)=>{
+        setResources([...resources, await addResourceToEnhancer(props.id, resourceWithData)])
     }
 
 
@@ -46,19 +48,21 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
         updateEnhancer(props.id, {...enhancer!, title})
     }
 
-    const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{
-        if(props.resource.type && Object.values(ResourceType).includes(props.resource.type!))
-            return resourceTypePlayerMapper[props.resource.type!](props.resource, !!props.readonly)
-        return <></>
-    }
+
+
+    const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
+    const [messageApi, contextHolder] = useMessage()
 
     return (
         <div className={classes.container}>
+            {contextHolder}
             <div className={classes.header_part}>
                 <Row>
                     <Col span={10}>
                         {props.readonly ?
-                            <span className={classes.title} style={{padding:"0.5em"}}>
+                            <span
+                                className={classes.title}
+                                style={{padding:"0.5em"}}>
                                 {title}
                             </span> :
                             <Input
@@ -73,9 +77,17 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                         }
 
                     </Col>
-                    <Col span={13} className={classes.tag_wrapper}>
+                    <Col span={11} className={classes.tag_wrapper}>
                     </Col>
                     <Col span={1}>
+                        <ScissorOutlined
+                            className={utils.icon_button}
+                            onClick={()=>{
+                                setEnhancerIdClipboard([props.id, selectedKnodeId])
+                                messageApi.success("笔记剪切成功")
+                            }}/>
+                    </Col>
+                    <Col span={1} offset={1}>
                         {props.readonly ? <></>:
                             <Dropdown
                                 menu={{items: addResourceDropdownItems(handleAddResource, userId)}}>

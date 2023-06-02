@@ -1,4 +1,4 @@
-export const BACK_HOST = "http://localhost:34443"
+export const BACK_HOST = `http://localhost:34443`
 
 export const DEFAULT_DATE_TIME_PATTERN = "YYYY-MM-DDTHH:mm:ss"
 export const FILE_NAME_DATE_TIME_PATTERN = "YYYY-MM-DDTHH-mm-ss"

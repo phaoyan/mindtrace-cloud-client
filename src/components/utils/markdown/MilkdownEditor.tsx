@@ -1,9 +1,9 @@
-import {defaultValueCtx, Editor, editorState, editorViewCtx, editorViewOptionsCtx, rootCtx} from '@milkdown/core';
+import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/core';
 
 import {Milkdown, useEditor} from '@milkdown/react'
-import { commonmark } from '@milkdown/preset-commonmark';
+import {commonmark} from '@milkdown/preset-commonmark';
 import { nord } from '@milkdown/theme-nord';
-import {katexOptionsCtx, math} from '@milkdown/plugin-math';
+import {katexOptionsCtx, mathBlockSchema, mathInlineSchema, remarkMathPlugin} from '@milkdown/plugin-math';
 
 import '@milkdown/theme-nord/style.css';
 import 'katex/dist/katex.min.css';
@@ -20,7 +20,6 @@ import {listener, listenerCtx} from "@milkdown/plugin-listener";
 import {history} from "@milkdown/plugin-history";
 import {useEffect} from "react";
 import {Ctx} from "@milkdown/ctx";
-import {editableInputTypes} from "@testing-library/user-event/dist/utils";
 
 export const MilkdownEditor = (props:{
     md: string,
@@ -28,7 +27,10 @@ export const MilkdownEditor = (props:{
     editable: boolean,
     command?: (ctx: Ctx)=>any,
     // 父组件可以通过使用一个state并修改state来告知milkdown editor需要执行command命令了
-    trigger?: any }) => {
+    trigger?: any,
+    latexDisplayMode?: any}) => {
+
+
     let useEditorReturn = useEditor((root) => {
         return  Editor
             .make()
@@ -45,8 +47,14 @@ export const MilkdownEditor = (props:{
             .use(commonmark)
 
             // LaTeX
-            .config(ctx => ctx.set(katexOptionsCtx.key, {throwOnError: false}))
-            .use(math)
+            .use(remarkMathPlugin)
+            .use(mathInlineSchema)
+            .use(mathBlockSchema)
+            .use(katexOptionsCtx)
+            .config(ctx => ctx.set(katexOptionsCtx.key, {
+                throwOnError: false,
+                displayMode:props.latexDisplayMode
+            }))
 
             // Prism
             .use(prism)
@@ -79,6 +87,7 @@ export const MilkdownEditor = (props:{
 
     useEffect(()=>{
         editor && editor.action(props.command!)
+        // eslint-disable-next-line
     },[props.trigger])
 
     return <Milkdown/>

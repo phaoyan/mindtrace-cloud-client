@@ -24,7 +24,14 @@ import {
 import {formatMillisecondsToHHMMSS} from "../../../service/utils/TimeUtils";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {LearningTraceAtom} from "../../../recoil/LearningTrace";
-import {checkNow, continueLearning, dropLearning, pauseLearning, settleLearning} from "../../../service/api/TracingApi";
+import {
+    checkNow,
+    continueLearning,
+    dropLearning,
+    getTraceCache,
+    pauseLearning,
+    settleLearning, updateTraceCache
+} from "../../../service/api/TracingApi";
 import {UserID} from "../../../recoil/User";
 import {EnhancerCard} from "../info/enhancer/EnhancerCard";
 import utils from "../../../utils.module.css"
@@ -53,7 +60,7 @@ const TraceInfo = () => {
     const [pause, setPause] = useState(false)
     useEffect(()=>{
         learningTrace &&
-        setPause(learningTrace.pauseList.length > learningTrace.continueList.length)
+        setPause(learningTrace.pauseList && learningTrace.pauseList.length > learningTrace.continueList.length)
     }, [learningTrace])
 
 
@@ -79,15 +86,11 @@ const TraceInfo = () => {
     const [leaves, setLeaves] = useState<Knode[]>([])
     useEffect(()=>{
         getLeaves(selectedStemId)
-            .then((data)=>{
-                setLeaves(data)
-            })
+            .then((data)=> setLeaves(data))
     }, [userId, selectedStemId])
 
     const getDefaultRetentionMap = async ()=>{
-        console.log("ktree test",ktree)
         let allLeaves = await getLeaves(ktree.knode.id)
-        console.log("all leaves" , allLeaves)
         let res: {[id:number]: [number, number]} = {}
         for(let leaf of allLeaves)
             // TODO：此处可结合熟练度算法修改默认值
@@ -104,6 +107,18 @@ const TraceInfo = () => {
 
     // settle右半框已被选中的leaf节点
     const [selectedLeafIds, setSelectedLeafIds] = useRecoilState<number[]>(SelectedLeafIdsAtom)
+    // 信息计入缓存
+    useEffect(()=>{
+        getTraceCache(userId, "selectedLeafIds").then((data)=>{
+            console.log("TRACE CACHE", data)
+            data && !data.code && setSelectedLeafIds(data)
+        })
+        //eslint-disable-next-line
+    },[userId])
+    useEffect(()=>{
+        updateTraceCache(userId, {key: "selectedLeafIds", data: selectedLeafIds}).then()
+        //eslint-disable-next-line
+    }, [selectedLeafIds])
 
     // signal用于告知record页面刷新
     const [submitSignal, setSubmitSignal] = useRecoilState(LearningTraceSubmitSignalAtom)
@@ -159,6 +174,7 @@ const TraceInfo = () => {
         const [breadcrumbTitle, setBreadcrumbTitle] = useState<BreadcrumbItemType[]>([])
         useEffect(()=>{
             setBreadcrumbTitle(getStemChain(ktree, props.leaf).map(knode => ({title: <MdPreview>{knode.title}</MdPreview>})))
+        // eslint-disable-next-line
         }, [])
 
         return (
@@ -236,7 +252,9 @@ const TraceInfo = () => {
                 <Divider style={{margin:" 1vh 1vh"}}/>
                 <Row className={classes.settle_content}>
                     <Col span={12} className={`${classes.settle_content_left} ${utils.custom_scrollbar} ${utils.left_scrollbar}`}>
-                        {leaves.length === 0 ?
+                        {
+                            leaves &&
+                            leaves.length === 0 ?
                             <div className={classes.settle_content_left_placeholder_wrapper}>
                                             <span className={classes.settle_content_left_placeholder}>
                                                 No Data
@@ -326,7 +344,19 @@ const TraceInfo = () => {
     const [rightLeavesPage, setRightLeavesPage] = useState(1)
     const [rightLeavesPageCapacity,] = useState(3)
 
-    if(!learningTrace) return <div>{contextHolder}</div>
+
+    const startLearn = ()=>{
+
+    }
+
+    if(!learningTrace) return (
+        <div>
+            {contextHolder}
+            <FloatButton
+                className={classes.float}
+                icon={<EditOutlined/>}
+                onClick={()=>startLearn()}/>
+        </div>)
     return (
         <div className={classes.container}>
             {contextHolder}

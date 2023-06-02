@@ -1,10 +1,18 @@
-import {FileSearchOutlined, FileTextOutlined, LinkOutlined, SwitcherOutlined} from "@ant-design/icons";
+import {
+    FileSearchOutlined,
+    FileTextOutlined,
+    InteractionOutlined,
+    LinkOutlined, ShareAltOutlined,
+    SwitcherOutlined
+} from "@ant-design/icons";
 import classes from "../../components/home/info/enhancer/EnhancerCard.module.css";
 import React from "react";
 import QuizcardPlayer from "../../components/home/info/enhancer/resource/QuizcardPlayer";
 import MarkdownPlayer from "../../components/home/info/enhancer/resource/MarkdownPlayer";
 import LinkoutPlayer from "../../components/home/info/enhancer/resource/LinkoutPlayer";
 import ClozePlayer from "../../components/home/info/enhancer/resource/ClozePlayer";
+import UnfoldingPlayer from "../../components/home/info/enhancer/resource/UnfoldingPlayer";
+import MindtraceHubResourcePlayer from "../../components/home/info/enhancer/resource/MindtraceHubResourcePlayer";
 
 
 export interface Resource {
@@ -12,7 +20,7 @@ export interface Resource {
     title?: string,
     type?: string,
     createTime?: string,
-    createBy?: number,
+    createBy: number,
     privacy?: string
 }
 
@@ -33,7 +41,9 @@ export const ResourceType = {
     LINK_SCRIPT: "link script",
     ASSOCIATED_RESOURCE: "associated resource",
     HIDDEN_KNODE_SET: "hidden knode set",
-    STROKE: "stroke"
+    STROKE: "stroke",
+    UNFOLDING: "unfolding",
+    MINDTRACE_HUB_RESOURCE: "mindtrace hub resource"
 }
 
 export const quizcardTemplate = (userId:number)=> (
@@ -45,7 +55,10 @@ export const quizcardTemplate = (userId:number)=> (
         data: {
             front: "",
             back: "",
-            imgs:{}
+            config:{
+                frontLatexDisplayMode: true,
+                backLatexDisplayMode: true
+            }
         }
     }
 )
@@ -56,7 +69,11 @@ export const markdownTemplate = (userId: number)=>({
         createBy: userId
     },
     data: {
-        content: ""
+        content: "",
+        config:{
+            hide: false,
+            latexDisplayMode: true
+        }
     }
 })
 
@@ -67,7 +84,7 @@ export const linkoutTemplate = (userId: number)=>({
     },
     data:{
         type:"default",
-        url:"www.bilibili.com"
+        url:"https://www.bing.com"
     }
 })
 
@@ -78,6 +95,40 @@ export const clozeTemplate = (userId: number)=>({
     },
     data:{
         raw: ""
+    }
+})
+
+export const unfoldingTemplate = (userId:number)=>({
+    meta:{
+        type: ResourceType.UNFOLDING,
+        createBy: userId
+    },
+    data:{
+        knodes:[{
+            title:"",
+            chainStyleTitle: [],
+            knodeId:-1,
+            stemId:-1,
+            unfolded:false,
+            tag:false
+        }],
+        configs:{
+            hotUpdate: true
+        }
+    }
+})
+
+export const mindtraceHubResourceTemplate = (userId: number)=>({
+    meta:{
+        type: ResourceType.MINDTRACE_HUB_RESOURCE,
+        createBy: userId
+    },
+    data:{
+        id: 0,
+        url: "",
+        title: "",
+        contentType: "application/pdf",
+        size: 0
     }
 })
 /**
@@ -107,6 +158,18 @@ export const addResourceDropdownItems = (handleAddAction: (resourceWithData: Res
         label: "资源链接",
         icon: <LinkOutlined className={classes.option}/>,
         onClick: ()=>handleAddAction(linkoutTemplate(userId))
+    },
+    {
+        key: ResourceType.MINDTRACE_HUB_RESOURCE,
+        label: "云端资源",
+        icon: <ShareAltOutlined className={classes.option}/>,
+        onClick: ()=>handleAddAction(mindtraceHubResourceTemplate(userId))
+    },
+    {
+        key: ResourceType.UNFOLDING,
+        label: "知识梳理",
+        icon: <InteractionOutlined className={classes.option}/>,
+        onClick: ()=>handleAddAction(unfoldingTemplate(userId))
     }
 ]
 /**
@@ -117,4 +180,12 @@ export const resourceTypePlayerMapper = {
     [ResourceType.MARKDOWN]: (meta: Resource, readonly:boolean) => <MarkdownPlayer meta={meta} readonly={readonly}/>,
     [ResourceType.LINKOUT]: (meta: Resource, readonly:boolean) => <LinkoutPlayer  meta={meta} readonly={readonly}/>,
     [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
+    [ResourceType.UNFOLDING]: (meta: Resource, readonly:boolean)=> <UnfoldingPlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>
+}
+
+export const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{
+    if(props.resource.type && Object.values(ResourceType).includes(props.resource.type!))
+        return resourceTypePlayerMapper[props.resource.type!](props.resource, !!props.readonly)
+    return <></>
 }

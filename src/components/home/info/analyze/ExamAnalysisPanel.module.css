@@ -1,0 +1,18 @@
+.timeline_item{
+    width: 80%;
+}
+.timeline_item .ant-timeline-item-label{
+    width: 8em !important;
+}
+.timeline_bar{
+    color: #999999;
+    font-size: 1em;
+    margin-right: 2em;
+}
+.timeline_option{
+
+}
+.timeline_main > *{
+    font-size: 1.2em;
+    font-weight: bold;
+}

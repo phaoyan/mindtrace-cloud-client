@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Resource} from "../../../../../service/data/Resource";
-import {getAllDataFromResource} from "../../../../../service/api/ResourceApi";
+import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
 import classes from "./ClozePlayer.module.css";
 import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../../../utils/markdown/MilkdownEditor";
@@ -15,7 +15,6 @@ import {
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {insertStringAt} from "../../../../../service/utils/JsUtils";
-import {submit} from "./PlayerUtils";
 import {replaceAll} from "@milkdown/utils"
 
 const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
@@ -75,9 +74,9 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
         setDisplayTxt(indexAnswer())
         //eslint-disable-next-line
     }, [index, data.noAnswer])
-    const handleSubmit = ()=>{
+    const handleSubmit = async ()=>{
         !props.readonly &&
-        submit(props.meta.id!, {raw : raw})
+        await addDataToResource(props.meta.id!, {raw : raw})
             .then(()=>{
                 // 由于后端数据持久化有非阻塞的部分，有时候url还没有替换完成就被重新加载。故设置一个延时
                 setTimeout(()=>{
@@ -168,7 +167,7 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
                                     onClick={()=>index >= 0 && setIndex(index - 1)}/>
                                 <DoubleRightOutlined
                                     className={utils.icon_button}
-                                    onClick={()=>setIndex((index + 1) % data.indexes.length)}/>
+                                    onClick={()=>setIndex(index === data.indexes.length - 1 ? -1 : index + 1)}/>
                             </>
                     }
                 </Col>

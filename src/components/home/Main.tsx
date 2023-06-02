@@ -7,7 +7,8 @@ import {
     MinusOutlined,
     NodeCollapseOutlined,
     NodeExpandOutlined,
-    PlusOutlined, QuestionCircleOutlined,
+    PlusOutlined,
+    QuestionCircleOutlined,
     ScissorOutlined
 } from "@ant-design/icons";
 import "../../service/api/api.ts"
@@ -24,14 +25,12 @@ import InfoRight from "./info/InfoRight";
 import {getKnode, KtreeAtom, SelectedKnodeIdAtom, SelectedKnodeSelector} from "../../recoil/home/Knode";
 import {MarkdownInlineContext} from "../../recoil/utils/MarkdownInline";
 import KnodeTitle from "./KnodeTitle";
-import {RESULT} from "../../constants";
 import TraceInfo from "./trace/TraceInfo";
 import {MainPageHeightAtom, MainPageWidthAtom} from "../../recoil/utils/DocumentData";
 import {MilkdownEditor} from "../utils/markdown/MilkdownEditor";
 import {MilkdownProvider} from "@milkdown/react";
 import {SelectedLeafIdsAtom} from "../../recoil/home/Mindtrace";
 import {LearningTraceAtom} from "../../recoil/LearningTrace";
-import {getUserShare} from "../../service/api/ShareApi";
 
 
 const Main = () => {
@@ -390,7 +389,7 @@ const Main = () => {
                                 <MilkdownProvider>
                                     <MilkdownEditor
                                         md={hotkeyHelp}
-                                        editable={true}
+                                        editable={false}
                                         onChange={(cur, prev)=>{}}/>
                                 </MilkdownProvider>
                             </div>

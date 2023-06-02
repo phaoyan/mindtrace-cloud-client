@@ -19,3 +19,8 @@
 .type_select:hover{
     color: #333333;
 }
+
+.menu_item{
+    color: #666666;
+    font-style: oblique;
+}

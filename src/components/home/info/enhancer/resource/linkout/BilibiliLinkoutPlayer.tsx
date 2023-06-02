@@ -4,7 +4,6 @@ import {Col, List, Row} from "antd";
 import utils from "../../../../../../utils.module.css"
 
 const BilibiliLinkoutPlayer = (props:{data: any}) => {
-    console.log("bilibili", props.data)
     return (
         <div className={classes.container}>
             <Row>

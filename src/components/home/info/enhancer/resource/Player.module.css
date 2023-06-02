@@ -19,3 +19,11 @@
     color: #aaa;
     font-style: oblique;
 }
+.front_options > *{
+    margin-bottom: 1em;
+    width: 100%;
+}
+.back_options > *{
+    margin-bottom: 1em;
+    width: 100%;
+}

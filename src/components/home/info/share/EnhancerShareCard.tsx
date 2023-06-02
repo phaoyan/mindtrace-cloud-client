@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {EnhancerShare} from "../../../../service/data/share/EnhancerShare";
 import {EnhancerCard} from "../enhancer/EnhancerCard";
-import {Col, message, Row} from "antd";
+import {Col, Row} from "antd";
 import {BranchesOutlined} from "@ant-design/icons";
 import classes from "./KnodeShareCard.module.css";
 import utils from "../../../../utils.module.css";

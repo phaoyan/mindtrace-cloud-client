@@ -1,5 +1,5 @@
 import axios from "axios";
-import {BACK_HOST, RESULT} from "../../constants";
+import {BACK_HOST} from "../../constants";
 import {Knode} from "../data/Knode";
 
 
@@ -61,7 +61,9 @@ export const getLeaves = async (knodeId: number)=>{
     return await
         axios.get(`${KNODE_HOST}/knode/${knodeId}/leaves`)
             .then(({data})=>{
-                // console.log("get leaves", data)
+                console.log("get leaves", data)
+                if(data.code)
+                    return []
                 return data
             })
 }

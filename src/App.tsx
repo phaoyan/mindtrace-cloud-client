@@ -65,7 +65,6 @@ const App = ()=> {
         if(!isLogin && current !== "login"){
             try{
                 let {data} = await axios.get(`${BACK_HOST}/user`);
-                console.log("test login", data)
                 if(data.code === RESULT.OK){
                     setUser({
                         ...user,

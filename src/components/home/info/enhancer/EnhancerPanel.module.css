@@ -7,4 +7,8 @@
 .add_card_wrapper{
     position: relative;
     top: -1em;
+    margin-bottom: 40vh;
+}
+.add_card_wrapper > *{
+    margin-right: 2em;
 }

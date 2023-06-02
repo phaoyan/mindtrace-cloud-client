@@ -38,7 +38,11 @@
     padding-left: 3%;
     width: 96%;
 }
-
+.title_left{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .title {
     padding-top: 1vh;
     padding-bottom: 1vh;
@@ -52,6 +56,7 @@
 
 .title blockquote{
     max-width: 200vw;
+    margin-left: 1em;
 }
 
 .subtitle > *{

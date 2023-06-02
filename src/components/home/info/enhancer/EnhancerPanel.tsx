@@ -2,18 +2,20 @@ import React, {useEffect} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
-import {addEnhancerToKnode, getEnhancersForKnode} from "../../../../service/api/EnhancerApi";
+import {addEnhancerToKnode, getEnhancersForKnode, scissorEnhancer} from "../../../../service/api/EnhancerApi";
 import {Divider} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import {PlusOutlined, ScissorOutlined} from "@ant-design/icons";
 import classes from "./EnhancerPanel.module.css";
 import utils from "../../../../utils.module.css"
-import {EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
+import {EnhancerCardIdClipboardAtom, EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
 import EnhancerCardWrapper from "./EnhancerCardWrapper";
+import {EnhancerPanelKeyAtom} from "../../../../recoil/utils/DocumentData";
 const EnhancerPanel = () => {
 
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
+    const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
+    const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)
 
     // selectedKnodeId -> enhancers
     useEffect(() => {
@@ -23,7 +25,7 @@ const EnhancerPanel = () => {
                 setEnhancers(data)
             })
         // eslint-disable-next-line
-    }, [selectedKnodeId])
+    }, [selectedKnodeId, enhancerPanelKey])
 
     const addEnhancerRaw = ()=>{
         addEnhancerToKnode(selectedKnodeId)
@@ -32,8 +34,11 @@ const EnhancerPanel = () => {
             })
     }
 
+
+
+
     return (
-        <div className={classes.container}>
+        <div className={classes.container} key={enhancerPanelKey}>
             <div className={classes.main}>
                 {enhancers.map(enhancer=>(
                     <div key={enhancer.id}>
@@ -47,6 +52,15 @@ const EnhancerPanel = () => {
                 <PlusOutlined
                     className={utils.icon_button}
                     onClick={()=>addEnhancerRaw()}/>
+                {enhancerIdClipboard &&
+                    <ScissorOutlined
+                        className={utils.icon_button}
+                        onClick={ async ()=>{
+                            await scissorEnhancer(enhancerIdClipboard[0],enhancerIdClipboard[1],selectedKnodeId)
+                            setEnhancerPanelKey(enhancerPanelKey+1)
+                            setEnhancerIdClipboard(undefined)
+                        }}/>
+                }
                 <span className={classes.placeholder}>在这里添加笔记 . . . </span>
             </div>
 
