@@ -18,10 +18,8 @@ export const getKnodes = async (userId: number)=>{
         })
 }
 
-export const branch = async (knodeId: number)=>{
-    return await
-        axios.post(`${KNODE_HOST}/knode/${knodeId}/branch?title=`)
-        .then(({data})=>data)
+export const branch = async (knodeId: number): Promise<Knode>=>{
+    return await axios.post(`${KNODE_HOST}/knode/${knodeId}/branch?title=`).then(({data})=>data)
 }
 
 export const removeKnode = async (knodeId: number)=>{
@@ -30,7 +28,6 @@ export const removeKnode = async (knodeId: number)=>{
         .then(({data})=>data)
 }
 export const updateKnode = async (updated: Knode)=>{
-    console.log("test update", updated.title)
     return await axios.post(`${KNODE_HOST}/knode/${updated.id}`, {title: updated.title})
 }
 

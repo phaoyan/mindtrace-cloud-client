@@ -32,7 +32,7 @@ export const checkAll = async (userId: number) => {
 export const removeLearningTraceById = async (userId: number, traceId: number)=>{
     return await axios.delete(`${TRACING_HOST}/user/${userId}/learn/trace/${traceId}`)
         .then(({data})=>{
-            console.log("remove learning trace", data)
+            console.log("remove learning TraceInfo", data)
         })
 }
 
@@ -115,7 +115,7 @@ export const dropLearning = async (userId: number, traceId: number)=>{
 export const getKnodeRelatedLearningTrace = async (userId: number, knodeId: number): Promise<LearningTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/knode/${knodeId}`)
         .then(({data})=>{
-            // console.log("get knode related learning trace", data)
+            // console.log("get knode related learning TraceInfo", data)
             return data
         })
 }
@@ -123,7 +123,7 @@ export const getKnodeRelatedLearningTrace = async (userId: number, knodeId: numb
 export const getRelatedKnodeIdsOfLearningTrace = async (userId: number, traceId: number): Promise<number[]>=>{
     return await axios.get(`${TRACING_HOST}/user/${userId}/learn/trace/${traceId}/knode`)
         .then(({data})=>{
-            // console.log("get related knode ids of learning trace", data)
+            // console.log("get related knode ids of learning TraceInfo", data)
             return data
         })
 }

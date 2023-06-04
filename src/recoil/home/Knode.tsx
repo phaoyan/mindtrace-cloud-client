@@ -1,5 +1,7 @@
-import {atom, DefaultValue, selector, selectorFamily} from "recoil";
-import {Knode, Ktree, updateKtree} from "../../service/data/Knode";
+import {atom, selector, selectorFamily} from "recoil";
+import {Knode, Ktree, KtreeAntd} from "../../service/data/Knode";
+import KnodeTitle from "../../components/Main/KnodeTitle/KnodeTitle";
+import React from "react";
 
 export const defaultKnode = {
     id: -1,
@@ -14,25 +16,82 @@ export const defaultKnode = {
     privacy: "private"
 }
 
-
-export const KtreeAtom = atom<Ktree>({
-    key:"KtreeAtom",
-    default: {
-        knode: defaultKnode,
-        branches:[]
-    },
-    dangerouslyAllowMutability: true
+export const KtreeFlatAtom = atom<Knode[]>({
+    key: "KtreeFlatAtom",
+    default: []
 })
+
+export const KtreeSelector = selector<Ktree>({
+    key: "KtreeSelector",
+    get: ({get})=>{
+        let ktreeMap: Map<number, Ktree> = new Map<number, Ktree>();
+        for (let knode of get(KtreeFlatAtom))
+            ktreeMap.set(knode.id, {knode: knode, branches: []});
+        for (let [, ktree] of ktreeMap) {
+            let stemId = ktree.knode.stemId;
+            if (!stemId) continue;
+            let stem = ktreeMap.get(stemId)
+            if (!stem) continue;
+            stem.branches.push(ktree)
+        }
+        for (let [, ktree] of ktreeMap)
+            if (!ktree.knode.stemId) {
+                sortKtree(ktree)
+                return ktree
+            }
+        return {knode: defaultKnode, branches: []}
+    }
+})
+
+export const SelectedKtreeSelector = selector<Ktree | undefined>({
+    key: "SelectedKtreeSelector",
+    get: ({get})=> {
+        let temp = [get(KtreeSelector)]
+        while (temp.length !== 0) {
+            let cur = temp.pop()!
+            if (cur.knode.id === get(SelectedKnodeIdAtom)) return cur
+            else temp = [...temp, ...cur.branches]
+        }
+    },
+})
+
+export const SelectedKtreeOffspringIdsSelector = selector<number[]>({
+    key: "SelectedKtreeOffspringIdsSelector",
+    get: ({get})=>{
+        const getOffspringIds = (ktree: Ktree): number[] => {
+            if (!ktree) return []
+            let res = [ktree.knode.id]
+            for (let branch of ktree.branches)
+                res = [...res, ...getOffspringIds(branch)]
+            return res;
+        }
+        const selectedKtree = get(SelectedKtreeSelector);
+        if(selectedKtree)
+            return getOffspringIds(selectedKtree)
+        else return []
+    }
+})
+
+export const KtreeAntdSelector = selector<KtreeAntd[]>({
+    key: "KtreeAntd",
+    get: ({get})=> convertKtreeAntd([get(KtreeSelector)])
+})
+
+const convertKtreeAntd = (ori: Array<Ktree>): KtreeAntd[] => {
+    if (ori[0] == null) return []
+    return ori.map(ktree => ({
+        key: ktree.knode.id,
+        title: (<KnodeTitle id={ktree?.knode.id!}/>),
+        children: convertKtreeAntd(ktree.branches)
+    }))
+}
 
 export const KnodeSelector = selectorFamily<Knode | undefined, number>({
     key:"KnodeSelector",
-    get: (id) => ({get}) =>getKnode(get(KtreeAtom), id),
+    get: (id) => ({get}) =>getKnode(get(KtreeSelector), id),
     set: (id)=>({get, set}, newValue)=>{
-        console.log("update", newValue, id)
-        if(newValue && !(newValue instanceof DefaultValue))
-            set(KtreeAtom, updateKtree({...get(KtreeAtom)}, newValue))
+        set(KtreeFlatAtom, get(KtreeFlatAtom).map(knode => knode.id === id ? newValue : knode) as Knode[])
     }
-
 })
 
 export const SelectedKnodeIdAtom = atom<number>({
@@ -43,7 +102,15 @@ export const SelectedKnodeIdAtom = atom<number>({
 
 export const SelectedKnodeSelector = selector<Knode | undefined>({
     key: "SelectedKnodeSelector",
-    get: ({get})=>get(KnodeSelector(get(SelectedKnodeIdAtom)))
+    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(SelectedKnodeIdAtom))
+})
+
+export const SelectedKnodeStemSelector = selector<Knode | undefined>({
+    key: "SelectedKnodeStemSelector",
+    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(SelectedKnodeSelector)?.stemId),
+    set: ({get, set}, newValue)=>{
+        set(KnodeSelector(get(SelectedKnodeStemSelector)?.id!), newValue)
+    }
 })
 
 export const getKnode = (ktree: Ktree, id: number): Knode | undefined=>{
@@ -53,3 +120,13 @@ export const getKnode = (ktree: Ktree, id: number): Knode | undefined=>{
         if(knode) return knode
     }
 }
+
+export const sortKtree = (ktree: Ktree)=>{
+    ktree.branches = ktree.branches.sort((a,b)=>a.knode.index - b.knode.index)
+    for(let branch of ktree.branches) sortKtree(branch)
+}
+
+export const ScissoredKnodeIdAtom = atom<number | undefined>({
+    key: "ScissoredKnodeIdAtom",
+    default: undefined
+})

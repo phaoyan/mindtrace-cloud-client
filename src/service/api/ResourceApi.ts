@@ -1,7 +1,7 @@
 import axios from "axios";
 import {ENHANCER_HOST} from "./EnhancerApi";
-import {Resource, ResourceWithData} from "../data/Resource";
-import {KnodeData} from "../../components/home/info/enhancer/resource/UnfoldingPlayer";
+import {KnodeData} from "../../components/Main/InfoRight/EnhancerPanel/resource/UnfoldingPlayer";
+import {Resource, ResourceWithData} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 
 export const addResourceToEnhancer = async (

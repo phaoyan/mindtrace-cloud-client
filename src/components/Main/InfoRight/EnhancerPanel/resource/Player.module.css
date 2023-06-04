@@ -1,0 +1,30 @@
+.container{
+    padding: 2vh 1vh 1vh;
+    min-height: 6vh;
+    width: 100%;
+}
+.row{
+    min-height: 6vh;
+}
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.sidebar > *{
+    position: relative;
+    left: 0.5vw;
+}
+.placeholder{
+    position: absolute;
+    color: #aaa;
+    font-style: oblique;
+}
+.front_options > *{
+    margin-bottom: 1em;
+    width: 100%;
+}
+.back_options > *{
+    margin-bottom: 1em;
+    width: 100%;
+}

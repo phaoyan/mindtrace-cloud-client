@@ -55,24 +55,3 @@ export const defaultMindtrace: Mindtrace = {
     createTime: "2000-01-01T00:00:00",
     remark: ""
 }
-
-export const  calculateDuration = (learningTrace: LearningTrace)=>{
-    if(!learningTrace) return 0
-
-    let duration = 0
-    let left = [learningTrace.createTime, ...learningTrace.continueList]
-    let right = [...learningTrace.pauseList, dayjs().format(DEFAULT_DATE_TIME_PATTERN)]
-    for(let i in left)
-        duration += dayjs(right[i]).diff(dayjs(left[i]))
-    return duration
-}
-
-
-export const masteryDesc = (value: number | undefined) =>{
-    if(!value) return "初识"
-    return  value === 0 ? "完全没懂" :
-            value <= 0.25 ? "懵懵懂懂" :
-            value <= 0.5 ? "大致明白" :
-            value <= 0.75 ? "基本理解" :
-            value <= 1 ? "完全理解" : ""
-}

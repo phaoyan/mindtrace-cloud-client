@@ -23,7 +23,7 @@ import {Ctx} from "@milkdown/ctx";
 
 export const MilkdownEditor = (props:{
     md: string,
-    onChange:(cur: string, prev: string)=>any,
+    onChange?:(cur: string, prev: string)=>any,
     editable: boolean,
     command?: (ctx: Ctx)=>any,
     // 父组件可以通过使用一个state并修改state来告知milkdown editor需要执行command命令了
@@ -75,7 +75,7 @@ export const MilkdownEditor = (props:{
             .config(ctx=>{
                 ctx.get(listenerCtx).markdownUpdated((ctx, cur, prev)=>{
                     if(!prev) prev = ""
-                    if(cur !== prev) props.onChange(cur, prev)
+                    if(cur !== prev && props.onChange) props.onChange(cur, prev)
                 })
             })
             .use(listener)

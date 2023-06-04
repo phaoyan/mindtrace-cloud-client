@@ -21,6 +21,7 @@ export const closeUserShare = async (userId: number)=>{
 export const getKnodeShare = async (knodeId: number)=>{
     return await axios.get(`${SHARE_HOST}/knode/${knodeId}`)
 }
+
 export const getOwnedEnhancerShare = async (knodeId: number): Promise<EnhancerShare[]>=>{
     return await axios.get(`${SHARE_HOST}/knode/${knodeId}/enhancer`).then(({data})=>data)
 }

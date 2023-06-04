@@ -5,7 +5,7 @@ export const GATEWAY_HOST = "http://localhost:34443"
 export const login = async (username: string, password: string): Promise<any>=>{
     return await axios.post(`${GATEWAY_HOST}/user/login`, {username: username, password: password})
         .then(({data})=>{
-            console.log("login: ", data)
+            console.log("Login: ", data)
             return data
         })
 }

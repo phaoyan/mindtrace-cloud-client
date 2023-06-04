@@ -1,4 +1,5 @@
 import {atom} from "recoil";
+import {MessageInstance} from "antd/es/message/interface";
 
 export const MainPageHeightAtom = atom({
     key:"MainPageHeightAtom",
@@ -18,4 +19,8 @@ export const CurrentPageAtom = atom({
 export const EnhancerPanelKeyAtom = atom<number>({
     key: "EnhancerPanelKeyAtom",
     default: 0
+})
+
+export const MessageApiAtom = atom<MessageInstance>({
+    key: "MessageApiAtom"
 })
