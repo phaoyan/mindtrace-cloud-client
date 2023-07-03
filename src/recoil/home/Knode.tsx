@@ -42,7 +42,6 @@ export const KtreeSelector = selector<Ktree>({
         return {knode: defaultKnode, branches: []}
     }
 })
-
 export const SelectedKtreeSelector = selector<Ktree | undefined>({
     key: "SelectedKtreeSelector",
     get: ({get})=> {
@@ -54,30 +53,12 @@ export const SelectedKtreeSelector = selector<Ktree | undefined>({
         }
     },
 })
-
-export const SelectedKtreeOffspringIdsSelector = selector<number[]>({
-    key: "SelectedKtreeOffspringIdsSelector",
-    get: ({get})=>{
-        const getOffspringIds = (ktree: Ktree): number[] => {
-            if (!ktree) return []
-            let res = [ktree.knode.id]
-            for (let branch of ktree.branches)
-                res = [...res, ...getOffspringIds(branch)]
-            return res;
-        }
-        const selectedKtree = get(SelectedKtreeSelector);
-        if(selectedKtree)
-            return getOffspringIds(selectedKtree)
-        else return []
-    }
-})
-
 export const KtreeAntdSelector = selector<KtreeAntd[]>({
     key: "KtreeAntd",
     get: ({get})=> convertKtreeAntd([get(KtreeSelector)])
 })
 
-const convertKtreeAntd = (ori: Array<Ktree>): KtreeAntd[] => {
+const convertKtreeAntd = (ori: Ktree[]): KtreeAntd[] => {
     if (ori[0] == null) return []
     return ori.map(ktree => ({
         key: ktree.knode.id,
@@ -96,20 +77,50 @@ export const KnodeSelector = selectorFamily<Knode | undefined, number>({
 
 export const SelectedKnodeIdAtom = atom<number>({
     key:"SelectedKnodeAtom",
-    default:0,
+    default:-1,
     dangerouslyAllowMutability: true
+})
+
+export const CurrentChainStyleTitleAtom = atom<string[]>({
+    key: "CurrentChainStyleTitleAtom",
+    default:[]
 })
 
 export const SelectedKnodeSelector = selector<Knode | undefined>({
     key: "SelectedKnodeSelector",
-    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(SelectedKnodeIdAtom))
+    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(SelectedKnodeIdAtom)),
+    set: ({get, set}, newValue)=>{
+        const knodeId = get(SelectedKnodeSelector)?.id
+        if(!knodeId) return
+        set(KnodeSelector(knodeId), newValue)
+    }
 })
 
 export const SelectedKnodeStemSelector = selector<Knode | undefined>({
     key: "SelectedKnodeStemSelector",
     get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(SelectedKnodeSelector)?.stemId),
     set: ({get, set}, newValue)=>{
-        set(KnodeSelector(get(SelectedKnodeStemSelector)?.id!), newValue)
+        const stemId = get(SelectedKnodeSelector)?.stemId
+        if(!stemId) return
+        console.log("EMMM", get(KnodeSelector(stemId)))
+        set(KnodeSelector(stemId), newValue)
+    }
+})
+
+export const SelectedKnodeAncestorsSelector = selector<Knode[]>({
+    key: "SelectedKnodeAncestorsSelector",
+    get: ({get})=>{
+        const ktreeFlat = get(KtreeFlatAtom)
+        let selectedId: number | null = get(SelectedKnodeIdAtom)
+        let res: Knode[] = []
+        while (selectedId){
+            // eslint-disable-next-line no-loop-func
+            let cur = ktreeFlat.find(knode=>knode.id === selectedId)
+            if(!cur) return res
+            res.push(cur)
+            selectedId = cur.stemId
+        }
+        return res
     }
 })
 

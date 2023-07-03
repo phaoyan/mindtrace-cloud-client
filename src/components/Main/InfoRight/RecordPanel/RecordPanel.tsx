@@ -1,14 +1,14 @@
 import React from 'react';
-import {useRecoilState} from "recoil";
-import {LearningTraceAtom} from "./RecordPanelHooks";
+import CurrentStudyRecord from "./CurrentStudyRecord/CurrentStudyRecord";
+import HistoryStudyRecord from "./HistoryStudyRecord/HistoryStudyRecord";
+import {Divider} from "antd";
 
 const RecordPanel = () => {
-
-    const [learningTrace, setLearningTrace] = useRecoilState(LearningTraceAtom)
-
     return (
         <div>
-            RECORD
+            <CurrentStudyRecord/>
+            <Divider/>
+            <HistoryStudyRecord/>
         </div>
     );
 };

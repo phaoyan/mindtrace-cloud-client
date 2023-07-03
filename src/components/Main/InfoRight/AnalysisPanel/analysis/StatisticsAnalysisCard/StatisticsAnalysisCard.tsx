@@ -8,6 +8,9 @@ import Gradient from "javascript-color-gradient";
 import dayjs from "dayjs";
 import {FireFilled} from "../../../../../utils/antd/icons/Icons";
 import {StatisticsAnalysisData, TreeData} from "./StatisticsAnalysisCardHooks";
+import {useSetRecoilState} from "recoil";
+import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
+import {CurrentTabAtom} from "../../../InfoRightHooks";
 
 const KnodeLabel = (props:{data: StatisticsAnalysisData})=>{
     const calculateColor = (completion: number, leaves: number): string=>{
@@ -60,6 +63,8 @@ const StatisticsAnalysisCard = (props:{resultId: number}) => {
 
     const [analysis, setAnalysis] = useState<ExamAnalysis>()
     const [treeData, setTreeData] = useState<TreeData>()
+    const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
+    const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     useEffect(()=>{
         const effect = async ()=>{
             setAnalysis(await getExamAnalysis(props.resultId, AnalyzerTypes.STATISTICS_ANALYSIS))
@@ -82,7 +87,11 @@ const StatisticsAnalysisCard = (props:{resultId: number}) => {
                 showLine={true}
                 treeData={[treeData]}
                 autoExpandParent={true}
-                defaultExpandAll={true}/>
+                defaultExpandAll={true}
+                onSelect={(knodeId: any)=>{
+                    setSelectedKnodeId(knodeId[0]);
+                    setCurrentTab("note")
+                }}/>
         </div>
     );
 };

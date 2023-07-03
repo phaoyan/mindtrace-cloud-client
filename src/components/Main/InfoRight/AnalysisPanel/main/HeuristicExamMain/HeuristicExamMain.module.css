@@ -1,0 +1,24 @@
+.placeHolder{
+    min-height: 20vh;
+}
+.basic_info{
+    color: #666666;
+    font-style: oblique;
+}
+.quiz_title{
+    font-size: 1.2em;
+    margin-left: 2em;
+}
+.timer{
+    color: #aaaaaa;
+}
+.up_and_down{
+    width: 1em;
+    display: flex;
+    flex-direction: column;
+}
+.up_and_down > *{
+    margin-bottom: 0.5em;
+    position: relative;
+    top: -0.3em;
+}

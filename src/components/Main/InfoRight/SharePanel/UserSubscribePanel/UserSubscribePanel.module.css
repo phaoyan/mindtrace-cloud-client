@@ -1,0 +1,19 @@
+.user_info > * {
+    margin-right: 0.5em;
+}
+.username{
+    color: #666666;
+    font-size: 1.3em;
+    font-style: oblique;
+    font-weight: bold;
+}
+.share_info > *{
+    color: #999999;
+    margin-right: 0.5em;
+
+}
+.left_option{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

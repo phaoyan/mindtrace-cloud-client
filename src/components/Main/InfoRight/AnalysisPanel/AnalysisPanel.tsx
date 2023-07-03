@@ -2,18 +2,18 @@ import React, {useEffect, useState} from 'react';
 import { Col, Dropdown, MenuProps, Row} from "antd";
 import {getCurrentExamSession} from "../../../../service/api/MasteryApi";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {UserID} from "../../../../recoil/User";
 import {SwapOutlined} from "@ant-design/icons";
 import classes from "./AnalysisPanel.module.css"
 import utils from "../../../../utils.module.css"
 import ExamAnalysisPanel from "./analysis/ExamAnalysisPanel";
 import ExamSessionPanel from "./ExamSessionPanel";
 import {CurrentExamSessionAtom} from "../../../../recoil/home/ExamSession";
+import {LoginUserIdSelector} from "../../../Login/LoginHooks";
 
 
 const AnalysisPanel = () => {
 
-    const userId = useRecoilValue(UserID)
+    const userId = useRecoilValue(LoginUserIdSelector)
     const [selectedPanel, setSelectedPanel] = useState<string>("analysis")
     const [currentSession, setCurrentSession] = useRecoilState(CurrentExamSessionAtom)
     const [selectedPanelTitle, setSelectedPanelTitle] = useState<string>("分析报告")
@@ -25,9 +25,11 @@ const AnalysisPanel = () => {
         //eslint-disable-next-line
     }, [userId])
     useEffect(()=>{
+        console.log("AnalysisPanel.currentSession", currentSession)
         setSelectedPanel(currentSession ? "session" : "analysis")
     }, [currentSession])
     useEffect(()=>{
+        console.log("AnalysisPanel.selectedPanel", selectedPanel)
         if(selectedPanel === "session")
             setSelectedPanelTitle("知识测试")
         if(selectedPanel === "analysis")

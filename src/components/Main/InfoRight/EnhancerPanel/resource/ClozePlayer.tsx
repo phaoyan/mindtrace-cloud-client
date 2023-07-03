@@ -16,6 +16,7 @@ import utils from "../../../../../utils.module.css"
 import {insertStringAt} from "../../../../../service/utils/JsUtils";
 import {replaceAll} from "@milkdown/utils"
 import {Resource} from "../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../utils/general/PlainLoading";
 
 const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
 
@@ -49,13 +50,23 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
         setDisplayChangeTrigger(!displayChangeTrigger)
     // eslint-disable-next-line
     }, [displayTxt])
-    const [mode, setMode] = useState<"view" | "edit">("view")
+    const [mode, setMode] = useState<"view" | "edit" | undefined>()
     // index: 当前选中显示答案的空的索引。-1为不显示
     const [index, setIndex] = useState(-1)
     const [raw, setRaw] = useState("")
     useEffect(()=>{
+        if(props.readonly)
+            setMode("view")
+        //eslint-disable-next-line
+    }, [mode])
+    useEffect(()=>{
         setRaw(data.raw)
     }, [data])
+    useEffect(()=>{
+        setTimeout(()=>{
+            setMode("view")
+        }, 500)
+    }, [loading])
     const indexAnswer = ()=>{
         let offset = 0
         let res = data.noAnswer
@@ -73,7 +84,7 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
     useEffect(()=>{
         setDisplayTxt(indexAnswer())
         //eslint-disable-next-line
-    }, [index, data.noAnswer])
+    }, [index, data.noAnswer, loading])
     const handleSubmit = async ()=>{
         !props.readonly &&
         await addDataToResource(props.meta.id!, {raw : raw})
@@ -95,7 +106,7 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
             addCloze()
     }
 
-    if(loading) return <></>
+    if(loading) return <PlainLoading/>
     return (
         <div
             className={general.container}
@@ -103,14 +114,16 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
             onKeyDown={hotkey}>
             <Row>
                 <Col span={1} className={classes.left_options}>{
-                    mode === "edit" ?
+                    !props.readonly && (
+                        mode === "edit" ?
                         <EyeOutlined
                             className={utils.icon_button}
                             onClick={()=>setMode("view")}/> :
-                    mode === "view" ?
-                            <EditOutlined
-                                className={utils.icon_button}
-                                onClick={()=>setMode("edit")}/>: <></>
+                        mode === "view" ?
+                        <EditOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setMode("edit")}/>: <></>
+                    )
                 }{
                     mode === "edit" &&
                     <Tooltip

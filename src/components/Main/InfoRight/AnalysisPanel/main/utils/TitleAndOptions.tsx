@@ -9,11 +9,15 @@ import {
     CurrentExamSessionAtom,
     ExamCurrentKnodeChainStyleTitleSelector
 } from "../../../../../../recoil/home/ExamSession";
+import classes from "./TitleAndOptions.module.css"
+import {FinishedOutlined} from "../../../../../utils/antd/icons/Icons";
+import {useFinish} from "./GeneralHooks";
 
 const TitleAndOptions = () => {
 
     const [currentSession, setCurrentSession] = useRecoilState(CurrentExamSessionAtom)
     const chainStyleTitle = useRecoilValue(ExamCurrentKnodeChainStyleTitleSelector)
+    const finish = useFinish()
 
     if(!currentSession) return <></>
     return (
@@ -22,17 +26,26 @@ const TitleAndOptions = () => {
                 <Breadcrumb items={breadcrumbTitle(chainStyleTitle!, true)}/>
             </Col>
             <Col span={1}>
-                <Popconfirm
-                    title="确定要放弃本次测试？"
-                    onConfirm={async ()=>{
-                        if(!currentSession) return
-                        await interruptExamSession(currentSession.id)
-                        setCurrentSession(undefined)
-                    }}
-                    okText="Yes"
-                    cancelText="No">
-                    <DeleteOutlined className={utils.icon_button}/>
-                </Popconfirm>
+                <div className={classes.option_wrapper}>
+                    <Popconfirm
+                        title="确定要放弃本次测试？"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={async ()=>{
+                            if(!currentSession) return
+                            await interruptExamSession(currentSession.id)
+                            setCurrentSession(undefined)
+                        }}>
+                        <DeleteOutlined className={utils.icon_button}/>
+                    </Popconfirm>
+                    <Popconfirm
+                        title={"确定要提前提交本次测试？"}
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={finish}>
+                        <FinishedOutlined className={utils.icon_button}/>
+                    </Popconfirm>
+                </div>
             </Col>
         </Row>
     );

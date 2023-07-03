@@ -1,0 +1,45 @@
+.start_prompt{
+    color: #666666;
+    font-size: 1.3em;
+    font-style: oblique;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5vh 0;
+}
+.start_prompt:hover{
+    cursor: pointer;
+    opacity: 50%;
+}
+.title{
+    color: #666666;
+    font-size: 1.2em;
+    font-style: oblique;
+}
+.title_placeholder{
+    color: #999999;
+    font-size: 1.2em;
+    font-style: oblique;
+}
+.time_bar{
+    color: #999999;
+    font-size: 1.5em;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.options{
+    height: 100%;
+    display: flex;
+}
+.options > *{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 2em;
+}
+.selected_knode_title > *{
+    font-weight: bold;
+}

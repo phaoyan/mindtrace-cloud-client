@@ -26,13 +26,13 @@ interface ResponseStatistics{
     type: string
     corrects: number[]
     mistakes: number[]
-    total: number
+    selected: number[]
 }
 const RESP_STATISTIC_DEFAULT: ResponseStatistics = {
     type: "statistics",
     corrects: [],
     mistakes: [],
-    total: 0
+    selected: []
 }
 const FullCheckExamMain = () => {
 
@@ -60,38 +60,37 @@ const FullCheckExamMain = () => {
         // eslint-disable-next-line
     }, [currentSession])
     useEffect(()=>{
-        if(statistics.total !== 0 && statistics.mistakes.length + statistics.corrects.length === statistics.total)
+        if(statistics.selected.length !== 0 && statistics.mistakes.length + statistics.corrects.length === statistics.selected.length)
             setDone(true)
     },[statistics])
 
 
-    if(!currentSession || !statistics || !currentQuiz) return <></>
+    if(!currentSession || !currentQuiz) return <></>
     if(done) return <FinishSessionPrompt/>
     return (
         <Suspense fallback={<></>}>
-            <div className={classes.container}>
-                {/*基本信息*/}
-                <Row>
-                    <Col span={4} offset={6}>
-                        <span className={classes.basic_info}>
-                            错误数：{statistics.mistakes?.length}
-                        </span>
-                    </Col>
-                    <Col span={4} >
-                        <span className={classes.basic_info}>
-                            正确数：{statistics.corrects?.length}
-                        </span>
-                    </Col>
-                    <Col span={4}>
-                        <span className={classes.basic_info}>
-                            总题数：{statistics.total}
-                        </span>
-                    </Col>
-                </Row>
-                <DividerTimer startTime={currentSession.startTime} id={currentSession.id}/>
-                {/*测试问卷主体*/}
-                <TitleAndOptions/>
-                {currentQuiz && currentQuiz.map(quiz=><ResourcePlayer key={quiz.id} resource={quiz}/>)}{
+            <div className={classes.container}>{
+                    statistics &&
+                    <Row>
+                        <Col span={4} offset={6}>
+                            <span className={classes.basic_info}>
+                                错误数：{statistics.mistakes.length}
+                            </span>
+                        </Col>
+                        <Col span={4} >
+                            <span className={classes.basic_info}>
+                                正确数：{statistics.corrects.length}
+                            </span>
+                        </Col>
+                        <Col span={4}>
+                            <span className={classes.basic_info}>
+                                总题数：{statistics.selected.length}
+                            </span>
+                        </Col>
+                    </Row>
+                }<DividerTimer startTime={currentSession.startTime} id={currentSession.id}/>
+                <TitleAndOptions/>{
+                    currentQuiz && currentQuiz.map(quiz=><ResourcePlayer key={quiz.id} resource={quiz}/>)}{
                     currentQuiz && currentQuiz.length === 0 &&
                     <div className={classes.placeHolder}>
                         <span className={utils.no_data} style={{height:"20vh"}}>No Data</span>
@@ -101,7 +100,6 @@ const FullCheckExamMain = () => {
                         const req = examInteractPrototype(currentSession.id,{
                             type: "main",
                             knodeId: currentKnodeId,
-                            quizIds: currentQuiz.map(quiz=>quiz.id),
                             completion: true
                         })
                         updateCurrentSession(req, await examInteract(currentSession.id, req))
@@ -110,7 +108,6 @@ const FullCheckExamMain = () => {
                         const req = examInteractPrototype(currentSession.id,{
                             type: "main",
                             knodeId: currentKnodeId,
-                            quizIds: currentQuiz.map(quiz=>quiz.id),
                             completion: false
                         })
                         updateCurrentSession(req, await examInteract(currentSession.id, req))

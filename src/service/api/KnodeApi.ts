@@ -1,5 +1,5 @@
 import axios from "axios";
-import {BACK_HOST} from "../../constants";
+import {BACK_HOST} from "../utils/constants";
 import {Knode} from "../data/Knode";
 
 
@@ -10,12 +10,7 @@ export const getKnodeById = async (knodeId: number): Promise<Knode>=>{
 }
 
 export const getKnodes = async (userId: number)=>{
-    return await
-        axios.get(`${KNODE_HOST}/user/${userId}/knode`)
-        .then(({data})=>{
-            console.log("GET KNODES", data)
-            return data
-        })
+    return await axios.get(`${KNODE_HOST}/user/${userId}/knode`).then(({data})=>data)
 }
 
 export const branch = async (knodeId: number): Promise<Knode>=>{
@@ -41,26 +36,21 @@ export const shiftKnode = async (stemId: number , branchId: number)=>{
 }
 
 export const swapBranchIndex = async (stemId: number, index1: number, index2: number)=>{
-    return await
-        axios.post(`${KNODE_HOST}/knode/${stemId}/branch/index/${index1}/${index2}`)
+    return await axios.post(`${KNODE_HOST}/knode/${stemId}/branch/index/${index1}/${index2}`)
 }
 
 export const getChainStyleTitle = async (knodeId: number): Promise<string[]>=>{
     return await
         axios.get(`${KNODE_HOST}/knode/${knodeId}/chainStyleTitle`)
             .then(({data})=>{
-                // console.log("get chain style title", data)
                 return data
             })
 }
 
-export const getLeaves = async (knodeId: number)=>{
-    return await
-        axios.get(`${KNODE_HOST}/knode/${knodeId}/leaves`)
-            .then(({data})=>{
-                console.log("get leaves", data)
-                if(data.code)
-                    return []
-                return data
-            })
+export const getLeaves = async (knodeId: number): Promise<Knode[]>=>{
+    return await axios.get(`${KNODE_HOST}/knode/${knodeId}/leaves`).then(({data})=>data)
+}
+
+export const getLeaveCount = async (knodeId: number): Promise<number>=>{
+    return await axios.get(`${KNODE_HOST}/knode/${knodeId}/leave/count`).then(({data})=>data)
 }

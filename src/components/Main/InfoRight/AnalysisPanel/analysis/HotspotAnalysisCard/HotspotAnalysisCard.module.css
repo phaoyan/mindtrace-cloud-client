@@ -1,0 +1,22 @@
+.item{
+    margin-bottom: 0.2em;
+}
+.index{
+    color: #666666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.time{
+    font-size: 1.5em;
+    font-weight: lighter;
+    font-style: oblique;
+    color: #666666;
+    padding-left: 0.3em;
+}
+.title{
+    display: flex;
+}
+.title > *{
+    margin-right: 1em;
+}

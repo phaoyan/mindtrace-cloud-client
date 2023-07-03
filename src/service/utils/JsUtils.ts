@@ -53,3 +53,8 @@ export const gradientColor = (begin: string, end: string, count: number): string
     }
     return colorArray;
 };
+
+
+export const statisticDisplayAbbr = (num: number)=>{
+    return num
+}

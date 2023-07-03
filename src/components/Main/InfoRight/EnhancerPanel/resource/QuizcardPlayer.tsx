@@ -9,29 +9,28 @@ import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
 import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
 import {LatexDarkOutlined, LatexLightOutlined} from "../../../../utils/antd/icons/Icons";
 import {quizcardTemplate, Resource} from "../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../utils/general/PlainLoading";
 
 const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
 
     const [data, setData] = useState(quizcardTemplate(props.meta.createBy).data)
     const [isFront, setIsFront] = useState(true)
     const [loading, setLoading] = useState(true)
-
     const [frontEditorKey, setFrontEditorKey] = useState(0)
+    const [backEditorKey, setBackEditorKey] = useState(0)
+    const [displayKey, setDisplayKey] = useState(0)
     useEffect(()=>{
         setFrontEditorKey(frontEditorKey+1)
         //eslint-disable-next-line
     },[data.config.frontLatexDisplayMode])
-    const [backEditorKey, setBackEditorKey] = useState(0)
     useEffect(()=>{
         setBackEditorKey(backEditorKey+1)
         //eslint-disable-next-line
     },[data.config.backLatexDisplayMode])
-    const [displayKey, setDisplayKey] = useState(0)
     useEffect(()=>{
         setDisplayKey(displayKey+1)
         //eslint-disable-next-line
     }, [isFront])
-
     useEffect(()=>{
         const init = async ()=>{
             setData(JSON.parse((await getAllDataFromResource(props.meta.id!))["data.json"]))
@@ -48,7 +47,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
         !props.readonly && await addDataToResource(props.meta.id!, data)
     }
 
-    if (loading) return <></>
+    if (loading) return <PlainLoading/>
     return (
         <div
             className={classes.container}
@@ -61,8 +60,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                     <div className={classes.front_options}>
                         <SwitcherOutlined
                             className={`${utils.icon_button}`}
-                            onClick={() => setIsFront(false)}/>
-                        {
+                            onClick={() => setIsFront(false)}/>{
                             data.config.frontLatexDisplayMode ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
@@ -82,8 +80,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                     <div className={classes.back_options}>
                         <SwitcherFilled
                             className={`${utils.icon_button}`}
-                            onClick={() => {setIsFront(true)}}/>
-                        {
+                            onClick={() => {setIsFront(true)}}/>{
                             data.config.backLatexDisplayMode ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}

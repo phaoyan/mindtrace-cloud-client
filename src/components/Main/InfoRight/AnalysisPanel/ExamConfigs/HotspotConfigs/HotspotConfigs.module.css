@@ -1,0 +1,17 @@
+.container{
+    min-height: 50vh;
+    margin-top: 2em;
+}
+
+.config_container{
+    height: 100%;
+}
+
+.config_container > *{
+    height: 100%;
+}
+.info{
+    font-weight: lighter;
+    font-size: 1.1em;
+    font-style: oblique;
+}

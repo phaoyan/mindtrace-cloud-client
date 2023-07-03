@@ -22,3 +22,18 @@
 .commit{
     width:100%;
 }
+
+.register_complete_button{
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.register_form_wrapper{
+    margin: 0 auto;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

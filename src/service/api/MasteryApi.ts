@@ -1,4 +1,4 @@
-import {BACK_HOST} from "../../constants";
+import {BACK_HOST} from "../utils/constants";
 import axios from "axios";
 import {ExamStrategy} from "../data/mastery/ExamStrategy";
 import {ExamSession} from "../data/mastery/ExamSession";

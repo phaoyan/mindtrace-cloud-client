@@ -4,7 +4,13 @@
     position: relative;
     flex-grow: 1;
 }
-
+.username{
+    color: #666666;
+    font-weight: bold;
+    font-size: 1.2em;
+    position: relative;
+    top: 0.2em
+}
 .main > *{
     margin-top: 2vw
 }

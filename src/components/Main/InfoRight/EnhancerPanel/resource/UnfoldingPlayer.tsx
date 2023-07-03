@@ -17,6 +17,7 @@ import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import dayjs from "dayjs";
 import {Resource, unfoldingTemplate} from "../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../utils/general/PlainLoading";
 
 export interface KnodeData{
     title: string,
@@ -171,7 +172,7 @@ const UnfoldingPlayer = (props:{meta: Resource, readonly? : boolean}) => {
     const [rightItemPage, setRightItemPage] = useState(1)
     const rightItemPageCapacity = 10
 
-    if(loading) return <></>
+    if(loading) return <PlainLoading/>
     return (
         <div>
             <Row>

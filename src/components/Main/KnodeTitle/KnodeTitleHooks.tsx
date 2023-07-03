@@ -14,7 +14,6 @@ export const useHandleSubmit = ():(()=>void)=>{
     return async ()=>{
         if(!knode) return
         await updateKnode(knode)
-        console.log("KNODE EMMM", knode)
         setKnode(knode)
         setTitleEditKnodeId(undefined)
     }

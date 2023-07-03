@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {ResizableBox} from "react-resizable";
 import classes from "./InfoRight.module.css";
-import { useRecoilValue} from "recoil";
-import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {CurrentChainStyleTitleAtom, KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
 import MdPreview from "../../utils/markdown/MdPreview";
-import {Breadcrumb, Col, Row, Tabs} from "antd";
-import {getChainStyleTitle} from "../../../service/api/KnodeApi";
+import {Breadcrumb, Col, Row, Tabs, Tooltip} from "antd";
+import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
 import {
     BarChartOutlined,
     ClockCircleOutlined,
@@ -19,6 +19,8 @@ import AnalysisPanel from "./AnalysisPanel/AnalysisPanel";
 import SharePanel from "./SharePanel/SharePanel";
 import {MainPageHeightAtom, MainPageWidthAtom} from "../../../recoil/utils/DocumentData";
 import {breadcrumbTitle} from "../../../service/data/Knode";
+import {CurrentTabAtom} from "./InfoRightHooks";
+import {getEnhancerCount} from "../../../service/api/EnhancerApi";
 
 const InfoRight = () => {
 
@@ -26,14 +28,19 @@ const InfoRight = () => {
     const mainPageWidth = useRecoilValue(MainPageWidthAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
-    const [chainStyleTitle, setChainStyleTitle] = useState<string[]>([])
+    const [chainStyleTitle, setChainStyleTitle] = useRecoilState(CurrentChainStyleTitleAtom)
+    const [leaveCount, setLeaveCount] = useState<number>()
+    const [enhancerCount, setEnhancerCount] = useState<number | undefined>(undefined)
+    const [currentTab, setCurrentTab] = useRecoilState(CurrentTabAtom)
+
     // title相关
     useEffect(()=>{
-        selectedKnodeId && selectedKnodeId !== 0 &&
-        getChainStyleTitle(selectedKnodeId)
-            .then((data)=> {
-                setChainStyleTitle(data)
-            })
+        const effect = async ()=>{
+            if(!selectedKnodeId || selectedKnodeId === 0) return
+            setChainStyleTitle(await getChainStyleTitle(selectedKnodeId))
+            setLeaveCount(await getLeaveCount(selectedKnodeId))
+            setEnhancerCount(await getEnhancerCount(selectedKnodeId))
+        }; effect()
         // eslint-disable-next-line
     }, [selectedKnodeId])
     return (
@@ -50,7 +57,16 @@ const InfoRight = () => {
                     <div className={classes.title}>
                         <Breadcrumb items={breadcrumbTitle(chainStyleTitle)}/>
                         <Row>
-                            <Col span={24}  className={classes.title}>
+                            <Col span={3} className={classes.left_info}>
+                                <Tooltip title={"知识点数目"}>
+                                    <div>{leaveCount}</div>
+                                </Tooltip>
+                                <div>/</div>
+                                <Tooltip title={"笔记数目"}>
+                                    <div>{enhancerCount}</div>
+                                </Tooltip>
+                            </Col>
+                            <Col span={21}  className={classes.title}>
                                 <MdPreview>
                                     {" > "+selectedKnode?.title}
                                 </MdPreview>
@@ -58,15 +74,17 @@ const InfoRight = () => {
                         </Row>
                     </div>
                     <Tabs
-                        defaultActiveKey={"notes"}
+                        activeKey={currentTab}
+                        onChange={(tab: any)=>setCurrentTab(tab)}
                         tabPosition={"top"}
+                        destroyInactiveTabPane={true}
                         items={[
                             {
                                 label: (<div>
                                     <EditOutlined/>
                                     <span>笔记</span>
                                 </div>),
-                                key:"notes",
+                                key:"note",
                                 children: <EnhancerPanel/>
                             },{
                                 label: (<div>
@@ -74,14 +92,14 @@ const InfoRight = () => {
                                     <ClockCircleOutlined />
                                     <span>记录</span>
                                 </div>),
-                                key: "traces",
+                                key: "record",
                                 children: <RecordPanel/>
                             },{
                                 label: (<div>
                                     <BarChartOutlined/>
                                     <span>分析</span>
                                 </div>),
-                                key: "statistics",
+                                key: "analysis",
                                 children: <AnalysisPanel/>
                             },{
                                 label: (<div>

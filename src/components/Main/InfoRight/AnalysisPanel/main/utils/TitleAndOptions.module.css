@@ -1,0 +1,6 @@
+.option_wrapper{
+    height: 4em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

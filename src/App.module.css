@@ -17,3 +17,23 @@
 .menu{
     width: 30em;
 }
+.logo_container{
+    display: flex;
+    justify-content: center;
+}
+.logo_container > * {
+    margin-right: 1em;
+}
+.logo_txt{
+    color: #666666;
+    font-size: 2em;
+    font-weight: bold;
+    font-style: oblique;
+}
+.logo{
+    height: 10vh;
+    scale: 200%;
+    position: relative;
+    top: 1em;
+    left: 1em;
+}

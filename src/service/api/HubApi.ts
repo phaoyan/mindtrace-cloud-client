@@ -1,4 +1,4 @@
-import {BACK_HOST} from "../../constants";
+import {BACK_HOST} from "../utils/constants";
 import axios from "axios";
 
 export const HUB_HOST = `${BACK_HOST}/hub`

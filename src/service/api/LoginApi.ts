@@ -1,27 +1,38 @@
 import axios from "axios";
-import {RESULT} from "../../constants";
-export const GATEWAY_HOST = "http://localhost:34443"
+import {BACK_HOST} from "../utils/constants";
+import {User} from "../data/Gateway";
 
 export const login = async (username: string, password: string): Promise<any>=>{
-    return await axios.post(`${GATEWAY_HOST}/user/login`, {username: username, password: password})
-        .then(({data})=>{
-            console.log("Login: ", data)
-            return data
-        })
+    return await axios.post(`${BACK_HOST}/user/login`, {username: username, password: password}).then(({data})=>data)
 }
 
 export const logout = async ()=>{
-    return await axios.post(`${GATEWAY_HOST}/user/logout`)
-        .then(({data})=>{
-            console.log("logout: ", data)
-            return data.code === RESULT.OK;
-        })
+    return await axios.post(`${BACK_HOST}/user/logout`).then(({data})=>data.code === 200)
 }
 
-export const register = async (username: string, password: string)=>{
-    return await axios.post(`${GATEWAY_HOST}/user/register`, {username: username, password: password})
-        .then(({data})=>{
-            console.log("register: ", data)
-            return data
-        })
+export const sendValidateCode = async (email: string): Promise<{code: number, msg: string, data:any}>=>{
+    return await axios.post(`${BACK_HOST}/user/register/validate?email=${email}`).then(({data})=>data)
+}
+
+export const registerConfirm = async (
+    username: string,
+    password: string,
+    email: string,
+    code: number):
+    Promise<{code: number, msg: string, data: any}>=>{
+    return await axios.post(
+        `${BACK_HOST}/user/register/confirm?validate=${code}`,
+        {username: username, password: password, email: email})
+        .then(({data})=>data)
+}
+
+export const getLoginData = async (): Promise<User>=>{
+    return await axios.get(`${BACK_HOST}/user`).then(({data})=>data)
+}
+export const getUserPublicInfo = async (userId: number): Promise<User>=>{
+    return await axios.get(`${BACK_HOST}/user/${userId}/public`).then(({data})=>data)
+}
+
+export const changePassword = async (userId: number, oriPassword: string, newPassword: string)=>{
+    return await axios.post(`${BACK_HOST}/user/${userId}/password?oriPassword=${oriPassword}&newPassword=${newPassword}`).then(({data})=>data)
 }

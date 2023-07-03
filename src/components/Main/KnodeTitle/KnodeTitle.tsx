@@ -16,10 +16,11 @@ const KnodeTitle = (props: { id: number}) => {
     const inputRef = useRef<InputRef>(null)
     const handleSubmit = useHandleSubmit()
     useEffect(()=>{
-    },[knode])
-    useEffect(()=>{
         if(titleEditKnodeId)
             inputRef.current?.focus()
+        if(!titleEditKnodeId && selectedId === props.id)
+            divRef.current?.focus()
+        //eslint-disable-next-line
     }, [titleEditKnodeId])
     useEffect(()=>{
         if(selectedId === props.id)

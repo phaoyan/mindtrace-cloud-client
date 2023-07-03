@@ -1,0 +1,98 @@
+.container{
+    margin-bottom: 5vh;
+}
+.knode_title{
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666666;
+    cursor: default;
+}
+.knode_title_wrapper{
+    display: flex;
+
+}
+.knode_title_wrapper > *{
+    margin-right: 0.8em;
+}
+.breadcrumb{
+    font-size: 1.15em;
+    font-weight: bold;
+}
+.share_info{
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.avatar{
+    position: relative;
+    left: 0.3em;
+    top: 0.3em;
+}
+.info_item > *{
+    margin-right: 0.5em;
+    color: #666666;
+    font-weight: bold;
+}
+.fork{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user_info_wrapper{
+    margin: 0 auto;
+    display: flex;
+}
+.user_info_wrapper > * {
+    margin-right: 0.3em;
+}
+.user_info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666666;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 0.5em;
+}
+
+.user_info:hover{
+    border-radius: 1em;
+    background-color: #eee;
+}
+.user_subscribe_wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    top: 1em;
+}
+
+.subscribe_icon{
+    color: #57b2ff;
+    scale: 150%;
+    margin-bottom: 0.2em;
+    opacity: 70%;
+}
+.subscribe_icon:hover{
+    cursor: pointer;
+    opacity: 50%;
+}
+.subscribe_count{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999999;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: default;
+}
+.knode_subscribe_wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    top: 0.5em;
+}

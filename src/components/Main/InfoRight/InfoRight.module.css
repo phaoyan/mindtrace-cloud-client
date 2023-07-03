@@ -38,6 +38,18 @@
     padding-left: 3%;
     width: 96%;
 }
+.left_info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999999;
+    font-size: 1.3em;
+    font-style: oblique;
+}
+.left_info > *{
+    cursor: default;
+    margin: 0 0.1em;
+}
 .title_left{
     display: flex;
     justify-content: center;

@@ -5,10 +5,15 @@
 }
 
 .add_card_wrapper{
-    position: relative;
-    top: -1em;
+    margin-top: 0.5em;
     margin-bottom: 40vh;
 }
 .add_card_wrapper > *{
     margin-right: 2em;
+}
+.divider{
+    color: #999999;
+    font-weight: lighter;
+    font-size: 0.9em;
+    font-style: oblique;
 }

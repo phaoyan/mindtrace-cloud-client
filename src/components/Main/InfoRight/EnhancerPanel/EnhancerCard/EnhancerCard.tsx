@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import classes from "./EnhancerCard.module.css";
 import {Col, Dropdown, Input, Row} from "antd";
-import {MinusOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
+import {DeleteOutlined, MinusOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {getEnhancerById, updateEnhancer} from "../../../../../service/api/EnhancerApi";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
@@ -14,6 +14,7 @@ import {
     EnhancerResourcesAtomFamily, ResourcePlayer,
     useAddResourceDropdownItems
 } from "./EnhancerCardHooks";
+import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
 
 export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
 
@@ -23,6 +24,7 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
     const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
     const addResourceDropdownItems = useAddResourceDropdownItems(props.id)
+    const handleRemove = useHandleRemoveEnhancer()
 
     useEffect(()=>{
         const init = async ()=>{
@@ -53,16 +55,17 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                     }</Col>
                     <Col span={11} className={classes.tag_wrapper}>
                     </Col>
-                    <Col span={1}>
+                    <Col span={1}>{
+                        !props.readonly &&
                         <ScissorOutlined
                             className={utils.icon_button}
                             onClick={()=>{
                                 setEnhancerIdClipboard([props.id, selectedKnodeId])
                                 messageApi.success("笔记剪切成功")
                             }}/>
-                    </Col>
+                    }</Col>
                     <Col span={1} offset={1}>{
-                        props.readonly ? <></>:
+                        !props.readonly &&
                         <Dropdown
                             menu={{items: addResourceDropdownItems}}>
                             <PlusOutlined className={utils.icon_button}/>
@@ -89,6 +92,15 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                     </Row>
                 ))}
             </div>
+
+            <Row>
+                <Col span={1} offset={23}>{
+                    !props.readonly &&
+                    <DeleteOutlined
+                        className={utils.icon_button}
+                        onClick={()=>handleRemove(enhancer.id)}/>
+                }</Col>
+            </Row>
 
         </div>
     )

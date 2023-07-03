@@ -6,5 +6,7 @@ export interface ExamStrategy{
 export const ExamStrategyTypes = {
     FULL_CHECK: "full check",
     SAMPLING: "sampling",
-    HOTSPOT: "hotspot"
+    HOTSPOT: "hotspot",
+    HEURISTIC: "heuristic",
+    RECENT_KNODE : "recent knode"
 }

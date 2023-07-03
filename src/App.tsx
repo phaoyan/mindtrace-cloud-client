@@ -7,10 +7,11 @@ import {ConfigProvider, Menu, theme} from "antd";
 import {useRecoilState} from "recoil";
 import classes from "./App.module.css"
 import {Header} from "antd/es/layout/layout";
-import logo from "./static/img/logo.png"
+import logo from "./static/img/logo_no_txt.png"
 import {CurrentPageAtom} from "./recoil/utils/DocumentData";
 import "./reset.css"
 import {useLoadLoginData, useMenuItems, useSetGlobalMessage} from "./AppHooks";
+import Home from "./components/Home/Home";
 
 const App = ()=> {
     const [current, setCurrent] = useRecoilState(CurrentPageAtom)
@@ -33,8 +34,9 @@ const App = ()=> {
             {contextHolder}
             <div className={classes.app}>
                 <Header className={classes.header}>
-                    <div className={classes.logo}>
-                        <img src={logo} alt={""} style={{scale:"80%", height: "10vh"}}/>
+                    <div className={classes.logo_container}>
+                        <img src={logo} alt={""} className={classes.logo}/>
+                        <span className={classes.logo_txt}>Mind Trace</span>
                     </div>
                     <div className={classes.menu}>
                         <Menu
@@ -46,8 +48,9 @@ const App = ()=> {
                 </Header>
                 <Routes>
                     <Route path="/" element={<Navigate to="/login"/>}/>
-                    <Route path="/main" element={<Main/>}/>
-                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/main" element=<Main/>/>
+                    <Route path="/home" element=<Home/>/>
+                    <Route path="/login" element=<Login/>/>
                 </Routes>
             </div>
         </ConfigProvider>

@@ -7,30 +7,30 @@ const BilibiliLinkoutPlayer = (props:{data: any}) => {
     return (
         <div className={classes.container}>
             <Row>
-                <Col>
+                <Col span={24}>
                     <a
                         className={classes.title_link}
                         href={props.data.url}
                         target={"_blank"}
                         rel={"noreferrer"}>
-                        {props.data.videoData?.title}
+                        {props.data.data.videoData?.title}
                     </a>
                 </Col>
             </Row>
             <Row>
                 <Col span={22} offset={2}>
                     <div className={`${classes.page_list_wrapper} ${utils.custom_scrollbar}`}>{
-                        props.data.pages &&
-                        props.data.pages.length > 1 &&
+                        props.data.data.pages &&
+                        props.data.data.pages.length > 1 &&
                         <List
                             itemLayout={"horizontal"}
-                            dataSource={props.data.pages ? props.data.pages : []}
-                            renderItem={(item: any, index)=>(
+                            dataSource={props.data.data.pages ? props.data.data.pages : []}
+                            renderItem={(item: any)=>(
                                 <List.Item>
                                     <div className={classes.page_line}>
                                         <span className={classes.page_index}>{item.page}</span>
                                         <a className={classes.title_link}
-                                           href={`${props.data.url}?p=${item.page}`}
+                                           href={`${props.data.data.url}?p=${item.page}`}
                                            target={"_blank"}
                                             rel={"noreferrer"}>{item.part}</a>
                                     </div>

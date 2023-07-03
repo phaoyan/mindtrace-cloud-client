@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import classes from "../../ExamSessionPanel.module.css";
-import {Col, InputNumber, Popover, Radio, Row} from "antd";
-import utils from "../../../../../../utils.module.css";
-import {AlertOutlined} from "@ant-design/icons";
+import classes from "./HotspotConfigs.module.css";
+import {Col, InputNumber, Row} from "antd";
 import {useRecoilState} from "recoil";
 import {ExamStrategyAtom} from "../ExamConfigsHooks";
+import CurrentKnodeInfo from "../utils/CurrentKnodeInfo";
 
 const HotspotConfigs = ()=>{
     const [examStrategy, setExamStrategy] = useRecoilState(ExamStrategyAtom)
@@ -17,41 +16,17 @@ const HotspotConfigs = ()=>{
     return (
         <div className={classes.config_container}>
             <div className={classes.config_rows}>
+                <CurrentKnodeInfo/>
+                <br/>
                 <Row>
-                    <Col span={8} className={utils.form_prompt}>
-                        <span>下沉阈值</span>
-                    </Col>
-                    <Col span={14}>
+                    <Col span={12} className={classes.info} offset={2}>
+                        <span>下沉阈值：</span>
                         <InputNumber
                             min={1} size={"small"}
+                            value={hotspotConfigs.threshold}
                             onChange={(value)=>{
                                 value && setHotspotConfigs({...hotspotConfigs, threshold: value})
                             }}/>
-                    </Col>
-                    <Col span={2}>
-                        <Popover
-                            arrow={false}
-                            placement={"left"}
-                            content={(
-                                <div>
-
-                                </div>
-                            )}>
-                            <AlertOutlined className={utils.icon_button}/>
-                        </Popover>
-                    </Col>
-                </Row>
-                <br/>
-                <Row>
-                    <Col span={8} className={utils.form_prompt}>
-                        <span>采样方式</span>
-                    </Col>
-                    <Col span={16}>
-                        <Radio.Group
-                            onChange={({target:{value}})=>{
-                                value && setHotspotConfigs({...hotspotConfigs, sampling: value})
-                            }}
-                            options={[{value: "random", label: "随机取样"}, {value: "balanced", label: "按序取样"}]}/>
                     </Col>
                 </Row>
             </div>

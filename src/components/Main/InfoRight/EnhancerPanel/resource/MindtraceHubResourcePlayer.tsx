@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
-import classes from "./MindtraceHubResourePlayer.module.css"
+import classes from "./MindtraceHubResourcePlayer.module.css"
 import {Col, Dropdown, Input, message, Row, Tooltip, Upload} from "antd";
 import {ShareAltOutlined, UploadOutlined} from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {existsInHub, HUB_HOST} from "../../../../../service/api/HubApi";
 import {mindtraceHubResourceTemplate, Resource} from "../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../utils/general/PlainLoading";
 
 export interface BasicInfo{
     id: number,
@@ -28,6 +29,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
 
     const [data, setData] = useState<BasicInfo>(mindtraceHubResourceTemplate(props.meta.createBy).data)
     const [loading, setLoading] = useState(false)
+    const [resourceExists, setResourceExists] = useState(false)
     useEffect(()=>{
         const init = async ()=>{
             const resp = await getAllDataFromResource(props.meta.id!);
@@ -37,23 +39,16 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
         }; init()
         //eslint-disable-next-line
     },[])
-
-    const [resourceExists, setResourceExists] = useState(false)
     useEffect(()=>{
         if(data.id !== 0)
             existsInHub(data.id).then(exists=>setResourceExists(exists))
         //eslint-disable-next-line
     },[data.url])
-
-    const handleSubmit = async (newValue?: BasicInfo)=>{
-        !props.readonly && await addDataToResource(props.meta.id!, newValue ? newValue : data)
-    }
-    if(loading) return <></>
+    if(loading) return <PlainLoading/>
     return (
         <div className={classes.container}>
             <Row>
-                <Col span={1} offset={1} className={classes.option}>
-                    {
+                <Col span={1} offset={1} className={classes.option}>{
                         resourceExists &&
                         <a target={"_blank"} rel={"noreferrer"} href={data.url}>
                             <Tooltip
@@ -61,15 +56,14 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                 <ShareAltOutlined className={utils.icon_button}/>
                             </Tooltip>
                         </a>
-                    }
-                    {
+                    }{
                         !resourceExists && data.title && data.contentType &&
                         <Upload
                             name={"file"}
                             action={`${HUB_HOST}/user/${props.meta.createBy}?title=${data.title}&contentType=${data.contentType}`}
                             withCredentials={true}
                             showUploadList={false}
-                            onChange={(info)=>{
+                            onChange={async (info)=>{
                                 if (info.file.status !== 'uploading')
                                     console.log(info.file, info.fileList)
                                 if (info.file.status === 'done'){
@@ -79,7 +73,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                         id: info.file.response.id
                                     };
                                     setData(newValue)
-                                    handleSubmit(newValue)
+                                    !props.readonly && await addDataToResource(props.meta.id!, newValue)
                                 }
                                 else if (info.file.status === 'error')
                                     message.error(`${info.file.name} file upload failed.`)
@@ -89,34 +83,28 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                 <UploadOutlined className={utils.icon_button}/>
                             </Tooltip>
                         </Upload>
-                    }
-                </Col>
+                }</Col>
                 <Col span={16}>
                     <Input
                         value={data.title}
-                        onChange={({target: {value}})=>{setData({...data, title: value})}}
-                        onBlur={()=>handleSubmit()}
+                        onChange={({target: {value}})=>{!props.readonly && setData({...data, title: value})}}
+                        onBlur={async ()=>!props.readonly && await addDataToResource(props.meta.id!, data)}
                         bordered={false}
                         className={classes.title}
                         placeholder={"资源标题 . . ."}/>
                 </Col>
-                <Col span={4}>
+                <Col span={4}>{
+                    !props.readonly &&
                     <Dropdown
                         menu={{
                             items:contentTypeItems,
-                            onClick: ({key})=>{
+                            onClick: async ({key})=>{
                                 setData({...data, contentType: key})
-                                handleSubmit()
-                            }
-                        }}>
+                                !props.readonly && await addDataToResource(props.meta.id!, data)
+                            }}}>
                         <span className={utils.menu_item} style={{cursor:"default"}}>{data.contentType}</span>
                     </Dropdown>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-
-                </Col>
+                }</Col>
             </Row>
         </div>
     );

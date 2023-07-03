@@ -8,6 +8,7 @@ import DefaultLinkoutPlayer from "./linkout/DefaultLinkoutPlayer/DefaultLinkoutP
 import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
 import {BilibiliTVOutlined} from "../../../../utils/antd/icons/Icons";
 import {linkoutTemplate, Resource} from "../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../utils/general/PlainLoading";
 
 
 // 在这里注册网站类型，然后实现相应组件即可
@@ -29,7 +30,7 @@ const linkoutTypeItems: MenuProps['items'] = [
 ]
 const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
 
-    const [data, setData ] = useState<{type: string, url:string}>(linkoutTemplate(props.meta.createBy).data)
+    const [data, setData ] = useState<any>(linkoutTemplate(props.meta.createBy).data)
     const [loading, setLoading] = useState(true)
 
     // 将修改后的type和url上传至后端并重新加载这个Linkout，
@@ -53,20 +54,29 @@ const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
         //eslint-disable-next-line
     },[submitState])
 
-    if(loading) return <span className={classes.loading}> 资源加载中 . . .</span>
+    if(loading) return <PlainLoading/>
     return (
         <div className={classes.container}>
             <Row>
-                <Col span={22} offset={2}>
-                    {
-                        supportedWebsites[data.type] ?
-                            supportedWebsites[data.type](data) :
-                            <div className={utils.no_data} style={{height:"5em"}}>
-                                No Data
-                            </div>
-                    }
-                </Col>
+                <Col span={22} offset={2}>{
+                    supportedWebsites[data.type] ?
+                    supportedWebsites[data.type](data) :
+                    <div className={utils.no_data} style={{height:"5em"}}>
+                        No Data
+                    </div>
+                }</Col>
             </Row>
+            <Row>
+                <Col span={22} offset={2}>
+                    <Input
+                        value={data.remark}
+                        onChange={({target: {value}})=>{!props.readonly && setData({...data, remark: value})}}
+                        onBlur={async ()=>{await addDataToResource(props.meta.id!, data)}}
+                        bordered={false}
+                        placeholder={". . . "}/>
+                </Col>
+            </Row>{
+            !props.readonly &&
             <Row>
                 <Col span={16} offset={2}>
                     <div className={classes.url_wrapper}>
@@ -91,7 +101,7 @@ const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                     </Dropdown>
                 </Col>
             </Row>
-        </div>
+        }</div>
     )
 };
 

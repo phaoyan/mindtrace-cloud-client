@@ -4,7 +4,8 @@ import {CurrentExamStrategySelector} from "../../../../../recoil/home/ExamSessio
 import {ExamStrategyTypes} from "../../../../../service/data/mastery/ExamStrategy";
 import FullCheckExamMain from "./FullCheckExamMain/FullCheckExamMain";
 import HotspotExamMain from "./HotspotExamMain/HotspotExamMain";
-import SamplingExamMain from "./SamplingExamMan/SamplingExamMain";
+import HeuristicExamMain from "./HeuristicExamMain/HeuristicExamMain";
+import RecentKnodeExamMain from "./RecentKnodeExamMain/RecentKnodeExamMain";
 
 const ExamMain = () => {
 
@@ -20,7 +21,15 @@ const ExamMain = () => {
         },
         {
             type: ExamStrategyTypes.SAMPLING,
-            component: <SamplingExamMain/>
+            component: <FullCheckExamMain/>
+        },
+        {
+            type: ExamStrategyTypes.HEURISTIC,
+            component: <HeuristicExamMain/>
+        },
+        {
+            type: ExamStrategyTypes.RECENT_KNODE,
+            component: <RecentKnodeExamMain/>
         }
     ])
 

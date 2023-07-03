@@ -1,6 +1,3 @@
-import dayjs from "dayjs";
-import {DEFAULT_DATE_TIME_PATTERN} from "../../constants";
-
 /**
  * Mindtrace是针对Knode而言的，但是一次学习可能会覆盖多个Knode，
  * 所以需要一个LearningTrace来装填学习信息，

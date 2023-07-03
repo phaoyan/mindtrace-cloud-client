@@ -3,6 +3,7 @@ import {ExamSession} from "../../service/data/mastery/ExamSession";
 import {ExamStrategy} from "../../service/data/mastery/ExamStrategy";
 import {ExamInteract} from "../../service/data/mastery/ExamInteract";
 import {getChainStyleTitle} from "../../service/api/KnodeApi";
+import {Resource} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 export const CurrentExamSessionAtom = atom<ExamSession | undefined>({
     key:"CurrentExamSessionAtom",
@@ -32,12 +33,12 @@ export const ExamCurrentKnodeIdAtom = atom<number>({
     default: -1
 })
 
+export const ExamCurrentQuizzesAtom = atom<Resource[]>({
+    key: "ExamCurrentQuizzesAtom",
+    default: []
+})
+
 export const ExamCurrentKnodeChainStyleTitleSelector = selector<string[]>({
     key:"ExamCurrentKnodeChainStyleTitleSelector",
     get: async ({get})=> await getChainStyleTitle(get(ExamCurrentKnodeIdAtom))
-})
-
-export const ExamCurrentQuizIdsAtom = atom<number[]>({
-    key: "ExamCurrentQuizIdsAtom",
-    default: []
 })

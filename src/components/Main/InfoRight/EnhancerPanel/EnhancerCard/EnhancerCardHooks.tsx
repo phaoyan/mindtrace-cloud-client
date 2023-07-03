@@ -15,8 +15,8 @@ import ClozePlayer from "../resource/ClozePlayer";
 import UnfoldingPlayer from "../resource/UnfoldingPlayer";
 import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer";
 import React from "react";
-import {UserID} from "../../../../../recoil/User";
 import {addResourceToEnhancer} from "../../../../../service/api/ResourceApi";
+import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -29,9 +29,8 @@ export const EnhancerResourcesAtomFamily = atomFamily<Resource[], number>({
 
 
 export const useAddResourceDropdownItems = (enhancerId: number)=>{
-    const userId = useRecoilValue(UserID)
+    const userId = useRecoilValue(LoginUserIdSelector)
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
-
     return [
         {
             key: ResourceType.QUIZCARD,
@@ -55,19 +54,19 @@ export const useAddResourceDropdownItems = (enhancerId: number)=>{
             key: ResourceType.LINKOUT,
             label: "资源链接",
             icon: <LinkOutlined className={classes.option}/>,
-            onClick: ()=>async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, linkoutTemplate(userId))])
+            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, linkoutTemplate(userId))])
         },
         {
             key: ResourceType.MINDTRACE_HUB_RESOURCE,
             label: "云端资源",
             icon: <ShareAltOutlined className={classes.option}/>,
-            onClick: ()=>async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, mindtraceHubResourceTemplate(userId))])
+            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, mindtraceHubResourceTemplate(userId))])
         },
         {
             key: ResourceType.UNFOLDING,
             label: "知识梳理",
             icon: <InteractionOutlined className={classes.option}/>,
-            onClick: ()=>async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, unfoldingTemplate(userId))])
+            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, unfoldingTemplate(userId))])
         }
     ]
 }

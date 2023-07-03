@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
-import {UserID, UserShareAtom} from "../../../../recoil/User";
 import {
     getRelatedKnodeShare,
     getUserShare,
@@ -11,23 +10,25 @@ import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../../utils/markdown/MilkdownEditor";
 import {initiative} from "./OpenShareInitiative";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
-import {KnodeShare} from "../../../../service/data/share/KnodeShare";
-import KnodeShareCard from "./KnodeShareCard";
+import KnodeShareCard from "./KnodeShareCard/KnodeShareCard";
+import {
+    RelatedKnodeIdsAtom,
+    UserShareAtom
+} from "./SharePanelHooks";
+import {LoginUserIdSelector} from "../../../Login/LoginHooks";
 
 const SharePanel = () => {
 
-    const userId = useRecoilValue(UserID);
+    const userId = useRecoilValue(LoginUserIdSelector);
     const [userShare, setUserShare] = useRecoilState(UserShareAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [relatedKodeShares, setRelatedKnodeShares] = useState<KnodeShare[]>([])
+    const [relatedKnodeIds, setRelatedKnodeIds] = useRecoilState(RelatedKnodeIdsAtom)
     useEffect(()=> {
         const init = async ()=>{
-            setRelatedKnodeShares(await getRelatedKnodeShare(selectedKnodeId, 6))
+            setRelatedKnodeIds((await getRelatedKnodeShare(selectedKnodeId, 6)).map(share=>share.knodeId))
         }; init()
+        //eslint-disable-next-line
     },[selectedKnodeId])
-    useEffect(()=>{
-        console.log("Related Knode Share", relatedKodeShares)
-    }, [relatedKodeShares])
 
     if(!userShare) return (
         <div className={classes.placeholder_container}>
@@ -45,11 +46,9 @@ const SharePanel = () => {
         </div>
     )
     return (
-        <div className={classes.container}>
-            {relatedKodeShares.map(knodeShare=>(
-                <KnodeShareCard knodeShare={knodeShare} key={knodeShare.id}/>
-            ))}
-        </div>
+        <div className={classes.container}>{
+            [...new Set(relatedKnodeIds)].map(id=>(<KnodeShareCard knodeId={id} key={id}/>))
+        }</div>
     );
 };
 

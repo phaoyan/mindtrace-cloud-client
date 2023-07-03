@@ -1,0 +1,33 @@
+.time_bar{
+    color: #666666;
+    font-size: 1.1em;
+    font-style: oblique;
+}
+.duration{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3em;
+    color: #666666;
+    font-weight: bold;
+}
+.date_cell_container{
+    height: 100%;
+}
+.date_cell{
+    color: #72aff6;
+    font-size: 1.6em;
+    font-weight: bold;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 80%;
+    position: relative;
+    top: -0.3em;
+}
+.trace_title{
+    color: #666666;
+    font-weight: bold;
+    font-size: 1.3em;
+}

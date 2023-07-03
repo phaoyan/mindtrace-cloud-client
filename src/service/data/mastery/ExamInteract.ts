@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {DEFAULT_DATE_TIME_PATTERN} from "../../../constants";
+import {DEFAULT_DATE_TIME_PATTERN} from "../../utils/constants";
 
 export interface ExamInteract{
     id?: number,
