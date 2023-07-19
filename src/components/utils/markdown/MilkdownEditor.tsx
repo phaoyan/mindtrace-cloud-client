@@ -2,10 +2,8 @@ import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/
 
 import {Milkdown, useEditor} from '@milkdown/react'
 import {commonmark} from '@milkdown/preset-commonmark';
-import { nord } from '@milkdown/theme-nord';
 import {katexOptionsCtx, mathBlockSchema, mathInlineSchema, remarkMathPlugin} from '@milkdown/plugin-math';
 
-import '@milkdown/theme-nord/style.css';
 import 'katex/dist/katex.min.css';
 import './MarkdownBasic.module.css'
 
@@ -43,7 +41,6 @@ export const MilkdownEditor = (props:{
                     editable: ()=>props.editable,
                 }))
             })
-            .config(nord)
             .use(commonmark)
 
             // LaTeX

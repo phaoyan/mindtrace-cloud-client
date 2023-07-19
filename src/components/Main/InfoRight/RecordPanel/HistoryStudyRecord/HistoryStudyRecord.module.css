@@ -31,3 +31,17 @@
     font-weight: bold;
     font-size: 1.3em;
 }
+.enhancer_title{
+    color: #666666;
+    font-weight: bold;
+    font-style: oblique;
+    margin-right: 1em;
+}
+.distribution_info{
+    color: #666666;
+    font-style: oblique;
+    font-size: 1.2em;
+    margin-left: 2em;
+    position: relative;
+    top: 0.15em;
+}

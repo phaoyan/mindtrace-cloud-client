@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Col, Input, Row} from "antd";
+import {Breadcrumb, Col, Divider, Input, Row} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    CurrentStudyAtom,
-    useAddTraceCoverage, useCalculateDuration, useContinueCurrentStudy, usePauseCurrentStudy,
-    useRemoveCurrentStudy,
-    useRemoveTraceCoverage, useSetTitle, useSettleCurrentStudy, useStartStudy
+    CurrentStudyAtom, useAddEnhancerId,
+    useAddKnodeId, useCalculateDuration, useContinueCurrentStudy, usePauseCurrentStudy,
+    useRemoveCurrentStudy, useRemoveEnhancerId,
+    useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
 } from "./CurrentStudyRecordHooks";
 import {editCurrentStudyTitle, getCurrentStudy} from "../../../../../service/api/TracingApi";
 import classes from "./CurrentStudyRecord.module.css"
@@ -13,9 +13,16 @@ import utils from "../../../../../utils.module.css"
 import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
 import {DeleteOutlined, EditOutlined, MinusOutlined} from "@ant-design/icons";
-import {CurrentChainStyleTitleAtom, SelectedKnodeSelector} from "../../../../../recoil/home/Knode";
+import {
+    CurrentChainStyleTitleAtom,
+    DelayedSelectedKnodeIdAtom,
+    SelectedKnodeSelector
+} from "../../../../../recoil/home/Knode";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
+import {Enhancer} from "../../../../../service/data/Enhancer";
+import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
+import {getEnhancerById, getEnhancersForKnode} from "../../../../../service/api/EnhancerApi";
 
 const CurrentStudyRecord = () => {
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
@@ -27,6 +34,14 @@ const CurrentStudyRecord = () => {
     const calculateDuration = useCalculateDuration()
     const setTitle = useSetTitle()
     const [timerKey, setTimerKey] = useState(0)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
+    const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
+    useEffect(()=>{
+        const effect = async ()=>{
+            if(!selectedKnodeId) return
+            setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+        }; effect()
+    }, [selectedKnodeId])
     useEffect(()=>{
         const effect = async ()=>{
             setCurrentStudy(await getCurrentStudy())
@@ -53,16 +68,26 @@ const CurrentStudyRecord = () => {
                             <Input
                                 value={currentStudy.trace.title}
                                 onChange={({target: {value}})=>setTitle(value)}
-                                onBlur={()=>editCurrentStudyTitle(currentStudy.trace.title)}
+                                onBlur={()=>currentStudy.trace.title && editCurrentStudyTitle(currentStudy.trace.title)}
                                 bordered={false}
                                 className={classes.title}
                                 placeholder={"标题 . . ."}/>
                         </Col>
                         <Row>
                             <Col span={24}>{
-                                currentStudy.coverages.map(coverage=><LeafItem key={coverage.knodeId} knodeId={coverage.knodeId}/>)
-                            }<SelectedKnodeItem/>
+                                currentStudy.knodeIds.map(knodeId=><PickedKnodeItem key={knodeId} knodeId={knodeId}/>)
+                            }<ToPickKnodeItem/>
                             </Col>
+                        </Row>
+                        <Divider className={utils.small_horizontal_divider}/>
+                        <Row>
+                            <Col span={24}>{
+                                currentStudy.enhancerIds.map(enhancerId=><PickedEnhancerItem key={enhancerId} enhancerId={enhancerId}/>)
+                            }{
+                                enhancers
+                                    .filter(enhancer=>currentStudy.enhancerIds.indexOf(enhancer.id) === -1)
+                                    .map(enhancer=><ToPickEnhancerItem key={enhancer.id} enhancer={enhancer}/>)
+                            }</Col>
                         </Row>
                         <Row>
                             <Col span={8}>
@@ -109,8 +134,8 @@ const CurrentStudyRecord = () => {
     );
 };
 
-const LeafItem = (props: {knodeId: number})=>{
-    const removeTraceCoverage = useRemoveTraceCoverage()
+const PickedKnodeItem = (props: {knodeId: number})=>{
+    const removeKnodeId = useRemoveKnodeId()
     const [chainStyleTitle, setChainStyleTitle] = useState<string[]>([])
     useEffect(()=>{
         const effect = async ()=>{
@@ -123,7 +148,7 @@ const LeafItem = (props: {knodeId: number})=>{
             <Col span={1} offset={1}>
                 <MinusOutlined
                     className={utils.icon_button_normal}
-                    onClick={()=>removeTraceCoverage(props.knodeId)}/>
+                    onClick={()=>removeKnodeId(props.knodeId)}/>
             </Col>
             <Col span={20}>
                 <Breadcrumb items={breadcrumbTitle(chainStyleTitle, true)}/>
@@ -132,25 +157,67 @@ const LeafItem = (props: {knodeId: number})=>{
     )
 }
 
-const SelectedKnodeItem = ()=>{
+const ToPickKnodeItem = ()=>{
     const [selectedKnode,] = useRecoilState(SelectedKnodeSelector)
     const chainStyleTitle = useRecoilValue(CurrentChainStyleTitleAtom)
-    const addTraceCoverage = useAddTraceCoverage()
+    const addKnodeId = useAddKnodeId()
     const currentStudy = useRecoilValue(CurrentStudyAtom)
 
     if(!currentStudy) return <></>
     if(!selectedKnode) return <></>
-    if(currentStudy.coverages.find(coverage=>coverage.knodeId === selectedKnode.id)) return <></>
+    if(currentStudy.knodeIds.find(knodeId=>knodeId === selectedKnode.id)) return <></>
     return (
         <Row>
             <Col span={1} offset={1}>
                 <EditOutlined
                     className={utils.icon_button_normal}
-                    onClick={()=>addTraceCoverage()}/>
+                    onClick={()=>addKnodeId()}/>
             </Col>
             <Col span={20}>
                 <div className={classes.selected_knode_title}>
                     <Breadcrumb items={breadcrumbTitle(chainStyleTitle, true)}/>
+                </div>
+            </Col>
+        </Row>
+    )
+}
+
+const PickedEnhancerItem = (props:{enhancerId: number})=>{
+    const removeEnhancerId = useRemoveEnhancerId()
+    const [enhancer, setEnhancer] = useState<Enhancer>()
+    useEffect(()=>{
+        const effect = async ()=>{
+            setEnhancer(await getEnhancerById(props.enhancerId))
+        }; effect()
+    }, [props.enhancerId])
+
+    if(!enhancer) return <></>
+    return (
+        <Row>
+            <Col span={1} offset={1}>
+                <MinusOutlined
+                    className={utils.icon_button_normal}
+                    onClick={()=>removeEnhancerId(props.enhancerId)}/>
+            </Col>
+            <Col span={20}>
+                <span>{enhancer.title}</span>
+            </Col>
+        </Row>
+    )
+}
+
+const ToPickEnhancerItem = (props:{enhancer: Enhancer}) => {
+    const addEnhancerId = useAddEnhancerId()
+    return (
+        <Row>
+            <Col span={1} offset={1}>
+                <EditOutlined
+                    className={utils.icon_button_normal}
+                    onClick={()=>addEnhancerId(props.enhancer.id)}/>
+            </Col>
+            <Col span={20}>
+                <div className={classes.selected_knode_title}>
+                    <span>{props.enhancer.title}</span>
                 </div>
             </Col>
         </Row>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from "recoil";
-import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import {DelayedSelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {getExamResultsOfKnodeOffsprings, removeExamResult} from "../../../../../service/api/MasteryApi";
 import {Col, Pagination, Popconfirm, Row, Tabs, Timeline, TimelineItemProps} from "antd";
 import {ExamResult} from "../../../../../service/data/mastery/ExamResult";
@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 const ExamAnalysisPanel = () => {
 
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const [examResults, setExamResults] = useState<ExamResult[]>([])
     const [examResultTimelineItems, setExamResultTimelineItems] = useState<TimelineItemProps[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)

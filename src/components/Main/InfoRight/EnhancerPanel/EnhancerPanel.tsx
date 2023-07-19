@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
-import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
+import {DelayedSelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
 import {
     addEnhancerToKnode,
@@ -28,7 +28,7 @@ import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/Enhance
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
     const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
     const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)

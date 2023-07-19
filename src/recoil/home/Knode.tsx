@@ -81,6 +81,16 @@ export const SelectedKnodeIdAtom = atom<number>({
     dangerouslyAllowMutability: true
 })
 
+export const DelayedSelectedKnodeIdAtom = atom<number>({
+    key: "DelayedSelectedKnodeIdAtom",
+    default: -1
+})
+
+export const DelayedKnodeIdQueueAtom = atom<number[]>({
+    key: "DelayedKnodeIdQueueAtom",
+    default: []
+})
+
 export const CurrentChainStyleTitleAtom = atom<string[]>({
     key: "CurrentChainStyleTitleAtom",
     default:[]

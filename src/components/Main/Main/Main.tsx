@@ -7,6 +7,8 @@ import classes from "./Main.module.css"
 import utils from "../../../utils.module.css"
 import InfoRight from "../InfoRight/InfoRight";
 import {
+    DelayedKnodeIdQueueAtom,
+    DelayedSelectedKnodeIdAtom,
     KtreeAntdSelector,
     KtreeFlatAtom, SelectedKnodeAncestorsSelector,
     SelectedKnodeIdAtom
@@ -40,6 +42,8 @@ const Main = () => {
     const [ktreeFlat,setKtreeFlat] = useRecoilState(KtreeFlatAtom)
     const ktreeAntd = useRecoilValue(KtreeAntdSelector)
     const [selectedId, setSelectedId] = useRecoilState<number>(SelectedKnodeIdAtom)
+    const [, setDelayId] = useRecoilState(DelayedSelectedKnodeIdAtom)
+    const [delayQueue, setDelayQueue] = useRecoilState(DelayedKnodeIdQueueAtom)
     const [searchTxt, onSearchChange] = useSearchBar()
     const hotKeys = useHotkeys()
     const hotkeyHelp = useHotkeysHelp()
@@ -58,11 +62,23 @@ const Main = () => {
         //eslint-disable-next-line
     }, [userId])
     useEffect(()=>{
+        setDelayQueue((dq)=>[...dq, selectedId])
+        //eslint-disable-next-line
+    }, [selectedId])
+    useEffect(()=>{
+        if(delayQueue.length !== 0)
+            setTimeout(()=> setDelayQueue((dq)=>dq.slice(1)), 500)
+        if(delayQueue.length === 1)
+            setDelayId(delayQueue[0])
+        //eslint-disable-next-line
+    }, [delayQueue])
+    useEffect(()=>{
         const knodeIds = selectedKnodeAncestors.map(knode=>knode.id).filter(knodeId=>knodeId !== selectedId);
         const updatedExpandedKeys = expandedKeys.filter(key=>knodeIds.indexOf(key as number) !== -1).concat(knodeIds);
         setExpandedKeys(updatedExpandedKeys)
         //eslint-disable-next-line
     }, [selectedId, ktreeFlat])
+
     useEffect(()=>{
         currentUser && setReadonlyMode(currentUser.id !== loginId)
         //eslint-disable-next-line
@@ -114,7 +130,7 @@ const Main = () => {
                     <Tree
                         showLine={true}
                         selectedKeys={[selectedId]}
-                        onSelect={(selectedKeys) => setSelectedId(selectedKeys[0]?.valueOf() as number)}
+                        onSelect={(selectedKeys) => setSelectedId(selectedKeys[0] ? selectedKeys[0].valueOf() as number: selectedId)}
                         treeData={ktreeAntd}
                         expandedKeys={expandedKeys}
                         autoExpandParent={true}

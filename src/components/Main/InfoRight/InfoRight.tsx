@@ -2,7 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {ResizableBox} from "react-resizable";
 import classes from "./InfoRight.module.css";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {CurrentChainStyleTitleAtom, KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
+import {
+    CurrentChainStyleTitleAtom,
+    DelayedSelectedKnodeIdAtom,
+    KnodeSelector,
+} from "../../../recoil/home/Knode";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {Breadcrumb, Col, Row, Tabs, Tooltip} from "antd";
 import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
@@ -26,7 +30,7 @@ const InfoRight = () => {
 
     const mainPageHeight = useRecoilValue(MainPageHeightAtom)
     const mainPageWidth = useRecoilValue(MainPageWidthAtom)
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
     const [chainStyleTitle, setChainStyleTitle] = useRecoilState(CurrentChainStyleTitleAtom)
     const [leaveCount, setLeaveCount] = useState<number>()

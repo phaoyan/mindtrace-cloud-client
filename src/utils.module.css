@@ -75,6 +75,10 @@
     width: 20vw;
 }
 
+.small_horizontal_divider{
+    margin: 0.5em;
+}
+
 .top_margin_horizontal_divider{
     margin-bottom: 0;
     width: 20vw;

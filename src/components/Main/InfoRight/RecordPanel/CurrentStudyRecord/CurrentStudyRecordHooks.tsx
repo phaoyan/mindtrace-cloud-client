@@ -1,9 +1,10 @@
 import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {CurrentStudy} from "../../../../../service/data/Tracing";
 import {
-    addTraceCoverage, continueCurrentStudy, pauseCurrentStudy,
-    removeCurrentStudy,
-    removeTraceCoverage,
+    addTraceEnhancerRel,
+    addTraceKnodeRel, continueCurrentStudy, pauseCurrentStudy,
+    removeCurrentStudy, removeTraceEnhancerRel,
+    removeTraceKnodeRel,
     settleCurrentStudy, startCurrentStudy
 } from "../../../../../service/api/TracingApi";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
@@ -37,7 +38,7 @@ export const useSettleCurrentStudy = ()=>{
     const messageApi = useRecoilValue(MessageApiAtom)
     return async ()=>{
         if(!currentStudy) return
-        if(currentStudy.coverages.length === 0){
+        if(currentStudy.knodeIds.length === 0){
             messageApi.error("请至少选择一个知识点")
             return
         }
@@ -87,22 +88,39 @@ export const useSetTitle = ()=>{
     }
 }
 
-export const useAddTraceCoverage = ()=>{
+export const useAddKnodeId = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-
     return async ()=>{
         if(!currentStudy) return
-        setCurrentStudy({...currentStudy, coverages:await addTraceCoverage([selectedKnodeId])})
+        await addTraceKnodeRel(selectedKnodeId)
+        setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, selectedKnodeId]})
     }
 }
 
-export const useRemoveTraceCoverage = ()=>{
+export const useAddEnhancerId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    return async (enhancerId: number)=>{
+        if(!currentStudy) return
+        await addTraceEnhancerRel(enhancerId)
+        setCurrentStudy({...currentStudy, enhancerIds: [...currentStudy.enhancerIds, enhancerId]})
+    }
+}
 
+export const useRemoveKnodeId = ()=>{
+    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async (knodeId: number)=>{
         if(!currentStudy) return
-        await removeTraceCoverage(knodeId)
-        setCurrentStudy({...currentStudy, coverages: currentStudy.coverages.filter(coverage=>coverage.knodeId!==knodeId)})
+        await removeTraceKnodeRel(knodeId)
+        setCurrentStudy({...currentStudy, knodeIds: currentStudy.knodeIds.filter(id=>id!==knodeId)})
+    }
+}
+
+export const useRemoveEnhancerId = ()=>{
+    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    return async (enhancerId: number)=>{
+        if(!currentStudy) return
+        await removeTraceEnhancerRel(enhancerId)
+        setCurrentStudy({...currentStudy, enhancerIds: currentStudy.enhancerIds.filter(id=>id!==enhancerId)})
     }
 }

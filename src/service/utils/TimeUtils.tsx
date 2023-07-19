@@ -29,6 +29,7 @@ export const formatMillisecondsToHHMM = (milliseconds: number, noPadding?: boole
 export const sameDay = (day1: Dayjs, day2: Dayjs)=>{
     return day1.format("YYYY-MM-DD") === day2.format("YYYY-MM-DD")
 }
+
 export const sameMonth = (day1: Dayjs, day2: Dayjs)=>{
     return day1.format("YYYY-MM") === day2.format("YYYY-MM")
 }

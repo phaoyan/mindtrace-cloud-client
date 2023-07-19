@@ -12,6 +12,8 @@ import {CurrentPageAtom} from "./recoil/utils/DocumentData";
 import "./reset.css"
 import {useLoadLoginData, useMenuItems, useSetGlobalMessage} from "./AppHooks";
 import Home from "./components/Home/Home";
+import 'dayjs/locale/zh-cn';
+import locale from 'antd/locale/zh_CN';
 
 const App = ()=> {
     const [current, setCurrent] = useRecoilState(CurrentPageAtom)
@@ -30,7 +32,9 @@ const App = ()=> {
     }, [current])
 
     return (
-        <ConfigProvider theme={{algorithm: theme.defaultAlgorithm}}>
+        <ConfigProvider
+            theme={{algorithm: theme.defaultAlgorithm}}
+            locale={locale}>
             {contextHolder}
             <div className={classes.app}>
                 <Header className={classes.header}>

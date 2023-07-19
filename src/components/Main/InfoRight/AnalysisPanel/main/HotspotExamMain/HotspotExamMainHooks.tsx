@@ -1,74 +1,88 @@
-import {atom, useRecoilState, useRecoilValue} from "recoil";
-import {examInteractWrapped} from "../../../../../../service/api/MasteryApi";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
     CurrentExamSessionAtom,
+    ExamCurrentKnodeIdAtom,
     ExamCurrentQuizzesAtom
 } from "../../../../../../recoil/home/ExamSession";
+import {useEffect} from "react";
+import {examInteractWrapped} from "../../../../../../service/api/MasteryApi";
+import {getResourceById} from "../../../../../../service/api/ResourceApi";
+import {ExamSessionMsgAtom} from "../utils/GeneralHooks";
 
-export interface ResponseData{
-    type: string,
-    layerId: number,
-    knodeId: number,
-    quizIds: number[]
+export const useInitSessionMsgWithMainAndStatistics = ()=>{
+    const currentSession = useRecoilValue(CurrentExamSessionAtom)
+    const [, setSessionMsg] = useRecoilState(ExamSessionMsgAtom)
+    useEffect(()=>{
+        const effect = async ()=>{
+            if(!currentSession) return
+            const mainResp = await examInteractWrapped(currentSession.id, {type:"main"})
+            const statisticsResp = await examInteractWrapped(currentSession.id, {type:"statistics"})
+            setSessionMsg({
+                main: JSON.parse(mainResp.message!),
+                statistics: JSON.parse(statisticsResp.message!)
+            })
+        }; effect()
+        //eslint-disable-next-line
+    }, [currentSession])
 }
 
-export interface StatisticsData{
-    corrects: string[] //回答正确的knode id
-    mistakes: string[] //回答错误的knode id
-    currentCorrects: string[] //当前层回答正确的knode id
-    currentMistakes: string[] //当前层回答错误的knode id
-    layerId: number // 当前层knode id,
-    mistakeMap: any
+export const useInitKnodeAndQuizzes = ()=>{
+    const [sessionMsg, ] = useRecoilState(ExamSessionMsgAtom)
+    const [, setCurrentQuiz] = useRecoilState(ExamCurrentQuizzesAtom)
+    const setExamCurrentKnodeId = useSetRecoilState(ExamCurrentKnodeIdAtom)
+    useEffect(()=>{
+        const effect = async ()=>{
+            if(!sessionMsg.main || !sessionMsg.main.quizIds || !sessionMsg.main.knodeId) return
+            const temp = []
+            for(let quizId of sessionMsg.main.quizIds)
+                temp.push(await getResourceById(quizId))
+            setCurrentQuiz(temp)
+            setExamCurrentKnodeId(sessionMsg.main.knodeId)
+        }; effect()
+        //eslint-disable-next-line
+    }, [sessionMsg.main])
 }
-
-export const HotspotMainMsgAtom = atom<ResponseData>({
-    key: "HotspotMainMsgAtom",
-    default: undefined
-})
-
-export const HotspotStatisticsMsgAtom = atom<StatisticsData>({
-    key: "HotspotStatisticsMsgAtom",
-    default: undefined
-})
 
 export const useHandleRight = ()=>{
     const currentSession = useRecoilValue(CurrentExamSessionAtom)
-    const [mainMsg, setMainMsg] = useRecoilState(HotspotMainMsgAtom)
-    const [, setStatisticsMsg] = useRecoilState(HotspotStatisticsMsgAtom)
+    const [sessionMsg, setSessionMsg] = useRecoilState(ExamSessionMsgAtom)
     const [currentQuiz,] = useRecoilState(ExamCurrentQuizzesAtom)
     return async ()=>{
         if(!currentSession) return
         const req = {
             type:"main",
-            layerId: mainMsg.layerId,
-            knodeId: mainMsg.knodeId,
+            layerId: sessionMsg.main.layerId,
+            knodeId: sessionMsg.main.knodeId,
             quizIds: currentQuiz.map(quiz=>quiz.id),
             completion: true
         }
         const mainResp = await examInteractWrapped(currentSession.id, req);
-        setMainMsg(JSON.parse(mainResp.message!))
-            const statisticsResp = await examInteractWrapped(currentSession.id, {type:"statistics"})
-            setStatisticsMsg(JSON.parse(statisticsResp.message!))
+        const statisticsResp = await examInteractWrapped(currentSession.id, {type:"statistics"})
+        setSessionMsg({
+            main: JSON.parse(mainResp.message!),
+            statistics: JSON.parse(statisticsResp.message!)
+        })
     }
 }
 
 export const useHandleWrong = ()=>{
     const currentSession = useRecoilValue(CurrentExamSessionAtom)
-    const [mainMsg, setMainMsg] = useRecoilState(HotspotMainMsgAtom)
-    const [, setStatisticsMsg] = useRecoilState(HotspotStatisticsMsgAtom)
+    const [sessionMsg, setSessionMsg] = useRecoilState(ExamSessionMsgAtom)
     const [currentQuiz,] = useRecoilState(ExamCurrentQuizzesAtom)
     return async ()=>{
         if(!currentSession) return
         const req = {
             type: "main",
-            layerId: mainMsg.layerId,
-            knodeId:mainMsg.knodeId,
+            layerId: sessionMsg.main.layerId,
+            knodeId: sessionMsg.main.knodeId,
             quizIds: currentQuiz.map(quiz=>quiz.id),
             completion: false
         }
         const mainResp = await examInteractWrapped(currentSession.id, req);
-        setMainMsg(JSON.parse(mainResp.message!))
         const statisticsResp = await examInteractWrapped(currentSession.id, {type:"statistics"})
-        setStatisticsMsg(JSON.parse(statisticsResp.message!))
+        setSessionMsg({
+            main: JSON.parse(mainResp.message!),
+            statistics: JSON.parse(statisticsResp.message!)
+        })
     }
 }

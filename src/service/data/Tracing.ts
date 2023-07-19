@@ -19,5 +19,6 @@ export interface TraceCoverage{
 
 export interface CurrentStudy{
     trace: StudyTrace,
-    coverages: TraceCoverage[]
+    knodeIds: number[],
+    enhancerIds: number[]
 }

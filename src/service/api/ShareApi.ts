@@ -27,12 +27,8 @@ export const getOwnedEnhancerShare = async (knodeId: number): Promise<EnhancerSh
     return await axios.get(`${SHARE_HOST}/knode/${knodeId}/enhancer`).then(({data})=>data)
 }
 
-export const getRelatedKnodeShare = async (knodeId: number, count: number): Promise<KnodeShare[]>=>{
-    return await axios.get(`${SHARE_HOST}/knode/${knodeId}/similar?count=${count}`).then(({data})=>data)
-}
-
-export const getRelatedEnhancerShare = async (knodeId: number, knodeCount: number, withMapping: boolean)=>{
-    return await axios.get(`${SHARE_HOST}/knode/${knodeId}/similar/enhancer?knodeCount=${knodeCount}&withMapping=${withMapping}`).then(({data})=>data)
+export const getRelatedKnodeShare = async (knodeId: number): Promise<KnodeShare[]>=>{
+    return await axios.get(`${SHARE_HOST}/knode/${knodeId}/similar`).then(({data})=>data)
 }
 
 export const getEnhancerShare = async (enhancerId: number): Promise<EnhancerShare>=>{

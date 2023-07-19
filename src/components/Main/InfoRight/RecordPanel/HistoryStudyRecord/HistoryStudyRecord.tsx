@@ -4,11 +4,11 @@ import {
     HistoryStudyRecordKeyAtom,
     StudyTracesAtom,
     useCalculateTitle, useKtreeTimeDistributionAntd,
-    useRemoveTraceRecord, useTimeDistributionExpandedKeys
+    useRemoveTraceRecord
 } from "./HistoryStudyRecordHooks";
 import {
-    getStudyTracesOfKnode,
-    getTraceCoverages
+    getStudyTracesOfKnode, getTraceEnhancerRels,
+    getTraceKnodeRels
 } from "../../../../../service/api/TracingApi";
 import {Breadcrumb, Calendar, Col, Divider, Pagination, Popconfirm, Row, Timeline, Tooltip, Tree} from "antd";
 import {StudyTrace} from "../../../../../service/data/Tracing";
@@ -17,7 +17,13 @@ import PlainLoading from "../../../../utils/general/PlainLoading";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
 import classes from "./HistoryStudyRecord.module.css"
 import dayjs from "dayjs";
-import {CalendarOutlined, DeleteOutlined, HistoryOutlined, PieChartOutlined} from "@ant-design/icons";
+import {
+    CalendarOutlined,
+    DeleteOutlined,
+    FieldTimeOutlined,
+    HistoryOutlined,
+    PieChartOutlined
+} from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {
     formatMillisecondsToHHMM,
@@ -25,10 +31,13 @@ import {
     sameDay, sameMonth,
 } from "../../../../../service/utils/TimeUtils";
 import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
-import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import {DelayedSelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
+import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
+
 
 const HistoryStudyRecord = () => {
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
+    const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
     const studyTracePageSize = 3
@@ -37,14 +46,18 @@ const HistoryStudyRecord = () => {
     const currentStudy = useRecoilValue(CurrentStudyAtom)
     const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
-    const timeDistributionExpandedKeys = useTimeDistributionExpandedKeys()
+    const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
 
+    useEffect(()=>{
+        if(!selectedKtree) return
+        setTimeDistributionExpandedKeys([selectedKtree.knode.id, ...selectedKtree.branches.map(branch=>branch.knode.id)])
+    }, [selectedKtree])
     useEffect(()=>{
         const effect = async ()=>{
             setStudyTraces((await getStudyTracesOfKnode(selectedKnodeId)).reverse())
         }; effect()
         //eslint-disable-next-line
-    }, [selectedKnodeId])
+    }, [selectedKnodeId, currentStudy])
     useEffect(()=>{
         setStatisticDisplayKey(statisticDisplayKey + 1)
         //eslint-disable-next-line
@@ -126,7 +139,8 @@ const HistoryStudyRecord = () => {
                     <Tree
                         showLine={true}
                         treeData={[timeDistribution]}
-                        expandedKeys={timeDistributionExpandedKeys}/>
+                        expandedKeys={timeDistributionExpandedKeys}
+                        onExpand={(expandedKeys: any) => setTimeDistributionExpandedKeys(expandedKeys)}/>
                 </div>
             }<br/>
 
@@ -136,14 +150,17 @@ const HistoryStudyRecord = () => {
 
 const StudyTraceRecord = (props:{trace: StudyTrace})=>{
 
-    const [coverages, setCoverages] = useState<number[]>([])
-    const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>()
+    const [knodeRels, setKnodeRels] = useState<number[]>([])
+    const [enhancerRels, setEnhancerRels] = useState<number[]>([])
+    const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>([])
+    const [relEnhancerTitles, setRelEnhancerTitles] = useState<{enhancerId: number, title: string}[]>([])
     const removeTraceRecord = useRemoveTraceRecord()
     const calculateTitle = useCalculateTitle()
     const [title, setTitle] = useState<string>("")
     useEffect(()=>{
         const effect = async ()=>{
-            setCoverages(await getTraceCoverages(props.trace.id))
+            setKnodeRels(await getTraceKnodeRels(props.trace.id))
+            setEnhancerRels(await getTraceEnhancerRels(props.trace.id))
             setTitle(await calculateTitle(props.trace))
         }; effect()
         //eslint-disable-next-line
@@ -151,11 +168,19 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     useEffect(()=>{
         const effect = async ()=>{
             const temp = []
-            for(let coverage of coverages)
+            for(let coverage of knodeRels)
                 temp.push({knodeId: coverage, title: await getChainStyleTitle(coverage)})
             setRelKnodeChainTitles(temp)
         }; effect()
-    }, [coverages])
+    }, [knodeRels])
+    useEffect(()=>{
+        const effect = async ()=>{
+            const temp = []
+            for (let id of enhancerRels)
+                temp.push({enhancerId: id, title: (await getEnhancerById(id)).title})
+            setRelEnhancerTitles(temp)
+        }; effect()
+    }, [enhancerRels])
 
     if(!props.trace || !relKnodeChainTitles) return <PlainLoading/>
     return (
@@ -177,9 +202,16 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 </Col>
             </Row>
             <Row>
-                <Col span={24}>
+                <Col span={8}>
                     <span className={classes.trace_title}>{title}</span>
                 </Col>
+                <Col span={1}>{
+                    relEnhancerTitles.length !== 0 &&
+                    <FieldTimeOutlined style={{scale:"120%"}}/>
+                }</Col>
+                <Col span={15}>{
+                    relEnhancerTitles.map(data=><span key={data.enhancerId} className={classes.enhancer_title}>{data.title}</span>)
+                }</Col>
             </Row>
             <Row>
                 <Col span={1}>

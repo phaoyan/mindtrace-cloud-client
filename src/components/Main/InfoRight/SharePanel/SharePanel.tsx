@@ -9,7 +9,7 @@ import classes from "./SharePanel.module.css"
 import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../../utils/markdown/MilkdownEditor";
 import {initiative} from "./OpenShareInitiative";
-import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
+import {DelayedSelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import KnodeShareCard from "./KnodeShareCard/KnodeShareCard";
 import {
     RelatedKnodeIdsAtom,
@@ -21,11 +21,11 @@ const SharePanel = () => {
 
     const userId = useRecoilValue(LoginUserIdSelector);
     const [userShare, setUserShare] = useRecoilState(UserShareAtom)
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const [relatedKnodeIds, setRelatedKnodeIds] = useRecoilState(RelatedKnodeIdsAtom)
     useEffect(()=> {
         const init = async ()=>{
-            setRelatedKnodeIds((await getRelatedKnodeShare(selectedKnodeId, 6)).map(share=>share.knodeId))
+            setRelatedKnodeIds((await getRelatedKnodeShare(selectedKnodeId)).map(share=>share.knodeId))
         }; init()
         //eslint-disable-next-line
     },[selectedKnodeId])
