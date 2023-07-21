@@ -4,7 +4,7 @@ import {
     FileSearchOutlined,
     FileTextOutlined, InteractionOutlined,
     LinkOutlined,
-    ShareAltOutlined,
+    ShareAltOutlined, SoundOutlined,
     SwitcherOutlined
 } from "@ant-design/icons";
 import classes from "./EnhancerCard.module.css";
@@ -17,6 +17,7 @@ import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer";
 import React from "react";
 import {addResourceToEnhancer} from "../../../../../service/api/ResourceApi";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
+import AudioPlayer from "../resource/AudioPlayer";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -67,6 +68,12 @@ export const useAddResourceDropdownItems = (enhancerId: number)=>{
             label: "知识梳理",
             icon: <InteractionOutlined className={classes.option}/>,
             onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, unfoldingTemplate(userId))])
+        },
+        {
+            key: ResourceType.AUDIO,
+            label: "音频资源",
+            icon: <SoundOutlined className={classes.option}/>,
+            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, audioTemplate(userId))])
         }
     ]
 }
@@ -175,6 +182,17 @@ export const unfoldingTemplate = (userId:number): ResourceWithData=>({
     }
 })
 
+export const audioTemplate = (userId: number)=>({
+    meta:{
+        type: ResourceType.AUDIO,
+        createBy: userId
+    },
+    data:{
+        audio: "",
+        contentType: "",
+    }
+})
+
 export const mindtraceHubResourceTemplate = (userId: number): ResourceWithData=>({
     meta:{
         type: ResourceType.MINDTRACE_HUB_RESOURCE,
@@ -197,7 +215,8 @@ export const resourceTypePlayerMapper = {
     [ResourceType.LINKOUT]: (meta: Resource, readonly:boolean) => <LinkoutPlayer  meta={meta} readonly={readonly}/>,
     [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
     [ResourceType.UNFOLDING]: (meta: Resource, readonly:boolean)=> <UnfoldingPlayer meta={meta} readonly={readonly}/>,
-    [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>
+    [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.AUDIO]: (meta: Resource, readonly:boolean)=> <AudioPlayer meta={meta} readonly={readonly}/>
 }
 
 export const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{

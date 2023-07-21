@@ -1,0 +1,12 @@
+.container{
+    display: flex;
+    justify-content: center;
+}
+.container > *{
+    margin-right: 2em;
+}
+.upload{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

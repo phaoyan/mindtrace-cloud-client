@@ -1,10 +1,7 @@
 import React, {Suspense, useEffect, useState} from 'react';
-import {Col, Row} from "antd";
 import classes from "./FullCheckExamMain.module.css";
-import utils from "../../../../../../utils.module.css";
 import {useRecoilState} from "recoil";
 import {CurrentExamSessionAtom} from "../../../../../../recoil/home/ExamSession";
-import {Resource, ResourcePlayer} from "../../../EnhancerPanel/EnhancerCard/EnhancerCardHooks"
 import CrossAndCheck from "../utils/CrossAndCheck";
 import DividerTimer from "../utils/DividerTimer";
 import FinishSessionPrompt from "../utils/FinishSessionPrompt";

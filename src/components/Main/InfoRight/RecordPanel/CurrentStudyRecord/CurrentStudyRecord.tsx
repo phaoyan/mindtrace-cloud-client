@@ -41,6 +41,7 @@ const CurrentStudyRecord = () => {
             if(!selectedKnodeId) return
             setEnhancers(await getEnhancersForKnode(selectedKnodeId))
         }; effect()
+        //eslint-disable-next-line
     }, [selectedKnodeId])
     useEffect(()=>{
         const effect = async ()=>{

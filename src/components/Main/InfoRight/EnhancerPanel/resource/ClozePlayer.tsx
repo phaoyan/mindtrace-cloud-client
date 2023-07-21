@@ -19,14 +19,7 @@ import {Resource} from "../EnhancerCard/EnhancerCardHooks";
 import PlainLoading from "../../../../utils/general/PlainLoading";
 
 const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
-
-    interface DataType{
-        raw: string,
-        noAnswer:string,
-        indexes: Array<{start: number, end:number, insert:number, txt: string}>
-    }
-
-    const [data, setData ] = useState<DataType>({raw:"", noAnswer:"", indexes:[]})
+    const [data, setData ] = useState<{raw:string, noAnswer:string, indexes:any[]}>({raw:"", noAnswer:"", indexes:[]})
     const [loading, setLoading] = useState(true)
     const loadData = ()=>{
         getAllDataFromResource(props.meta.id!)
