@@ -45,3 +45,27 @@
     position: relative;
     top: 0.15em;
 }
+.enhancer_distribution_title{
+    color: #666;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+.enhancer_distribution_icon{
+    color: #666;
+    scale: 120%;
+    position: relative;
+    top: 0.18em;
+}
+.enhancer_distribution_info{
+    color: #666;
+    font-style: oblique;
+    font-size: 1.2em;
+}
+.enhancer_distribution_item{
+    color: #666666;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.enhancer_distribution_item > *{
+    margin-right: 0.5em;
+}

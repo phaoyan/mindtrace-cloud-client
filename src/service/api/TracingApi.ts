@@ -69,10 +69,10 @@ export const getTraceEnhancerRels = async (traceId: number): Promise<number[]>=>
     return await axios.get(`${TRACING_HOST}/study/trace/${traceId}/enhancer`).then(({data})=>data)
 }
 
-export const getStudyTimeDistribution = async (knodeId: number): Promise<any> =>{
-    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/time/distribution`).then(({data})=>data)
-}
-
 export const getStudyTraceKnodeInfo = async (knodeId: number): Promise<any[]>=>{
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}`).then(({data})=>data)
+}
+
+export const getStudyTraceEnhancerInfoUnderKnode = async (knodeId: number): Promise<any[]> => {
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/enhancer`).then(({data})=>data)
 }

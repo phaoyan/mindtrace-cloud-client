@@ -56,3 +56,6 @@
     top: 2vh;
     z-index: 2;
 }
+.top_right_options > *{
+    margin-right: 1em;
+}

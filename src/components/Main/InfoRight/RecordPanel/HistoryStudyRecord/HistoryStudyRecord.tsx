@@ -3,7 +3,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {
     HistoryStudyRecordKeyAtom,
     StudyTracesAtom,
-    useCalculateTitle, useKtreeTimeDistributionAntd,
+    useCalculateTitle, useEnhancerTimeDistribution, useKtreeTimeDistributionAntd,
     useRemoveTraceRecord
 } from "./HistoryStudyRecordHooks";
 import {
@@ -18,8 +18,9 @@ import {breadcrumbTitle} from "../../../../../service/data/Knode";
 import classes from "./HistoryStudyRecord.module.css"
 import dayjs from "dayjs";
 import {
+    BookOutlined,
     CalendarOutlined,
-    DeleteOutlined,
+    DeleteOutlined, EditOutlined,
     FieldTimeOutlined,
     HistoryOutlined,
     PieChartOutlined
@@ -33,6 +34,7 @@ import {
 import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
 import {DelayedSelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
 import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
+import EnhancerStudyRecord from "./EnhancerStudyRecord";
 
 
 const HistoryStudyRecord = () => {
@@ -41,12 +43,16 @@ const HistoryStudyRecord = () => {
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
     const studyTracePageSize = 3
-    const [statisticDisplay, setStatisticDisplay] = useState<"calendar" | "data" | "history" | "distribution">("history")
+    const [statisticDisplay, setStatisticDisplay] = useState<
+        "calendar" | "data" | "history" |
+        "knode distribution" |
+        "enhancer distribution">("history")
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
     const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
     const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
+    const enhancerTimeDistribution = useEnhancerTimeDistribution()
 
     useEffect(()=>{
         if(!selectedKtree) return
@@ -83,10 +89,17 @@ const HistoryStudyRecord = () => {
                     </Tooltip>
                 </Col>
                 <Col span={2}>
-                    <Tooltip title={"学习时间分布（时：分）"}>
+                    <Tooltip title={"学习知识时间分布（时：分）"}>
                         <PieChartOutlined
                             className={utils.icon_button}
-                            onClick={()=>setStatisticDisplay("distribution")}/>
+                            onClick={()=>setStatisticDisplay("knode distribution")}/>
+                    </Tooltip>
+                </Col>
+                <Col span={2}>
+                    <Tooltip title={"学习任务时间分布（时：分）"}>
+                        <BookOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setStatisticDisplay("enhancer distribution")}/>
                     </Tooltip>
                 </Col>
             </Row>
@@ -133,7 +146,7 @@ const HistoryStudyRecord = () => {
                         hideOnSinglePage={true}
                         total={studyTraces.length}/>
                 </div>}{
-                statisticDisplay === 'distribution' &&
+                statisticDisplay === 'knode distribution' &&
                 timeDistribution &&
                 <div key={statisticDisplayKey + 2}>
                     <Tree
@@ -141,9 +154,51 @@ const HistoryStudyRecord = () => {
                         treeData={[timeDistribution]}
                         expandedKeys={timeDistributionExpandedKeys}
                         onExpand={(expandedKeys: any) => setTimeDistributionExpandedKeys(expandedKeys)}/>
-                </div>
+                </div>}{
+                statisticDisplay === "enhancer distribution" &&
+                enhancerTimeDistribution &&
+                <div key={statisticDisplayKey + 3}>{
+                    enhancerTimeDistribution.map(info=>(
+                        <div key={info.enhancerId}>
+                            <Row>
+                                <Col span={8}>
+                                    <span className={classes.enhancer_distribution_title}>{info.title}</span>
+                                </Col>
+                                <Col span={1}>
+                                    <Tooltip title={"学习总时长（时：分）"}>
+                                        <FieldTimeOutlined className={classes.enhancer_distribution_icon}/>
+                                    </Tooltip>
+                                </Col>
+                                <Col span={3}>
+                                    <span className={classes.enhancer_distribution_info}>{formatMillisecondsToHHMM(info.duration * 1000)}</span>
+                                </Col>
+                                <Col span={1}>
+                                    <Tooltip title={"学习次数"}>
+                                        <EditOutlined className={classes.enhancer_distribution_icon}/>
+                                    </Tooltip>
+                                </Col>
+                                <Col span={2}>
+                                    <span className={classes.enhancer_distribution_info}>{info.review}</span>
+                                </Col>
+                                <Col span={1}>
+                                    <Tooltip title={"距上次学习间隔天数"}>
+                                        <CalendarOutlined className={classes.enhancer_distribution_icon}/>
+                                    </Tooltip>
+                                </Col>
+                                <Col span={2}>
+                                    <span className={classes.enhancer_distribution_info}>{dayjs().diff(dayjs(info.moments[info.moments.length-1]),'day')}</span>
+                                </Col>
+                            </Row>
+                            <br/>
+                            <Row>
+                                <Col span={22} offset={1}>
+                                    <EnhancerStudyRecord info={info}/>
+                                </Col>
+                            </Row>
+                        </div>
+                    ))
+                }</div>
             }<br/>
-
         </div>
     );
 };

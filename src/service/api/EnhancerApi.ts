@@ -17,28 +17,24 @@ export const getEnhancersForOffsprings = async (knodeId: number): Promise<Enhanc
 }
 
 export const addEnhancerToKnode = async (knodeId: number): Promise<Enhancer> =>{
-    return await axios.put(`${ENHANCER_HOST}/knode/${knodeId}/enhancer`)
-        .then(({data})=>{
-            // console.log("ADD ENHANCER TO KNODE", data)
-            return data
-        })
+    return await axios.put(`${ENHANCER_HOST}/knode/${knodeId}/enhancer`).then(({data})=> data)
 }
 
 export const updateEnhancer = async (enhancerId: number, enhancer: Enhancer)=>{
     return await axios.post(`${ENHANCER_HOST}/enhancer/${enhancerId}`, enhancer)
 }
 
-export const removeEnhancer = async (enhancerId: number)=>{
-    return await axios.delete(`${ENHANCER_HOST}/enhancer/${enhancerId}`).then(({data})=> {
-        // console.log("remove enhancer from user", data)
-        return data
-    })
+export const removeEnhancer = async (enhancerId: number, knodeId: number)=>{
+    return await axios.delete(`${ENHANCER_HOST}/knode/${knodeId}/enhancer/${enhancerId}`).then(({data})=>data)
 }
 
 export const scissorEnhancer = async (enhancerId:number, oriKnodeId: number, tarKnodeId: number)=>{
-    console.log("scissor enhancer", enhancerId, oriKnodeId, tarKnodeId)
     await axios.post(`${ENHANCER_HOST}/knode/${tarKnodeId}/enhancer/${enhancerId}`)
     await axios.delete(`${ENHANCER_HOST}/knode/${oriKnodeId}/enhancer/${enhancerId}`)
+}
+
+export const copyEnhancer = async (enhancerId:number, tarKnodeId: number)=>{
+    await axios.post(`${ENHANCER_HOST}/knode/${tarKnodeId}/enhancer/${enhancerId}`)
 }
 
 export const getEnhancerCount = async (knodeId: number)=>{

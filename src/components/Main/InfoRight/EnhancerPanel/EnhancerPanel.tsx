@@ -3,13 +3,13 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {DelayedSelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
 import {
-    addEnhancerToKnode,
+    addEnhancerToKnode, copyEnhancer,
     getEnhancersForKnode,
     getEnhancersForOffsprings,
     scissorEnhancer
 } from "../../../../service/api/EnhancerApi";
-import {Col, Divider, Pagination, Row, Switch} from "antd";
-import {PlusOutlined, ScissorOutlined} from "@ant-design/icons";
+import {Col, Divider, Pagination, Row, Switch, Tooltip} from "antd";
+import {CopyOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
 import classes from "./EnhancerPanel.module.css";
 import utils from "../../../../utils.module.css"
 import {EnhancerCardIdClipboardAtom, EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
@@ -104,14 +104,28 @@ const EnhancerPanel = () => {
                                 onClick={async ()=>setEnhancers([...enhancers, await addEnhancerToKnode(selectedKnodeId)])
                                 }/>{
                             enhancerIdClipboard &&
-                            <ScissorOutlined
-                                className={utils.icon_button}
-                                style={{marginLeft:"2em"}}
-                                onClick={ async ()=>{
-                                    await scissorEnhancer(enhancerIdClipboard[0],enhancerIdClipboard[1],selectedKnodeId)
-                                    setEnhancerPanelKey(enhancerPanelKey+1)
-                                    setEnhancerIdClipboard(undefined)
-                                }}/>
+                            <>
+                                <Tooltip title={"剪切（删除原有笔记）"}>
+                                    <ScissorOutlined
+                                        className={utils.icon_button}
+                                        style={{marginLeft:"2em"}}
+                                        onClick={ async ()=>{
+                                            await scissorEnhancer(enhancerIdClipboard[0],enhancerIdClipboard[1],selectedKnodeId)
+                                            setEnhancerPanelKey(enhancerPanelKey+1)
+                                            setEnhancerIdClipboard(undefined)
+                                        }}/>
+                                </Tooltip>
+                                <Tooltip title={"粘贴笔记（不删除原有笔记）"}>
+                                    <CopyOutlined
+                                        className={utils.icon_button}
+                                        style={{marginLeft:"2em"}}
+                                        onClick={ async ()=>{
+                                            await copyEnhancer(enhancerIdClipboard[0],selectedKnodeId)
+                                            setEnhancerPanelKey(enhancerPanelKey+1)
+                                            setEnhancerIdClipboard(undefined)
+                                        }}/>
+                                </Tooltip>
+                            </>
                             }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
                         </>
                     }</Col>

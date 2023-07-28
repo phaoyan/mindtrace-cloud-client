@@ -1,6 +1,7 @@
 import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {StudyTrace} from "../../../../../service/data/Tracing";
 import {
+    getStudyTraceEnhancerInfoUnderKnode,
     getStudyTraceKnodeInfo,
     getTraceKnodeRels,
     removeStudyTrace
@@ -15,6 +16,7 @@ import classes from "./HistoryStudyRecord.module.css";
 import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {Tooltip} from "antd";
+import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 
 export const StudyTracesAtom = atom<StudyTrace[]>({
     key: "StudyTracesAtom",
@@ -102,8 +104,20 @@ const convertKtreeAntd = (ori: Ktree[], infoMap: any): KtreeTimeDistributionAntd
     }))
 }
 
-export const useTimeDistributionExpandedKeys = ()=>{
-    const selectedKtree = useRecoilValue(SelectedKtreeSelector)
-    if(!selectedKtree) return []
-    return [selectedKtree.knode.id, ...selectedKtree.branches.map(branch=>branch.knode.id)]
+export const useEnhancerTimeDistribution = ()=>{
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [enhancerTimeDistribution, setEnhancerTimeDistribution] = useState<any[]>()
+    useEffect(()=>{
+        const effect = async ()=>{
+            const resp = await getStudyTraceEnhancerInfoUnderKnode(selectedKnodeId)
+            const data = []
+            for(let info of resp)
+                data.push({
+                    ...info,
+                    title: (await getEnhancerById(info.enhancerId)).title
+                })
+            setEnhancerTimeDistribution(data)
+        }; effect().then()
+    }, [selectedKnodeId])
+    return enhancerTimeDistribution
 }
