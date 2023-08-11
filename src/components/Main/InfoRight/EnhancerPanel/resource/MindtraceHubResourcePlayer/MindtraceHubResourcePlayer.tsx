@@ -1,40 +1,35 @@
 import React, {useEffect, useState} from 'react';
-import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
+import {addDataToResource, getAllDataFromResource} from "../../../../../../service/api/ResourceApi";
 import classes from "./MindtraceHubResourcePlayer.module.css"
 import {Col, Dropdown, Input, message, Row, Tooltip, Upload} from "antd";
 import {ShareAltOutlined, UploadOutlined} from "@ant-design/icons";
-import utils from "../../../../../utils.module.css"
-import {existsInHub, HUB_HOST} from "../../../../../service/api/HubApi";
-import {mindtraceHubResourceTemplate, Resource} from "../EnhancerCard/EnhancerCardHooks";
-import PlainLoading from "../../../../utils/general/PlainLoading";
+import utils from "../../../../../../utils.module.css"
+import {existsInHub, HUB_HOST} from "../../../../../../service/api/HubApi";
+import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../../utils/general/PlainLoading";
+import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 
-export interface BasicInfo{
-    id: number,
-    url: string,
-    title: string,
-    contentType: string,
-    size: number
-}
-export const contentTypeItems = [
-    {
-        key: "text/plain",
-        label: <span className={utils.menu_item}>text/plain</span>
-    },
-    {
-        key: "application/pdf",
-        label: <span className={utils.menu_item}>application/pdf</span>
-    }
-]
 const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) => {
 
-    const [data, setData] = useState<BasicInfo>(mindtraceHubResourceTemplate(props.meta.createBy).data)
+    const [data, setData] = useState({
+        id: 0,
+        url: "",
+        title: "",
+        contentType: "application/pdf",
+        size: 0
+    })
     const [loading, setLoading] = useState(false)
     const [resourceExists, setResourceExists] = useState(false)
     useEffect(()=>{
         const init = async ()=>{
-            const resp = await getAllDataFromResource(props.meta.id!);
-            const dataJson = JSON.parse(resp["data.json"]);
-            setData(dataJson)
+            try {
+                const resp = await getAllDataFromResource(props.meta.id!);
+                setData(JSON.parse(base64DecodeUtf8(resp["data.json"])))
+            }catch (err){
+                await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
+                const resp = await getAllDataFromResource(props.meta.id!);
+                setData(JSON.parse(base64DecodeUtf8(resp["data.json"])))
+            }
             setLoading(false)
         }; init()
         //eslint-disable-next-line
@@ -55,8 +50,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                 title={"点击跳转"}>
                                 <ShareAltOutlined className={utils.icon_button}/>
                             </Tooltip>
-                        </a>
-                    }{
+                        </a>}{
                         !resourceExists && data.title && data.contentType &&
                         <Upload
                             name={"file"}
@@ -73,7 +67,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                         id: info.file.response.id
                                     };
                                     setData(newValue)
-                                    !props.readonly && await addDataToResource(props.meta.id!, newValue)
+                                    // !props.readonly && await addDataToResource(props.meta.id!, newValue)
                                 }
                                 else if (info.file.status === 'error')
                                     message.error(`${info.file.name} file upload failed.`)
@@ -88,7 +82,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                     <Input
                         value={data.title}
                         onChange={({target: {value}})=>{!props.readonly && setData({...data, title: value})}}
-                        onBlur={async ()=>!props.readonly && await addDataToResource(props.meta.id!, data)}
+                        // onBlur={async ()=>!props.readonly && await addDataToResource(props.meta.id!, data)}
                         bordered={false}
                         className={classes.title}
                         placeholder={"资源标题 . . ."}/>
@@ -97,10 +91,17 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                     !props.readonly &&
                     <Dropdown
                         menu={{
-                            items:contentTypeItems,
+                            items:[{
+                                    key: "text/plain",
+                                    label: <span className={utils.menu_item}>text/plain</span>
+                                },
+                                {
+                                    key: "application/pdf",
+                                    label: <span className={utils.menu_item}>application/pdf</span>
+                                }],
                             onClick: async ({key})=>{
                                 setData({...data, contentType: key})
-                                !props.readonly && await addDataToResource(props.meta.id!, data)
+                                // !props.readonly && await addDataToResource(props.meta.id!, data)
                             }}}>
                         <span className={utils.menu_item} style={{cursor:"default"}}>{data.contentType}</span>
                     </Dropdown>

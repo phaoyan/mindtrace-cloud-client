@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import {Resource} from "../EnhancerCard/EnhancerCardHooks";
+import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
 import ReactAudioPlayer from "react-audio-player";
 import classes from "./AudioPlayer.module.css"
-import utils from "../../../../../utils.module.css"
+import utils from "../../../../../../utils.module.css"
 import {PlusOutlined} from "@ant-design/icons";
 import {Upload} from "antd";
-import {ENHANCER_HOST} from "../../../../../service/api/EnhancerApi";
+import {ENHANCER_HOST} from "../../../../../../service/api/EnhancerApi";
 import {useRecoilValue} from "recoil";
-import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
+import {MessageApiAtom} from "../../../../../../recoil/utils/DocumentData";
 
 const AudioPlayer = (props:{meta: Resource, readonly?: boolean}) => {
     const [audioPlayerKey, setAudioPlayerKey] = useState(0)

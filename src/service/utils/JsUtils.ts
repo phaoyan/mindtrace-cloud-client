@@ -16,6 +16,20 @@ export const base64ToArrayBuffer = (base64: string) => {
     return bytes.buffer;
 }
 
+export const base64DecodeUtf8 =  (base64String: string): string=> {
+    // 使用atob()函数将Base64字符串解码为ISO-8859-1格式的字符串
+    const decodedIsoString = atob(base64String);
+
+    // 将ISO-8859-1格式的字符串转换为字节数组
+    const byteArray = new Uint8Array(decodedIsoString.split('').map(char => char.charCodeAt(0)));
+
+    // 使用TextDecoder将字节数组转换为UTF-8格式的字符串
+    const decoder = new TextDecoder('utf-8');
+    const decodedUtf8String = decoder.decode(byteArray);
+
+    return decodedUtf8String;
+}
+
 
 export const gradientColor = (begin: string, end: string, count: number): string[] => {
     // check the input validity
@@ -56,5 +70,5 @@ export const gradientColor = (begin: string, end: string, count: number): string
 
 
 export const statisticDisplayAbbr = (num: number)=>{
-    return num
+    return num < 0 ? 0 : num
 }

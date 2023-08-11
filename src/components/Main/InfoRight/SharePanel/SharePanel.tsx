@@ -1,54 +1,42 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
-import {
-    getRelatedKnodeShare,
-    getUserShare,
-    openUserShare
-} from "../../../../service/api/ShareApi";
+import {getRelatedKnodeShare} from "../../../../service/api/ShareApi";
 import classes from "./SharePanel.module.css"
-import {MilkdownProvider} from "@milkdown/react";
-import {MilkdownEditor} from "../../../utils/markdown/MilkdownEditor";
-import {initiative} from "./OpenShareInitiative";
 import {DelayedSelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import KnodeShareCard from "./KnodeShareCard/KnodeShareCard";
 import {
     RelatedKnodeIdsAtom,
-    UserShareAtom
 } from "./SharePanelHooks";
-import {LoginUserIdSelector} from "../../../Login/LoginHooks";
+import {Divider, Pagination} from "antd";
+import SearchPanel from "./SearchPanel/SearchPanel";
 
 const SharePanel = () => {
 
-    const userId = useRecoilValue(LoginUserIdSelector);
-    const [userShare, setUserShare] = useRecoilState(UserShareAtom)
     const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const [relatedKnodeIds, setRelatedKnodeIds] = useRecoilState(RelatedKnodeIdsAtom)
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 5
     useEffect(()=> {
         const init = async ()=>{
-            setRelatedKnodeIds((await getRelatedKnodeShare(selectedKnodeId)).map(share=>share.knodeId))
+            setRelatedKnodeIds((await getRelatedKnodeShare(selectedKnodeId, 0.9)).map(share=>share.knodeId))
         }; init()
         //eslint-disable-next-line
     },[selectedKnodeId])
 
-    if(!userShare) return (
-        <div className={classes.placeholder_container}>
-            <MilkdownProvider>
-                <MilkdownEditor md={initiative} onChange={()=>{}} editable={false}/>
-            </MilkdownProvider>
-            <div
-                className={classes.confirm}
-                onClick={async ()=>{
-                    await openUserShare(userId)
-                    let share = await getUserShare(userId)
-                    setUserShare(share)}}>
-                加入 Mindtrace Share
-            </div>
-        </div>
-    )
     return (
-        <div className={classes.container}>{
-            [...new Set(relatedKnodeIds)].map(id=>(<KnodeShareCard knodeId={id} key={id}/>))
-        }</div>
+        <div className={classes.container}>
+            <SearchPanel/>
+            <Divider/>{
+            relatedKnodeIds
+                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                .map(id=>(<KnodeShareCard knodeId={id} key={id}/>))
+            }<Pagination
+                onChange={(page)=>setCurrentPage(page)}
+                defaultCurrent={currentPage}
+                pageSize={pageSize}
+                hideOnSinglePage={true}
+                total={relatedKnodeIds.length}/>
+        </div>
     );
 };
 

@@ -6,6 +6,9 @@
 .url_wrapper{
     display: flex;
 }
+.url_wrapper > *{
+    margin-right: 1em;
+}
 
 .type_select{
     display: flex;
@@ -23,4 +26,17 @@
 .menu_item{
     color: #666666;
     font-style: oblique;
+}
+
+.readonly_remark{
+    color: #666666;
+    font-weight: lighter;
+    font-size: 1.1em;
+}
+
+.readonly_url{
+    color: #666666;
+    font-weight: lighter;
+    font-size: 1.1em;
+
 }

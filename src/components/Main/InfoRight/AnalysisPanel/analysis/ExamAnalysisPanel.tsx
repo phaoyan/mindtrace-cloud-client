@@ -10,9 +10,13 @@ import StatisticsAnalysisCard from "./StatisticsAnalysisCard/StatisticsAnalysisC
 import HotspotAnalysisCard from "./HotspotAnalysisCard/HotspotAnalysisCard";
 import utils from "../../../../../utils.module.css"
 import dayjs from "dayjs";
+import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
+import {CurrentUserIdSelector} from "../../../Main/MainHooks";
 
 const ExamAnalysisPanel = () => {
 
+    const loginUserId = useRecoilValue(LoginUserIdSelector)
+    const currentUserId = useRecoilValue(CurrentUserIdSelector)
     const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
     const [examResults, setExamResults] = useState<ExamResult[]>([])
     const [examResultTimelineItems, setExamResultTimelineItems] = useState<TimelineItemProps[]>([])
@@ -50,9 +54,10 @@ const ExamAnalysisPanel = () => {
                                     title={"确定要删除此记录？"}
                                     onConfirm={async ()=> {
                                         await handleRemove(props.examResult.id)
-                                    }}>
+                                    }}>{
+                                    loginUserId === currentUserId &&
                                     <DeleteOutlined className={utils.icon_button_normal}/>
-                                </Popconfirm>
+                                }</Popconfirm>
                             )}
                             items={[
                                 {

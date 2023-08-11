@@ -60,29 +60,12 @@ const EnhancerPanel = () => {
 
     return (
         <div className={classes.container} key={enhancerPanelKey}>
-            <div className={classes.subscribe_container}>{
-                userSubscribes.length !== 0 &&
-                <UserSubscribePanel/>}{
-                knodeSubscribes.length !== 0 &&
-                <KnodeSubscribePanel/>}{
-                enhancerSubscribes.length !== 0 &&
-                <EnhancerSubscribePanel/>}{
-                userSubscribes.length +
-                knodeSubscribes.length +
-                enhancerSubscribes.length !== 0 &&
-                <Divider>
-                    <span className={classes.divider}>
-                        以上为订阅内容
-                    </span>
-                </Divider>
-            }</div>
-
             <div className={classes.main}>{
                 (offspringMode ? offspringEnhancers : enhancers)
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                     .map(enhancer=>(
                         <div key={enhancer.id}>
-                            <EnhancerCard id={enhancer.id} readonly={offspringMode}/>
+                            <EnhancerCard id={enhancer.id} readonly={offspringMode || readonly}/>
                             <Divider/>
                         </div>
                     ))
@@ -141,6 +124,24 @@ const EnhancerPanel = () => {
                     </Col>
                 </Row>
             </div>
+
+
+            <div className={classes.subscribe_container}>{
+                userSubscribes.length +
+                knodeSubscribes.length +
+                enhancerSubscribes.length !== 0 &&
+                <Divider>
+                <span className={classes.divider}>
+                    以下为订阅内容
+                </span>
+                </Divider>}{
+                enhancerSubscribes.length !== 0 &&
+                <EnhancerSubscribePanel/>}{
+                knodeSubscribes.length !== 0 &&
+                <KnodeSubscribePanel/>}{
+                userSubscribes.length !== 0 &&
+                <UserSubscribePanel/>
+            }</div>
         </div>
     );
 };

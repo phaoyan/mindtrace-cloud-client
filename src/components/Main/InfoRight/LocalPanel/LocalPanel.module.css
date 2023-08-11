@@ -1,0 +1,6 @@
+.download_wrapper{
+    height: 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

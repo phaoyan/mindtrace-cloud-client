@@ -52,6 +52,11 @@ const CurrentStudyRecord = () => {
     useEffect(()=>{
         setTimeout(()=>setTimerKey(timerKey + 1), 1000)
     }, [timerKey])
+    useEffect(()=>{
+        if(currentStudy)
+            document.title = "Mindtrace Cloud 学习中..."
+        else document.title = "Mindtrace Cloud"
+    }, [currentStudy])
     return (
         <div>
             <Row>

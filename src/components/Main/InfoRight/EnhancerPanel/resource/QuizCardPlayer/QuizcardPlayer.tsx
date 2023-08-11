@@ -1,19 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import {MilkdownProvider} from "@milkdown/react";
-import {MilkdownEditor} from "../../../../utils/markdown/MilkdownEditor";
+import {MilkdownEditor} from "../../../../../utils/markdown/MilkdownEditor";
 import {Col, Row} from "antd";
 import {SwitcherFilled, SwitcherOutlined} from "@ant-design/icons";
-import utils from "../../../../../utils.module.css"
-import classes from "./Player.module.css"
-import milkdown from "../../../../utils/markdown/MarkdownBasic.module.css"
-import {addDataToResource, getAllDataFromResource} from "../../../../../service/api/ResourceApi";
-import {LatexDarkOutlined, LatexLightOutlined} from "../../../../utils/antd/icons/Icons";
-import {quizcardTemplate, Resource} from "../EnhancerCard/EnhancerCardHooks";
-import PlainLoading from "../../../../utils/general/PlainLoading";
+import utils from "../../../../../../utils.module.css"
+import classes from "../Player.module.css"
+import milkdown from "../../../../../utils/markdown/MarkdownBasic.module.css"
+import {addDataToResource, getAllDataFromResource} from "../../../../../../service/api/ResourceApi";
+import {LatexDarkOutlined, LatexLightOutlined} from "../../../../../utils/antd/icons/Icons";
+import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
+import PlainLoading from "../../../../../utils/general/PlainLoading";
+import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 
 const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
-
-    const [data, setData] = useState(quizcardTemplate(props.meta.createBy).data)
+    const [data, setData] = useState({
+        front: "",
+        back: "",
+        config:{
+            frontLatexDisplayMode: true,
+            backLatexDisplayMode: true
+        }})
     const [isFront, setIsFront] = useState(true)
     const [loading, setLoading] = useState(true)
     const [frontEditorKey, setFrontEditorKey] = useState(0)
@@ -33,27 +39,25 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
     }, [isFront])
     useEffect(()=>{
         const init = async ()=>{
-            setData(JSON.parse((await getAllDataFromResource(props.meta.id!))["data.json"]))
+            let resp = await getAllDataFromResource(props.meta.id!)
+            try {
+                setData(JSON.parse(base64DecodeUtf8(resp["data.json"])))
+            }catch (err){
+                await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
+                resp = await getAllDataFromResource(props.meta.id!)
+                setData(JSON.parse((base64DecodeUtf8(resp["data.json"]))))
+            }
             setLoading(false)
         }; init()
         //eslint-disable-next-line
     },[])
-    const hotkey = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.shiftKey && event.key === "Enter")
-            handleSubmit(data)
-    }
-
-    const handleSubmit = async (data: any)=>{
-        !props.readonly && await addDataToResource(props.meta.id!, data)
-    }
 
     if (loading) return <PlainLoading/>
     return (
         <div
             className={classes.container}
             tabIndex={0}
-            onKeyDown={hotkey}
-            onBlur={()=>handleSubmit(data)}>
+            onBlur={async ()=>await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))}>
             <Row>
                 <Col span={1} className={classes.sidebar}>{
                     isFront ?
@@ -64,17 +68,17 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                             data.config.frontLatexDisplayMode ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
-                                onClick={()=>{
+                                onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, frontLatexDisplayMode: false}}
                                     setData(newValue)
-                                    handleSubmit(newValue)
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>:
                             <LatexLightOutlined
                                 className={utils.icon_button}
-                                onClick={()=>{
+                                onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, frontLatexDisplayMode: true}}
                                     setData(newValue)
-                                    handleSubmit(newValue)
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>
                     }</div> :
                     <div className={classes.back_options}>
@@ -84,17 +88,17 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                             data.config.backLatexDisplayMode ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
-                                onClick={()=>{
+                                onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, backLatexDisplayMode: false}}
                                     setData(newValue)
-                                    handleSubmit(newValue)
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>:
                             <LatexLightOutlined
                                 className={utils.icon_button}
-                                onClick={()=>{
+                                onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, backLatexDisplayMode: true}}
                                     setData(newValue)
-                                    handleSubmit(newValue)
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>
                     }</div>
                 }</Col>

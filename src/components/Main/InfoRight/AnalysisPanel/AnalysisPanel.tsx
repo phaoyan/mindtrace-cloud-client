@@ -9,11 +9,13 @@ import ExamAnalysisPanel from "./analysis/ExamAnalysisPanel";
 import ExamSessionPanel from "./ExamSessionPanel";
 import {CurrentExamSessionAtom} from "../../../../recoil/home/ExamSession";
 import {LoginUserIdSelector} from "../../../Login/LoginHooks";
+import {CurrentUserIdSelector} from "../../Main/MainHooks";
 
 
 const AnalysisPanel = () => {
 
-    const userId = useRecoilValue(LoginUserIdSelector)
+    const loginUserId = useRecoilValue(LoginUserIdSelector)
+    const currentUserId = useRecoilValue(CurrentUserIdSelector)
     const [selectedPanel, setSelectedPanel] = useState<string>("analysis")
     const [currentSession, setCurrentSession] = useRecoilState(CurrentExamSessionAtom)
     const [selectedPanelTitle, setSelectedPanelTitle] = useState<string>("分析报告")
@@ -23,7 +25,7 @@ const AnalysisPanel = () => {
             setCurrentSession(sessions[0])
         }; effect()
         //eslint-disable-next-line
-    }, [userId])
+    }, [loginUserId])
     useEffect(()=>{
         console.log("AnalysisPanel.currentSession", currentSession)
         setSelectedPanel(currentSession ? "session" : "analysis")
@@ -56,13 +58,14 @@ const AnalysisPanel = () => {
                 <Col span={22}>
                     <span className={classes.selected_panel_title}>{selectedPanelTitle}</span>
                 </Col>
-                <Col span={2}>
+                <Col span={2}>{
+                    loginUserId === currentUserId &&
                     <Dropdown
                         arrow={false}
                         menu={{items:subPanelItems}}>
                         <SwapOutlined className={utils.icon_button}/>
                     </Dropdown>
-                </Col>
+                }</Col>
             </Row>
             {selectedPanel === "analysis" && <ExamAnalysisPanel/>}
             {selectedPanel === "session" && <ExamSessionPanel/>}

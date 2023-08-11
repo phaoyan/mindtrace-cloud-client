@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {Avatar, Divider, Input, Popover, Tree} from "antd";
-import {HomeOutlined, QuestionCircleOutlined, UserOutlined} from "@ant-design/icons";
+import {QuestionCircleOutlined, UserOutlined} from "@ant-design/icons";
 import {getKnodes} from "../../../service/api/KnodeApi";
 import classes from "./Main.module.css"
 import utils from "../../../utils.module.css"
@@ -21,12 +21,13 @@ import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";
 import {MilkdownProvider} from "@milkdown/react";
 import {
     CurrentUserAtom, CurrentUserIdSelector,
-    ExpandedKeysAtom, ReadonlyModeAtom, useBackHome,
+    ExpandedKeysAtom, ReadonlyModeAtom, useBack,
     useHotkeys,
     useHotkeysHelp,
     useSearchBar
 } from "./MainHooks";
 import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
+import {VisitOutlined} from "../../utils/antd/icons/Icons";
 
 const Main = () => {
 
@@ -50,7 +51,7 @@ const Main = () => {
     const [expandedKeys, setExpandedKeys] = useRecoilState(ExpandedKeysAtom)
     const divRef = useRef<HTMLDivElement>(null)
     const selectedKnodeAncestors = useRecoilValue(SelectedKnodeAncestorsSelector)
-    const backHome = useBackHome()
+    const back = useBack()
     useEffect(()=>{
         const effect = async ()=>{
             setKtreeFlat(await getKnodes(userId))
@@ -99,9 +100,9 @@ const Main = () => {
                 onKeyDown={hotKeys}>
                 <div className={classes.main_toolbar}>{
                     currentUser.id !== loginId &&
-                    <HomeOutlined
+                    <VisitOutlined
                         className={utils.icon_button}
-                        onClick={()=>backHome()}/>
+                        onClick={()=>back()}/>
                     }<Avatar size={40} shape={"circle"} src={currentUser.avatar}><UserOutlined/></Avatar>
                     <span className={classes.username}>{currentUser.username}</span>
                     <div className={classes.search_wrapper}>

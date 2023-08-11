@@ -6,7 +6,9 @@ import dayjs from "dayjs";
 import {formatMillisecondsToHHMM} from "../../../../../service/utils/TimeUtils";
 
 const EnhancerStudyRecord = (props: {info: any}) => {
-    const records = Object.entries(props.info.momentsWithDuration)
+    const records =
+        Object.entries(props.info.momentsWithDuration)
+        .sort((a:any, b:any)=>b[1] - a[1])
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 8
     return (

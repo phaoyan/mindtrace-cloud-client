@@ -2,7 +2,6 @@ import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {CurrentUserAtom} from "../../../Main/MainHooks";
 import {User} from "../../../../../service/data/Gateway";
-import {KnodeShare} from "../../../../../service/data/share/KnodeShare";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {CurrentTabAtom} from "../../InfoRightHooks";
 import {
@@ -13,9 +12,9 @@ import {
 } from "../../../../../service/api/ShareApi";
 import {CurrentKnodeSubscribesAtom, CurrentUserSubscribesAtom} from "../SharePanelHooks";
 
-export const KnodeIdBeforeVisitAtom = atom<number|undefined>({
+export const KnodeIdBeforeVisitAtom = atom<number[]>({
     key: "KnodeIdBeforeVisitAtom",
-    default: undefined
+    default: []
 })
 
 export const useEnhancerExists = ()=>{
@@ -28,12 +27,12 @@ export const useEnhancerExists = ()=>{
 export const useVisit = ()=>{
     const setCurrentUser = useSetRecoilState(CurrentUserAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
-    const setKnodeIdBeforeVisit = useSetRecoilState(KnodeIdBeforeVisitAtom)
+    const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
     const [selectedKnodeId, setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
-    return async (owner: User, knodeShare?: KnodeShare)=>{
-        setKnodeIdBeforeVisit(selectedKnodeId)
+    return async (owner: User, knodeId?: number)=>{
+        setKnodeIdBeforeVisit([...knodeIdBeforeVisit, selectedKnodeId])
         setCurrentUser(owner)
-        setSelectedKnodeId(knodeShare ? knodeShare.knodeId: -1)
+        setSelectedKnodeId(knodeId || -1)
         setCurrentTab("note")
     }
 }

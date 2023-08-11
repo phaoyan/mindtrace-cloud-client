@@ -15,6 +15,7 @@ import {
     useAddResourceDropdownItems
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
+import dayjs from "dayjs";
 
 export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
 
@@ -54,6 +55,7 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                             bordered={false}/>
                     }</Col>
                     <Col span={11} className={classes.tag_wrapper}>
+                        <span className={classes.date}>{dayjs(enhancer.createTime).format("YYYY-MM-DD")}</span>
                     </Col>
                     <Col span={1}>{
                         !props.readonly &&

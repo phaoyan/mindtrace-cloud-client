@@ -9,6 +9,10 @@ export const getKnodeById = async (knodeId: number): Promise<Knode>=>{
     return await axios.get(`${KNODE_HOST}/knode/${knodeId}`).then(({data})=>data)
 }
 
+export const getKnodeByLike = async (like: string, count: number)=>{
+    return await axios.get(`${KNODE_HOST}/like/knode?like=${like}&count=${count}`).then(({data})=>data)
+}
+
 export const getKnodes = async (userId: number)=>{
     return await axios.get(`${KNODE_HOST}/user/${userId}/knode`).then(({data})=>data)
 }

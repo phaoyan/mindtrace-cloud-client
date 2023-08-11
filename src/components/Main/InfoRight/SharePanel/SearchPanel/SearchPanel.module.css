@@ -1,0 +1,14 @@
+.search{
+    display: flex;
+}
+.search > *{
+    margin-left: 0.5em;
+}
+.search_icon{
+    color: #72aff6;
+    scale: 150% ;
+}
+.option{
+    color: #666666;
+    font-weight: lighter;
+}

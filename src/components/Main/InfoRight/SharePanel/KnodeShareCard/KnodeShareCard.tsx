@@ -9,7 +9,7 @@ import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import {Avatar, Breadcrumb, Col, Divider, Row, Tooltip} from "antd";
 import classes from "./KnodeShareCard.module.css"
 import EnhancerShareCard from "../EnhancerShareCard/EnhancerShareCard";
-import {StarFilled, StarOutlined} from "@ant-design/icons";
+import {StarFilled, StarOutlined, UserOutlined} from "@ant-design/icons";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {KnodeShareAtomFamily} from "../EnhancerShareCard/EnhancerShareCardHooks";
@@ -47,6 +47,7 @@ const KnodeShareCard = (props:{knodeId: number}) => {
     useEffect(()=> {
         const init = async ()=>{
             const knodeShare = await getKnodeShare(props.knodeId);
+            if(!knodeShare) return
             setKnodeShare(knodeShare)
             setUserShare(await getUserShare(knodeShare.userId))
             setEnhancerShares((await getOwnedEnhancerShare(props.knodeId)).filter(async (share)=>await enhancerExists(share.enhancerId)))
@@ -62,7 +63,6 @@ const KnodeShareCard = (props:{knodeId: number}) => {
 
 
     if(!knodeShare || !owner) return <></>
-    if(enhancerShares.length === 0) return <></>
     return (
         <Suspense fallback={<></>}>
             <div className={classes.container}>
@@ -93,13 +93,13 @@ const KnodeShareCard = (props:{knodeId: number}) => {
                                 <StarFilled
                                     className={classes.subscribe_icon}
                                     onClick={()=>removeUserSubscribe(selectedKnodeId, owner.id!)}/>
-                                }<span className={classes.subscribe_count}>{userShare?.favorites}</span>
+                                }<span className={classes.subscribe_count}>{statisticDisplayAbbr(userShare?.favorites!)}</span>
                             </div>
-                            <Avatar shape={"circle"} size={32} src={owner.avatar} className={classes.avatar}/>
+                            <Avatar shape={"circle"} size={32} src={owner.avatar} className={classes.avatar}><UserOutlined/></Avatar>
                             <Tooltip title={"点击访问"}>
                                  <span
                                      className={classes.user_info}
-                                     onClick={()=>visit(owner, knodeShare)}>
+                                     onClick={()=>visit(owner, knodeShare?.knodeId)}>
                                     {owner.username}
                                 </span>
                             </Tooltip>

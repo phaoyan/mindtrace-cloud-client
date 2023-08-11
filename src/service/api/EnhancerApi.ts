@@ -8,6 +8,14 @@ export const getEnhancerById = async (enhancerId: number): Promise<Enhancer>=>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}`).then(({data})=>data)
 }
 
+export const getEnhancersByDate = async (userId: number, left?: string, right?: string): Promise<Enhancer[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/date/enhancer?userId=${userId}&left=${left || ""}&right=${right || ""}`).then(({data})=>data)
+}
+
+export const getEnhancersByDateBeneathKnode = async (knodeId: number, left?: string, right?: string): Promise<Enhancer[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/date/enhancer?knodeId=${knodeId}&left=${left || ""}&right=${right || ""}`).then(({data})=>data)
+}
+
 export const getEnhancersForKnode = async (knodeId: number): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/knode/${knodeId}/enhancer`).then(({data})=>data)
 }

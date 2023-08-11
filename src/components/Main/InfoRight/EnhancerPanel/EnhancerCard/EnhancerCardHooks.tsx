@@ -1,4 +1,4 @@
-import {atomFamily, useRecoilState, useRecoilValue} from "recoil";
+import {atomFamily, useRecoilState} from "recoil";
 import {defaultEnhancer, Enhancer} from "../../../../../service/data/Enhancer";
 import {
     FileSearchOutlined,
@@ -8,16 +8,14 @@ import {
     SwitcherOutlined
 } from "@ant-design/icons";
 import classes from "./EnhancerCard.module.css";
-import QuizcardPlayer from "../resource/QuizcardPlayer";
-import MarkdownPlayer from "../resource/MarkdownPlayer";
-import LinkoutPlayer from "../resource/LinkoutPlayer";
-import ClozePlayer from "../resource/ClozePlayer";
-import UnfoldingPlayer from "../resource/UnfoldingPlayer";
-import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer";
+import QuizcardPlayer from "../resource/QuizCardPlayer/QuizcardPlayer";
+import MarkdownPlayer from "../resource/MarkdownPlayer/MarkdownPlayer";
+import LinkoutPlayer from "../resource/LinkoutPlayer/LinkoutPlayer";
+import ClozePlayer from "../resource/ClozePlayer/ClozePlayer";
+import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer/MindtraceHubResourcePlayer";
 import React from "react";
-import {addResourceToEnhancer} from "../../../../../service/api/ResourceApi";
-import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
-import AudioPlayer from "../resource/AudioPlayer";
+import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
+import {addResource} from "../../../../../service/api/ResourceApi";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -28,52 +26,57 @@ export const EnhancerResourcesAtomFamily = atomFamily<Resource[], number>({
     default: []
 })
 
+export const useAddResource = (enhancerId: number)=>{
+    const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
+    return async (enhancerId: number, type: string)=>{
+         setResources([...resources, await addResource(enhancerId, {type: type})])
+    }
+}
 
 export const useAddResourceDropdownItems = (enhancerId: number)=>{
-    const userId = useRecoilValue(LoginUserIdSelector)
-    const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
+    const addResource = useAddResource(enhancerId)
     return [
         {
             key: ResourceType.QUIZCARD,
             label: "知识卡片",
             icon: <SwitcherOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, quizcardTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.QUIZCARD)
         },
         {
             key: ResourceType.MARKDOWN,
             label: "知识概述",
             icon: <FileTextOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, markdownTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.MARKDOWN)
         },
         {
             key: ResourceType.CLOZE,
             label: "填空卡片",
             icon: <FileSearchOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, clozeTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.CLOZE)
         },
         {
             key: ResourceType.LINKOUT,
             label: "资源链接",
             icon: <LinkOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, linkoutTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.LINKOUT)
         },
         {
             key: ResourceType.MINDTRACE_HUB_RESOURCE,
             label: "云端资源",
             icon: <ShareAltOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, mindtraceHubResourceTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.MINDTRACE_HUB_RESOURCE)
         },
         {
             key: ResourceType.UNFOLDING,
             label: "知识梳理",
             icon: <InteractionOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, unfoldingTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.UNFOLDING)
         },
         {
             key: ResourceType.AUDIO,
             label: "音频资源",
             icon: <SoundOutlined className={classes.option}/>,
-            onClick: async ()=>setResources([...resources, await addResourceToEnhancer(enhancerId, audioTemplate(userId))])
+            onClick: ()=>addResource(enhancerId, ResourceType.AUDIO)
         }
     ]
 }
@@ -110,58 +113,6 @@ export const ResourceType = {
     MINDTRACE_HUB_RESOURCE: "mindtrace hub resource"
 }
 
-export const quizcardTemplate = (userId:number): ResourceWithData=> (
-    {
-        meta: {
-            type: ResourceType.QUIZCARD,
-            createBy: userId
-        },
-        data: {
-            front: "",
-            back: "",
-            config:{
-                frontLatexDisplayMode: true,
-                backLatexDisplayMode: true
-            }
-        }
-    }
-)
-
-export const markdownTemplate = (userId: number): ResourceWithData=>({
-    meta: {
-        type: ResourceType.MARKDOWN,
-        createBy: userId
-    },
-    data: {
-        content: "",
-        config:{
-            hide: false,
-            latexDisplayMode: true
-        }
-    }
-})
-
-export const linkoutTemplate = (userId: number): ResourceWithData=>({
-    meta:{
-        type: ResourceType.LINKOUT,
-        createBy: userId
-    },
-    data:{
-        type:"default",
-        url:"https://www.bing.com"
-    }
-})
-
-export const clozeTemplate = (userId: number): ResourceWithData=>({
-    meta:{
-        type: ResourceType.CLOZE,
-        createBy: userId
-    },
-    data:{
-        raw: ""
-    }
-})
-
 export const unfoldingTemplate = (userId:number): ResourceWithData=>({
     meta:{
         type: ResourceType.UNFOLDING,
@@ -179,17 +130,6 @@ export const unfoldingTemplate = (userId:number): ResourceWithData=>({
         configs:{
             hotUpdate: true
         }
-    }
-})
-
-export const audioTemplate = (userId: number)=>({
-    meta:{
-        type: ResourceType.AUDIO,
-        createBy: userId
-    },
-    data:{
-        audio: "",
-        contentType: "",
     }
 })
 
@@ -214,13 +154,14 @@ export const resourceTypePlayerMapper = {
     [ResourceType.MARKDOWN]: (meta: Resource, readonly:boolean) => <MarkdownPlayer meta={meta} readonly={readonly}/>,
     [ResourceType.LINKOUT]: (meta: Resource, readonly:boolean) => <LinkoutPlayer  meta={meta} readonly={readonly}/>,
     [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
-    [ResourceType.UNFOLDING]: (meta: Resource, readonly:boolean)=> <UnfoldingPlayer meta={meta} readonly={readonly}/>,
     [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>,
     [ResourceType.AUDIO]: (meta: Resource, readonly:boolean)=> <AudioPlayer meta={meta} readonly={readonly}/>
 }
 
 export const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{
-    if(props.resource.type && Object.values(ResourceType).includes(props.resource.type!))
+    try{
         return resourceTypePlayerMapper[props.resource.type!](props.resource, !!props.readonly)
-    return <></>
+    }catch (err){
+        return <></>
+    }
 }

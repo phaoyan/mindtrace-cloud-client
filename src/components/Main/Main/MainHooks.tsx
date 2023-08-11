@@ -6,12 +6,14 @@ import {
     SelectedKnodeSelector,
     SelectedKnodeStemSelector, SelectedKtreeSelector
 } from "../../../recoil/home/Knode";
-import {branch, removeKnode, shiftKnode, swapBranchIndex} from "../../../service/api/KnodeApi";
+import {branch, getKnodeById, removeKnode, shiftKnode, swapBranchIndex} from "../../../service/api/KnodeApi";
 import {TitleEditKnodeIdAtom} from "../KnodeTitle/KnodeTitleHooks";
 import {MessageApiAtom} from "../../../recoil/utils/DocumentData";
 import {User} from "../../../service/data/Gateway";
 import {LoginUserAtom} from "../../Login/LoginHooks";
 import {KnodeIdBeforeVisitAtom} from "../InfoRight/SharePanel/KnodeShareCard/KnodeShareCardHooks";
+import {subscribeKnode} from "../../../service/api/ShareApi";
+import {getUserPublicInfo} from "../../../service/api/LoginApi";
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",
@@ -35,15 +37,19 @@ export const ExpandedKeysAtom = atom<Key[]>({
     default: []
 })
 
-export const useBackHome = ()=>{
+export const useBack = ()=>{
     const [currentUser, setCurrentUser] = useRecoilState(CurrentUserAtom)
     const loginUser = useRecoilValue(LoginUserAtom)
-    const knodeIdBeforeVisit = useRecoilValue(KnodeIdBeforeVisitAtom)
+    const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
-    return ()=>{
+    return async ()=>{
         if(currentUser?.id === loginUser?.id) return
-        setCurrentUser(loginUser!)
-        knodeIdBeforeVisit && setSelectedKnodeId(knodeIdBeforeVisit)
+        if(!knodeIdBeforeVisit) return
+        let lastId = knodeIdBeforeVisit[knodeIdBeforeVisit.length-1]
+        const knode = await getKnodeById(lastId)
+        setCurrentUser(await getUserPublicInfo(knode.createBy))
+        setKnodeIdBeforeVisit(knodeIdBeforeVisit.filter(id=>id!==lastId))
+        knodeIdBeforeVisit && setSelectedKnodeId(lastId)
     }
 }
 
@@ -150,6 +156,17 @@ export const useHandleRemove = ():any=>{
         shiftUp()
     }
 }
+
+export const useHandleSubscribe = ()=>{
+    const knodeIdBeforeVisit = useRecoilValue(KnodeIdBeforeVisitAtom)
+    const messageApi = useRecoilValue(MessageApiAtom)
+    return async (knodeId: number)=>{
+        if(!knodeIdBeforeVisit) return
+        await subscribeKnode(knodeIdBeforeVisit[0], knodeId)
+        messageApi.success("订阅知识点成功")
+    }
+}
+
 export const useEditTitle = ():(()=>void)=>{
     const setTitleEditKnodeId = useSetRecoilState(TitleEditKnodeIdAtom);
     const selectedId = useRecoilValue(SelectedKnodeIdAtom)

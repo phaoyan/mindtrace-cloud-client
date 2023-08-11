@@ -7,10 +7,19 @@
     font-style: oblique;
     font-weight: bold;
 }
+.share_info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .share_info > *{
     color: #999999;
-    margin-right: 0.5em;
-
+    margin-right: 1em;
+}
+.share_info_count{
+    font-size: 1.1em;
+    position: relative;
+    top: -0.1em
 }
 .left_option{
     display: flex;

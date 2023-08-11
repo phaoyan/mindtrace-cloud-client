@@ -2,16 +2,18 @@ import React, {useEffect, useRef} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
 import classes from "./KnodeTitle.module.css"
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
-import {Input, InputRef} from "antd";
+import {Input, InputRef, Tooltip} from "antd";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {TitleEditKnodeIdAtom, useHandleSubmit} from "./KnodeTitleHooks";
-import {EditOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, MinusOutlined, PlusOutlined, StarOutlined} from "@ant-design/icons";
 import utils from "../../../utils.module.css"
-import {useHandleBranch, useHandleRemove} from "../Main/MainHooks";
+import {CurrentUserIdSelector, useHandleBranch, useHandleRemove, useHandleSubscribe} from "../Main/MainHooks";
+import {LoginUserIdSelector} from "../../Login/LoginHooks";
 
 
 const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
-
+    const loginUserId = useRecoilValue(LoginUserIdSelector)
+    const currentUserId = useRecoilValue(CurrentUserIdSelector)
     const [knode, setKnode] = useRecoilState(KnodeSelector(props.id))
     const [titleEditKnodeId, setTitleEditKnodeId] = useRecoilState(TitleEditKnodeIdAtom)
     const selectedId = useRecoilValue(SelectedKnodeIdAtom)
@@ -20,6 +22,7 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
     const handleSubmit = useHandleSubmit()
     const handleBranch = useHandleBranch()
     const handleRemove = useHandleRemove()
+    const handleSubscribe = useHandleSubscribe()
     useEffect(()=>{
         if(titleEditKnodeId)
             inputRef.current?.focus()
@@ -48,7 +51,9 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                         bordered={false}/>:
                     <div className={classes.title}>
                         <MdPreview>{knode.title}</MdPreview>{
-                        selectedId === knode.id && !props.hideOptions &&
+                        loginUserId === currentUserId &&
+                        selectedId === knode.id &&
+                        !props.hideOptions &&
                         <div className={classes.options} style={{left: knode.title === "" ? "7em" : "5em"}}>
                             <EditOutlined
                                 className={utils.icon_button_normal}
@@ -59,8 +64,18 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                             knode.branchIds.length === 0 &&
                             <MinusOutlined
                                 className={utils.icon_button_normal}
-                                onClick={handleRemove}/>
-                        }</div>
+                                onClick={handleRemove}/>}
+                        </div>}{
+                        loginUserId !== currentUserId &&
+                        selectedId === knode.id &&
+                        !props.hideOptions &&
+                        <div  className={classes.other_user_options}>
+                            <Tooltip title={"订阅该知识点"}>
+                                <StarOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>handleSubscribe(props.id)}/>
+                            </Tooltip>
+                        </div>
                     }</div>
                 }
             </div>

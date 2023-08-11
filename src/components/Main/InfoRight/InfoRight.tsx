@@ -12,7 +12,7 @@ import {Breadcrumb, Col, Row, Tabs, Tooltip} from "antd";
 import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
 import {
     BarChartOutlined,
-    ClockCircleOutlined,
+    ClockCircleOutlined, DownloadOutlined,
     EditOutlined,
     ShareAltOutlined
 } from "@ant-design/icons";
@@ -25,6 +25,7 @@ import {MainPageHeightAtom, MainPageWidthAtom} from "../../../recoil/utils/Docum
 import {breadcrumbTitle} from "../../../service/data/Knode";
 import {CurrentTabAtom} from "./InfoRightHooks";
 import {getEnhancerCount} from "../../../service/api/EnhancerApi";
+import LocalPanel from "./LocalPanel/LocalPanel";
 
 const InfoRight = () => {
 
@@ -47,6 +48,7 @@ const InfoRight = () => {
         }; effect()
         // eslint-disable-next-line
     }, [selectedKnodeId])
+
     return (
         <ResizableBox
             className={classes.resize_box}
@@ -112,6 +114,13 @@ const InfoRight = () => {
                                 </div>),
                                 key: "share",
                                 children: <SharePanel/>
+                            },{
+                                label: (<div>
+                                    <DownloadOutlined/>,
+                                    <span>本地</span>
+                                </div>),
+                                key: "local",
+                                children: <LocalPanel/>
                             }
                         ]}/>
                 </div>:<></>

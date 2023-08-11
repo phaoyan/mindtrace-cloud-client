@@ -52,7 +52,7 @@ const HistoryStudyRecord = () => {
     const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
     const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
-    const enhancerTimeDistribution = useEnhancerTimeDistribution()
+    const enhancerRecordInfoList = useEnhancerTimeDistribution()
 
     useEffect(()=>{
         if(!selectedKtree) return
@@ -156,9 +156,11 @@ const HistoryStudyRecord = () => {
                         onExpand={(expandedKeys: any) => setTimeDistributionExpandedKeys(expandedKeys)}/>
                 </div>}{
                 statisticDisplay === "enhancer distribution" &&
-                enhancerTimeDistribution &&
+                enhancerRecordInfoList &&
                 <div key={statisticDisplayKey + 3}>{
-                    enhancerTimeDistribution.map(info=>(
+                    enhancerRecordInfoList
+                        .sort((a,b)=>b.duration - a.duration)
+                        .map(info=>(
                         <div key={info.enhancerId}>
                             <Row>
                                 <Col span={8}>

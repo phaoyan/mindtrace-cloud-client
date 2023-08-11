@@ -30,7 +30,11 @@ export const getLoginData = async (): Promise<User>=>{
     return await axios.get(`${BACK_HOST}/user`).then(({data})=>data)
 }
 export const getUserPublicInfo = async (userId: number): Promise<User>=>{
-    return await axios.get(`${BACK_HOST}/user/${userId}/public`).then(({data})=>data)
+    return await axios.get(`${BACK_HOST}/user/${userId}`).then(({data})=>data)
+}
+
+export const getUserInfoByLike = async (like: string)=>{
+    return await axios.get(`${BACK_HOST}/like/user?like=${like}`).then(({data})=>data)
 }
 
 export const changePassword = async (userId: number, oriPassword: string, newPassword: string)=>{
