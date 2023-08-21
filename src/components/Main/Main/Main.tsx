@@ -7,10 +7,9 @@ import classes from "./Main.module.css"
 import utils from "../../../utils.module.css"
 import InfoRight from "../InfoRight/InfoRight";
 import {
-    DelayedKnodeIdQueueAtom,
-    DelayedSelectedKnodeIdAtom,
+    FocusedKnodeAncestorsSelector,
     KtreeAntdSelector,
-    KtreeFlatAtom, SelectedKnodeAncestorsSelector,
+    KtreeFlatAtom,
     SelectedKnodeIdAtom
 } from "../../../recoil/home/Knode";
 import {
@@ -21,13 +20,14 @@ import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";
 import {MilkdownProvider} from "@milkdown/react";
 import {
     CurrentUserAtom, CurrentUserIdSelector,
-    ExpandedKeysAtom, ReadonlyModeAtom, useBack,
+    ExpandedKeysAtom, FocusedKnodeIdAtom, LastMovementAtom, ReadonlyModeAtom, SwitchTimeoutAtom, useBack,
     useHotkeys,
     useHotkeysHelp,
     useSearchBar
 } from "./MainHooks";
 import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
 import {VisitOutlined} from "../../utils/antd/icons/Icons";
+import dayjs from "dayjs";
 
 const Main = () => {
 
@@ -42,15 +42,16 @@ const Main = () => {
     const loginId = useRecoilValue(LoginUserIdSelector)
     const [ktreeFlat,setKtreeFlat] = useRecoilState(KtreeFlatAtom)
     const ktreeAntd = useRecoilValue(KtreeAntdSelector)
-    const [selectedId, setSelectedId] = useRecoilState<number>(SelectedKnodeIdAtom)
-    const [, setDelayId] = useRecoilState(DelayedSelectedKnodeIdAtom)
-    const [delayQueue, setDelayQueue] = useRecoilState(DelayedKnodeIdQueueAtom)
+    const [selectedId, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
+    const [focusedKnodeId, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
+    const [lastMovement, setLastMovement] = useRecoilState(LastMovementAtom)
+    const [switchTimeout, setSwitchTimeout] = useRecoilState(SwitchTimeoutAtom)
     const [searchTxt, onSearchChange] = useSearchBar()
     const hotKeys = useHotkeys()
     const hotkeyHelp = useHotkeysHelp()
     const [expandedKeys, setExpandedKeys] = useRecoilState(ExpandedKeysAtom)
     const divRef = useRef<HTMLDivElement>(null)
-    const selectedKnodeAncestors = useRecoilValue(SelectedKnodeAncestorsSelector)
+    const focusedKnodeAncestors = useRecoilValue(FocusedKnodeAncestorsSelector)
     const back = useBack()
     useEffect(()=>{
         const effect = async ()=>{
@@ -63,23 +64,23 @@ const Main = () => {
         //eslint-disable-next-line
     }, [userId])
     useEffect(()=>{
-        setDelayQueue((dq)=>[...dq, selectedId])
+        const knodeIds = focusedKnodeAncestors.map(knode=>knode.id).filter(knodeId=>knodeId !== focusedKnodeId);
+        setExpandedKeys(knodeIds)
+        //eslint-disable-next-line
+    }, [focusedKnodeId, ktreeFlat])
+    useEffect(()=>{
+        setFocusedKnodeId(selectedId)
         //eslint-disable-next-line
     }, [selectedId])
     useEffect(()=>{
-        if(delayQueue.length !== 0)
-            setTimeout(()=> setDelayQueue((dq)=>dq.slice(1)), 500)
-        if(delayQueue.length === 1)
-            setDelayId(delayQueue[0])
+        const now = dayjs()
+        if(focusedKnodeId === selectedId) return
+        if(now.diff(lastMovement, "seconds") < 0.5)
+            clearTimeout(switchTimeout)
+        setSwitchTimeout(setTimeout(()=>setSelectedId(focusedKnodeId), 500))
+        setLastMovement(now)
         //eslint-disable-next-line
-    }, [delayQueue])
-    useEffect(()=>{
-        const knodeIds = selectedKnodeAncestors.map(knode=>knode.id).filter(knodeId=>knodeId !== selectedId);
-        const updatedExpandedKeys = expandedKeys.filter(key=>knodeIds.indexOf(key as number) !== -1).concat(knodeIds);
-        setExpandedKeys(updatedExpandedKeys)
-        //eslint-disable-next-line
-    }, [selectedId, ktreeFlat])
-
+    }, [focusedKnodeId])
     useEffect(()=>{
         currentUser && setReadonlyMode(currentUser.id !== loginId)
         //eslint-disable-next-line
@@ -130,7 +131,7 @@ const Main = () => {
                 <div className={`${classes.tree_wrapper} ${utils.custom_scrollbar} ${utils.left_scrollbar}`}>
                     <Tree
                         showLine={true}
-                        selectedKeys={[selectedId]}
+                        selectedKeys={[focusedKnodeId]}
                         onSelect={(selectedKeys) => setSelectedId(selectedKeys[0] ? selectedKeys[0].valueOf() as number: selectedId)}
                         treeData={ktreeAntd}
                         expandedKeys={expandedKeys}

@@ -6,8 +6,8 @@ import {MilkdownEditor} from "../../../../../utils/markdown/MilkdownEditor";
 import {Col, Row, Tooltip} from "antd";
 import general from "../Player.module.css"
 import {
-    DoubleLeftOutlined,
-    DoubleRightOutlined,
+    ArrowDownOutlined,
+    ArrowUpOutlined,
     EditOutlined,
     EyeOutlined,
     PlusOutlined
@@ -66,29 +66,35 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
                 }}}>
             <Row>
                 <Col span={1} className={classes.left_options}>{
-                    !props.readonly && (
-                        mode === "edit" ?
-                        <EyeOutlined
-                            className={utils.icon_button}
-                            onClick={()=>setMode("view")}/> :
-                        mode === "view" ?
+                    mode === "view" &&
+                    <>
                         <EditOutlined
                             className={utils.icon_button}
-                            onClick={()=>setMode("edit")}/>: <></>
-                    )
-                }{
-                    mode === "edit" &&
-                    <Tooltip
-                        title={"添加完型空（Ctrl + Enter）"}>
-                        <PlusOutlined
+                            onClick={()=>setMode("edit")}/>
+                        <ArrowUpOutlined
                             className={utils.icon_button}
-                            onClick={async ()=>{
-                                const newValue = `${data.endsWith("\n") ? data.substring(0,data.length-1): data} {{:: ::}}`
-                                setData(newValue)
-                                setTrigger(!trigger)
-                                await addDataToResource(props.meta.id!, "raw.md",newValue)
-                            }}/>
-                    </Tooltip>
+                            onClick={()=>index >= 0 && setIndex(index - 1)}/>
+                        <ArrowDownOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setIndex(index === Math.floor(segments.length/2) - 1 ? -1 : index + 1)}/>
+                    </>}{
+                    !props.readonly && mode === "edit" &&
+                    <>
+                        <EyeOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setMode("view")}/>
+                        <Tooltip
+                            title={"添加完型空（Ctrl + Enter）"}>
+                            <PlusOutlined
+                                className={utils.icon_button}
+                                onClick={async ()=>{
+                                    const newValue = `${data.endsWith("\n") ? data.substring(0,data.length-1): data} {{:: ::}}`
+                                    setData(newValue)
+                                    setTrigger(!trigger)
+                                    await addDataToResource(props.meta.id!, "raw.md",newValue)
+                                }}/>
+                        </Tooltip>
+                    </>
                 }</Col>
                 <Col span={22} offset={1}>
                     <div className={classes.display}>{
@@ -125,15 +131,7 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
             </Row>
             <Row>
                 <Col span={4} offset={20} className={classes.options}>{
-                    mode === "view" &&
-                    <>
-                        <DoubleLeftOutlined
-                            className={utils.icon_button}
-                            onClick={()=>index >= 0 && setIndex(index - 1)}/>
-                        <DoubleRightOutlined
-                            className={utils.icon_button}
-                            onClick={()=>setIndex(index === Math.floor(segments.length/2) - 1 ? -1 : index + 1)}/>
-                    </>
+
                 }</Col>
             </Row>
         </div>

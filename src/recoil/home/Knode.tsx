@@ -2,6 +2,7 @@ import {atom, selector, selectorFamily} from "recoil";
 import {Knode, Ktree, KtreeAntd} from "../../service/data/Knode";
 import KnodeTitle from "../../components/Main/KnodeTitle/KnodeTitle";
 import React from "react";
+import {FocusedKnodeIdAtom} from "../../components/Main/Main/MainHooks";
 
 export const defaultKnode = {
     id: -1,
@@ -78,17 +79,6 @@ export const KnodeSelector = selectorFamily<Knode | undefined, number>({
 export const SelectedKnodeIdAtom = atom<number>({
     key:"SelectedKnodeAtom",
     default:-1,
-    dangerouslyAllowMutability: true
-})
-
-export const DelayedSelectedKnodeIdAtom = atom<number>({
-    key: "DelayedSelectedKnodeIdAtom",
-    default: -1
-})
-
-export const DelayedKnodeIdQueueAtom = atom<number[]>({
-    key: "DelayedKnodeIdQueueAtom",
-    default: []
 })
 
 export const CurrentChainStyleTitleAtom = atom<string[]>({
@@ -117,6 +107,16 @@ export const SelectedKnodeStemSelector = selector<Knode | undefined>({
     }
 })
 
+export const FocusedKnodeSelector = selector<Knode | undefined>({
+    key: "FocusedKnodeSelector",
+    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(FocusedKnodeIdAtom))
+})
+
+export const FocusedKnodeStemSelector = selector<Knode | undefined>({
+    key: "FocusedKnodeStemSelector",
+    get: ({get})=>get(KtreeFlatAtom).find(knode=>knode.id === get(FocusedKnodeSelector)?.stemId)
+})
+
 export const SelectedKnodeAncestorsSelector = selector<Knode[]>({
     key: "SelectedKnodeAncestorsSelector",
     get: ({get})=>{
@@ -129,6 +129,23 @@ export const SelectedKnodeAncestorsSelector = selector<Knode[]>({
             if(!cur) return res
             res.push(cur)
             selectedId = cur.stemId
+        }
+        return res
+    }
+})
+
+export const FocusedKnodeAncestorsSelector = selector<Knode[]>({
+    key: "FocusedKnodeAncestorsSelector",
+    get: ({get})=>{
+        const ktreeFlat = get(KtreeFlatAtom)
+        let focusedKnodeId: number | null = get(FocusedKnodeIdAtom)
+        let res: Knode[] = []
+        while (focusedKnodeId){
+            // eslint-disable-next-line no-loop-func
+            let cur = ktreeFlat.find(knode=>knode.id === focusedKnodeId)
+            if(!cur) return res
+            res.push(cur)
+            focusedKnodeId = cur.stemId
         }
         return res
     }

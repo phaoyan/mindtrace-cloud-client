@@ -1,9 +1,16 @@
 import React, {useEffect} from 'react';
 import classes from "./EnhancerCard.module.css";
-import {Col, Dropdown, Input, Row} from "antd";
-import {DeleteOutlined, MinusOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
+import {Col, Dropdown, Input, Row, Tooltip} from "antd";
+import {
+    BookFilled,
+    BookOutlined,
+    DeleteOutlined, FormOutlined,
+    MinusOutlined,
+    PlusOutlined,
+    ScissorOutlined
+} from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
-import {getEnhancerById, updateEnhancer} from "../../../../../service/api/EnhancerApi";
+import {getEnhancerById, setEnhancerIsQuiz, setEnhancerTitle} from "../../../../../service/api/EnhancerApi";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {getResourcesFromEnhancer, removeResource} from "../../../../../service/api/ResourceApi";
 import {EnhancerCardIdClipboardAtom} from "../../../../../recoil/home/Enhancer";
@@ -49,15 +56,35 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                         <Input
                             value={enhancer.title}
                             onChange={({target: {value}}) => enhancer && setEnhancer({...enhancer, title: value})}
-                            onBlur={() => !props.readonly && updateEnhancer(props.id, {...enhancer!, title: enhancer.title})}
+                            onBlur={() => !props.readonly && setEnhancerTitle(props.id, enhancer.title)}
                             placeholder={". . ."}
                             className={classes.title}
                             bordered={false}/>
                     }</Col>
-                    <Col span={11} className={classes.tag_wrapper}>
+                    <Col span={9} className={classes.tag_wrapper}>
                         <span className={classes.date}>{dayjs(enhancer.createTime).format("YYYY-MM-DD")}</span>
                     </Col>
                     <Col span={1}>{
+                        !props.readonly && !enhancer.isQuiz &&
+                        <Tooltip title={"将笔记加入测试题库"}>
+                            <BookOutlined
+                                className={utils.icon_button}
+                                onClick={()=>{
+                                    setEnhancer({...enhancer, isQuiz: true})
+                                    setEnhancerIsQuiz(props.id, true).then()
+                                }}/>
+                        </Tooltip>}{
+                        !props.readonly && enhancer.isQuiz &&
+                        <Tooltip title={"将笔记移出测试题库"}>
+                            <FormOutlined
+                                className={utils.icon_button}
+                                onClick={()=>{
+                                    setEnhancer({...enhancer, isQuiz: false})
+                                    setEnhancerIsQuiz(props.id, false).then()
+                                }}/>
+                        </Tooltip>
+                    }</Col>
+                    <Col span={1} offset={1}>{
                         !props.readonly &&
                         <ScissorOutlined
                             className={utils.icon_button}

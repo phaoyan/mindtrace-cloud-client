@@ -32,13 +32,13 @@ import {
     sameDay, sameMonth,
 } from "../../../../../service/utils/TimeUtils";
 import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
-import {DelayedSelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
+import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
 import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 
 
 const HistoryStudyRecord = () => {
-    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)

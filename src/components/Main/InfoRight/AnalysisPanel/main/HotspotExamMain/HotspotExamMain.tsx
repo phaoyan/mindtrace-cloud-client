@@ -40,7 +40,6 @@ const HotspotExamMain = () => {
     return (
         <Suspense fallback={<></>}>
             <div>
-                {/*基本信息*/}
                 <Row>
                     <Col span={8}>
                     <span className={classes.basic_info}>
@@ -60,13 +59,12 @@ const HotspotExamMain = () => {
                 </Row>
                 <DividerTimer startTime={currentSession.startTime} id={currentSession.id}/>
                 <TitleAndOptions/>{
-                currentQuiz.map(quiz=><ResourcePlayer key={quiz.id} resource={quiz}/>)
-            }{
+                currentQuiz.map(quiz=><ResourcePlayer key={quiz.id} resource={quiz}/>)}{
                 currentQuiz.length === 0 &&
                 <div className={classes.placeHolder}>
                     <span className={utils.no_data} style={{height:"20vh"}}>No Data</span>
                 </div>
-            }<CrossAndCheck check={handleRight} cross={handleWrong}/>
+                }<CrossAndCheck check={handleRight} cross={handleWrong}/>
             </div>
         </Suspense>
     );

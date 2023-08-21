@@ -54,7 +54,7 @@ const HeuristicExamMain = () => {
                 <Row>
                     <Col span={8}>
                     <span className={classes.basic_info}>
-                        正误比：{sessionMsg.statistics.mistakes.length} : {sessionMsg.statistics.corrects.length}
+                        正误比：{sessionMsg.statistics.corrects.length} : {sessionMsg.statistics.mistakes.length}
                     </span>
                     </Col>
                     <Col span={8} >

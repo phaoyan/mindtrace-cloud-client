@@ -27,30 +27,14 @@ const AnalysisPanel = () => {
         //eslint-disable-next-line
     }, [loginUserId])
     useEffect(()=>{
-        console.log("AnalysisPanel.currentSession", currentSession)
         setSelectedPanel(currentSession ? "session" : "analysis")
     }, [currentSession])
     useEffect(()=>{
-        console.log("AnalysisPanel.selectedPanel", selectedPanel)
         if(selectedPanel === "session")
             setSelectedPanelTitle("知识测试")
         if(selectedPanel === "analysis")
             setSelectedPanelTitle("分析报告")
     }, [selectedPanel])
-
-    const subPanelItems: MenuProps['items'] = [
-        {
-            key: "analysis",
-            label: <span>分析报告</span>,
-            onClick: ()=> setSelectedPanel("analysis")
-        },
-        {
-            key: "session",
-            label: <span>知识测试</span>,
-            onClick: ()=> setSelectedPanel("session")
-        }
-    ]
-
 
     return (
         <div>
@@ -62,7 +46,18 @@ const AnalysisPanel = () => {
                     loginUserId === currentUserId &&
                     <Dropdown
                         arrow={false}
-                        menu={{items:subPanelItems}}>
+                        menu={{items:[
+                                {
+                                    key: "analysis",
+                                    label: <span>分析报告</span>,
+                                    onClick: ()=> setSelectedPanel("analysis")
+                                },
+                                {
+                                    key: "session",
+                                    label: <span>知识测试</span>,
+                                    onClick: ()=> setSelectedPanel("session")
+                                }
+                            ]}}>
                         <SwapOutlined className={utils.icon_button}/>
                     </Dropdown>
                 }</Col>

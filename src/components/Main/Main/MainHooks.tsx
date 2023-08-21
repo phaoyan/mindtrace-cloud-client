@@ -1,6 +1,8 @@
 import React, {Key, useState} from "react";
 import {atom, selector, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
+    FocusedKnodeSelector,
+    FocusedKnodeStemSelector,
     KtreeFlatAtom, ScissoredKnodeIdAtom,
     SelectedKnodeIdAtom,
     SelectedKnodeSelector,
@@ -14,10 +16,26 @@ import {LoginUserAtom} from "../../Login/LoginHooks";
 import {KnodeIdBeforeVisitAtom} from "../InfoRight/SharePanel/KnodeShareCard/KnodeShareCardHooks";
 import {subscribeKnode} from "../../../service/api/ShareApi";
 import {getUserPublicInfo} from "../../../service/api/LoginApi";
+import dayjs, {Dayjs} from "dayjs";
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",
     default: false
+})
+
+export const FocusedKnodeIdAtom = atom<number>({
+    key: "FocusedKnodeIdAtom",
+    default: -1
+})
+
+export const SwitchTimeoutAtom = atom<NodeJS.Timeout | undefined>({
+    key: "SwitchTimeoutAtom",
+    default: undefined
+})
+
+export const LastMovementAtom = atom<Dayjs>({
+    key: "LastMovementAtom",
+    default: dayjs()
 })
 
 // 这个current user并不是login user，而是用户当前访问的其他user
@@ -70,88 +88,88 @@ export const useSearchBar = (): [string, (txt:string)=>void]=>{
     return [searchText, onSearchChange]
 }
 
-export const useShiftUp = ():(()=>void)=>{
+export const useShiftUp = ()=>{
     const shiftLeft = useShiftLeft()
-    const [selectedId, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
-    const selectedKnodeStem = useRecoilValue(SelectedKnodeStemSelector)
+    const [focusedKnodeId, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
+    const focusedKnodeStem = useRecoilValue(FocusedKnodeStemSelector)
     return ()=>{
-        if(!selectedKnodeStem) return
-        const brotherIds  = selectedKnodeStem.branchIds
+        if(!focusedKnodeStem) return
+        const brotherIds  = focusedKnodeStem.branchIds
         if(brotherIds){
-            const index = brotherIds.indexOf(selectedId)
-            index === 0 ? shiftLeft() : setSelectedId(brotherIds[index - 1])
+            const index = brotherIds.indexOf(focusedKnodeId)
+            index === 0 ? shiftLeft() : setFocusedKnodeId(brotherIds[index - 1])
         }
     }
 }
-export const useShiftDown = ():(()=>void)=>{
+export const useShiftDown = ()=>{
     const shiftRight = useShiftRight()
-    const [selectedId, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
-    const selectedKnodeStem = useRecoilValue(SelectedKnodeStemSelector)
+    const [focusedKnodeId, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
+    const focusedKnodeStem = useRecoilValue(FocusedKnodeStemSelector)
     return ()=>{
-        if(!selectedKnodeStem) {
+        if(!focusedKnodeStem) {
             shiftRight()
             return
         }
-        const brotherIds = selectedKnodeStem.branchIds
+        const brotherIds = focusedKnodeStem.branchIds
         if(brotherIds){
-            const index = brotherIds.indexOf(selectedId)
-            index === brotherIds.length - 1 ? shiftRight(): setSelectedId(brotherIds[index+1])
+            const index = brotherIds.indexOf(focusedKnodeId)
+            index === brotherIds.length - 1 ? shiftRight(): setFocusedKnodeId(brotherIds[index+1])
         }
     }
 }
-export const useShiftLeft = ():(()=>void)=>{
-    const selectedKnodeStem = useRecoilValue(SelectedKnodeStemSelector)
-    const [, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
+export const useShiftLeft = ()=>{
+    const focusedKnodeStem = useRecoilValue(FocusedKnodeStemSelector)
+    const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
     return ()=>{
-        if(!selectedKnodeStem) return
-        setSelectedId(selectedKnodeStem.id)
+        if(!focusedKnodeStem) return
+        setFocusedKnodeId(focusedKnodeStem.id)
     }
 }
-export const useShiftRight = ():(()=>void)=>{
-    const selectedKnode = useRecoilValue(SelectedKnodeSelector)!
-    const [, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
+export const useShiftRight = ()=>{
+    const focusedKnode = useRecoilValue(FocusedKnodeSelector)!
+    const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
     return ()=>{
-        if(selectedKnode.branchIds.length === 0) return
-        setSelectedId(selectedKnode.branchIds[0])
+        if(focusedKnode.branchIds.length === 0) return
+        setFocusedKnodeId(focusedKnode.branchIds[0])
     }
 }
-export const useHandleBranch = ():(()=>void)=>{
-    const [selectedId, setSelectedId] = useRecoilState(SelectedKnodeIdAtom)
+export const useHandleBranch = ()=>{
+    const [focusedKnodeId, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
     const [ktreeFlat, setKtreeFlat] = useRecoilState(KtreeFlatAtom)
-    const selectedKnode = useRecoilValue(SelectedKnodeSelector)
+    const focusedKnode = useRecoilValue(FocusedKnodeSelector)
     const [expandedKeys, setExpandedKeys] = useRecoilState(ExpandedKeysAtom)
     return async () => {
-        const knodeId = selectedId
-        const newKnode = await branch(selectedId);
+        const knodeId = focusedKnodeId
+        const newKnode = await branch(focusedKnodeId);
         setKtreeFlat(
             [...ktreeFlat, newKnode]
             .map(knode=>knode.id === knodeId ?
-                ({...selectedKnode!, branchIds: [...selectedKnode!.branchIds!, newKnode.id]}):
+                ({...focusedKnode!, branchIds: [...focusedKnode!.branchIds!, newKnode.id]}):
                 knode))
-        setExpandedKeys([...expandedKeys, selectedId])
-        setSelectedId(newKnode.id)
+        setExpandedKeys([...expandedKeys, focusedKnodeId])
+        setFocusedKnodeId(newKnode.id)
     }
 }
-export const useHandleRemove = ():any=>{
-    const selectedKtree = useRecoilValue(SelectedKtreeSelector)
-    const [selectedId,] = useRecoilState(SelectedKnodeIdAtom)
+export const useHandleRemove = ()=>{
+    const focusedKnode = useRecoilValue(FocusedKnodeSelector)
+    const [focusedKnodeId,] = useRecoilState(FocusedKnodeIdAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
     const [ktreeFlat, setKtreeFlat] = useRecoilState(KtreeFlatAtom)
-    const selectedKnodeStem = useRecoilValue(SelectedKnodeStemSelector)
+    const focusedKnodeStem = useRecoilValue(FocusedKnodeStemSelector)
     const shiftUp = useShiftUp()
     return async () => {
-        if(selectedKtree?.branches.length !== 0 || !selectedKnodeStem){
+        if(focusedKnode?.branchIds.length !== 0 || !focusedKnodeStem){
             messageApi.info("请先删除这个知识点的所有子节点")
             return
         }
 
-        const stemId = selectedKnodeStem.id
-        await removeKnode(selectedId)
+        const stemId = focusedKnodeStem.id
+        await removeKnode(focusedKnodeId)
         setKtreeFlat(
             ktreeFlat
-            .filter(knode=>knode.id !== selectedId)
+            .filter(knode=>knode.id !== focusedKnodeId)
             .map(knode=>knode.id === stemId ?
-                ({...selectedKnodeStem!, branchIds:selectedKnodeStem!.branchIds.filter(id=>id!==selectedId)}) :
+                ({...focusedKnodeStem!, branchIds:focusedKnodeStem!.branchIds.filter(id=>id!==focusedKnodeId)}) :
                 knode))
         shiftUp()
     }
@@ -167,12 +185,12 @@ export const useHandleSubscribe = ()=>{
     }
 }
 
-export const useEditTitle = ():(()=>void)=>{
+export const useEditTitle = ()=>{
     const setTitleEditKnodeId = useSetRecoilState(TitleEditKnodeIdAtom);
-    const selectedId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedId = useRecoilValue(FocusedKnodeIdAtom)
     return ()=> setTitleEditKnodeId(selectedId)
 }
-export const useKnodeShiftUp = ():(()=>void)=>{
+export const useKnodeShiftUp = ()=>{
     const stem = useRecoilValue(SelectedKnodeStemSelector)
     const selectedId = useRecoilValue(SelectedKnodeIdAtom)
     const setKtreeFlat = useSetRecoilState(KtreeFlatAtom)
@@ -197,7 +215,7 @@ export const useKnodeShiftUp = ():(()=>void)=>{
         })
     }
 }
-export const useKnodeShiftDown = ():(()=>void)=>{
+export const useKnodeShiftDown = ()=>{
     const stem = useRecoilValue(SelectedKnodeStemSelector)
     const selectedId = useRecoilValue(SelectedKnodeIdAtom)
     const setKtreeFlat = useSetRecoilState(KtreeFlatAtom)
@@ -222,14 +240,14 @@ export const useKnodeShiftDown = ():(()=>void)=>{
         })
     }
 }
-export const useScissorSelectedKnode = ():(()=>void)=>{
+export const useScissorSelectedKnode = ()=>{
     const setScissored = useSetRecoilState(ScissoredKnodeIdAtom)
-    const selectedId = useRecoilValue(SelectedKnodeIdAtom);
+    const selectedId = useRecoilValue(FocusedKnodeIdAtom)
     return ()=> setScissored(selectedId)
 }
-export const usePasteSelectedKnode = ():(()=>void)=>{
+export const usePasteSelectedKnode = ()=>{
     const [scissored, setScissored] = useRecoilState(ScissoredKnodeIdAtom)
-    const selectedId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedId = useRecoilValue(FocusedKnodeIdAtom)
     const setKtreeFlat = useSetRecoilState(KtreeFlatAtom)
     return async ()=>{
         scissored && setKtreeFlat(await shiftKnode(selectedId, scissored))

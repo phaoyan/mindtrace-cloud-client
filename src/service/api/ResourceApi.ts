@@ -22,6 +22,10 @@ export const getAllDataFromResource = async (resourceId: number): Promise<any> =
     return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/data`).then(({data})=>data)
 }
 
+export const getDataFromResource = async (resourceId:number, dataName: string): Promise<any>=>{
+    return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/data/${dataName}`).then(({data})=>data)
+}
+
 export const removeResource = async (resourceId: number): Promise<any>=>{
     return await axios.delete(`${ENHANCER_HOST}/resource/${resourceId}`)
 }

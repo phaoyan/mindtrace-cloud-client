@@ -37,7 +37,6 @@ const KnodeLabel = (props:{data: StatisticsAnalysisData})=>{
 }
 const arrayToTree = (array: StatisticsAnalysisData[]): TreeData | undefined => {
     if (array.length === 0) return
-    console.log("ARRAY TO TREE", array)
     const map = new Map<number, TreeData>();
     let rootId: number = array[0].knode.id;
     for (const data of array) {

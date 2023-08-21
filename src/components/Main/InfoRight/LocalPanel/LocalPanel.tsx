@@ -14,7 +14,7 @@ const LocalPanel = () => {
             <Row>
                 <Col span={10} offset={2}>
                     <div className={classes.download_wrapper}>
-                        <Tooltip title={"点击下载当前知识数据"}>
+                        <Tooltip title={"点击下载当前知识数据(解析过程可能会花费若干分钟，请耐心等待)"}>
                             <a
                                 href={`${LOCAL_HOST}/knode/${selectedKnodeId}/all`}
                                 download={"data.zip"}
@@ -27,7 +27,7 @@ const LocalPanel = () => {
                 </Col>
                 <Col span={10}>
                     <div className={classes.download_wrapper}>
-                        <Tooltip title={"点击上传知识数据(data.zip)"}>
+                        <Tooltip title={"点击上传知识数据(需要data.zip数据包，解析过程可能会花费若干分钟，请耐心等待)"}>
                             <Upload
                                 name={"file"}
                                 action={`${LOCAL_HOST}/knode/${selectedKnodeId}/all`}

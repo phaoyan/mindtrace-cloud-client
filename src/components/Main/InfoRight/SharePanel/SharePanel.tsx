@@ -2,17 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
 import {getRelatedKnodeShare} from "../../../../service/api/ShareApi";
 import classes from "./SharePanel.module.css"
-import {DelayedSelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import KnodeShareCard from "./KnodeShareCard/KnodeShareCard";
 import {
     RelatedKnodeIdsAtom,
 } from "./SharePanelHooks";
 import {Divider, Pagination} from "antd";
 import SearchPanel from "./SearchPanel/SearchPanel";
+import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 
 const SharePanel = () => {
 
-    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [relatedKnodeIds, setRelatedKnodeIds] = useRecoilState(RelatedKnodeIdsAtom)
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 5

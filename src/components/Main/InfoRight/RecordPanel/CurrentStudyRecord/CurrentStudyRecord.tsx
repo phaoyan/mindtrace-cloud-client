@@ -14,8 +14,7 @@ import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
 import {DeleteOutlined, EditOutlined, MinusOutlined} from "@ant-design/icons";
 import {
-    CurrentChainStyleTitleAtom,
-    DelayedSelectedKnodeIdAtom,
+    CurrentChainStyleTitleAtom, SelectedKnodeIdAtom,
     SelectedKnodeSelector
 } from "../../../../../recoil/home/Knode";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
@@ -34,7 +33,7 @@ const CurrentStudyRecord = () => {
     const calculateDuration = useCalculateDuration()
     const setTitle = useSetTitle()
     const [timerKey, setTimerKey] = useState(0)
-    const selectedKnodeId = useRecoilValue(DelayedSelectedKnodeIdAtom)
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
     useEffect(()=>{
         const effect = async ()=>{

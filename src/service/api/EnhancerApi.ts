@@ -27,9 +27,12 @@ export const getEnhancersForOffsprings = async (knodeId: number): Promise<Enhanc
 export const addEnhancerToKnode = async (knodeId: number): Promise<Enhancer> =>{
     return await axios.put(`${ENHANCER_HOST}/knode/${knodeId}/enhancer`).then(({data})=> data)
 }
+export const setEnhancerIsQuiz = async (enhancerId: number, isQuiz: boolean)=>{
+    await axios.put(`${ENHANCER_HOST}/enhancer/${enhancerId}/isQuiz?isQuiz=${isQuiz}`)
+}
 
-export const updateEnhancer = async (enhancerId: number, enhancer: Enhancer)=>{
-    return await axios.post(`${ENHANCER_HOST}/enhancer/${enhancerId}`, enhancer)
+export const setEnhancerTitle = async (enhancerId: number, title: string)=>{
+    await axios.put(`${ENHANCER_HOST}/enhancer/${enhancerId}/title?title=${title}`)
 }
 
 export const removeEnhancer = async (enhancerId: number, knodeId: number)=>{
