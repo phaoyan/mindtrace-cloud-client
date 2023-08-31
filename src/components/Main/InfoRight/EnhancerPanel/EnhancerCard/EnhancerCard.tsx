@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import classes from "./EnhancerCard.module.css";
 import {Col, Dropdown, Input, Row, Tooltip} from "antd";
 import {
-    BookFilled,
     BookOutlined,
     DeleteOutlined, FormOutlined,
     MinusOutlined,

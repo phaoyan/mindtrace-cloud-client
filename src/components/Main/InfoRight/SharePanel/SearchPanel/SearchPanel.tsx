@@ -32,6 +32,7 @@ const SearchPanel = () => {
     useEffect(()=>{
         mode === "user" && setKnodeResults([])
         mode === "knode" && setUserResults([])
+        //eslint-disable-next-line
     }, [mode])
     return (
         <div>

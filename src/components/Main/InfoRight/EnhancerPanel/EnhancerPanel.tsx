@@ -25,6 +25,7 @@ import {
 import UserSubscribePanel from "../SharePanel/UserSubscribePanel/UserSubscribePanel";
 import KnodeSubscribePanel from "../SharePanel/KnodeSubscribePanel/KnodeSubscribePanel";
 import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/EnhancerSubscribePanel";
+import ReviewPanel from "./ReviewPanel/ReviewPanel";
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
@@ -55,11 +56,13 @@ const EnhancerPanel = () => {
         const effect = async ()=>{
             if(offspringMode)
                 setOffspringEnhancers(await getEnhancersForOffsprings(selectedKnodeId))
-        }; effect()
+        }; effect().then()
     }, [offspringMode, selectedKnodeId])
+
 
     return (
         <div className={classes.container} key={enhancerPanelKey}>
+            <ReviewPanel/>
             <div className={classes.main}>{
                 (offspringMode ? offspringEnhancers : enhancers)
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)

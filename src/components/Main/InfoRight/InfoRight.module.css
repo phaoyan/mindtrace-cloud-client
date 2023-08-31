@@ -50,6 +50,12 @@
     cursor: default;
     margin: 0 0.1em;
 }
+.review_mode_icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-style: oblique;
+}
 .title_left{
     display: flex;
     justify-content: center;

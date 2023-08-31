@@ -21,6 +21,9 @@ const App = ()=> {
     const location = useLocation()
     const contextHolder = useSetGlobalMessage()
     const navigate = useNavigate()
+    useEffect(()=>{
+        console.log("LOCAL HOST", process.env.REACT_APP_API_BASE_URL)
+    }, [])
     useLoadLoginData()
     useEffect(()=>{
         setCurrent(location.pathname.replace("/",""))

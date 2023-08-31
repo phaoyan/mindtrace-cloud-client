@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Col, Dropdown, MenuProps, Row} from "antd";
+import { Col, Dropdown, Row} from "antd";
 import {getCurrentExamSession} from "../../../../service/api/MasteryApi";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {SwapOutlined} from "@ant-design/icons";

@@ -5,8 +5,7 @@ import {
     FocusedKnodeStemSelector,
     KtreeFlatAtom, ScissoredKnodeIdAtom,
     SelectedKnodeIdAtom,
-    SelectedKnodeSelector,
-    SelectedKnodeStemSelector, SelectedKtreeSelector
+    SelectedKnodeStemSelector
 } from "../../../recoil/home/Knode";
 import {branch, getKnodeById, removeKnode, shiftKnode, swapBranchIndex} from "../../../service/api/KnodeApi";
 import {TitleEditKnodeIdAtom} from "../KnodeTitle/KnodeTitleHooks";
@@ -129,7 +128,7 @@ export const useShiftRight = ()=>{
     const focusedKnode = useRecoilValue(FocusedKnodeSelector)!
     const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
     return ()=>{
-        if(focusedKnode.branchIds.length === 0) return
+        if(!focusedKnode || focusedKnode.branchIds.length === 0) return
         setFocusedKnodeId(focusedKnode.branchIds[0])
     }
 }

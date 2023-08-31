@@ -70,12 +70,12 @@ export const useCalculateDuration = ()=>{
         if(!currentStudy) return 0
         const pauseList = currentStudy.trace.pauseList
         const continueList = currentStudy.trace.continueList
-        let millis = dayjs().diff(currentStudy.trace.startTime)
-        for(let i = 0; i < continueList.length; i ++){
+        const endTime = currentStudy.trace.endTime ? dayjs(currentStudy.trace.endTime) : dayjs()
+        let millis = endTime.diff(currentStudy.trace.startTime)
+        for(let i = 0; i < continueList.length; i ++)
             millis -= dayjs(continueList[i]).diff(pauseList[i])
-        }
         if(pauseList.length > continueList.length)
-            millis -= dayjs().diff(pauseList[pauseList.length-1])
+            millis -= endTime.diff(pauseList[pauseList.length-1])
         return millis
     }
 }

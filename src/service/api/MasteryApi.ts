@@ -4,6 +4,7 @@ import {ExamStrategy} from "../data/mastery/ExamStrategy";
 import {ExamSession} from "../data/mastery/ExamSession";
 import {ExamInteract, examInteractPrototype} from "../data/mastery/ExamInteract";
 import {ExamAnalysis} from "../data/mastery/ExamAnalysis";
+import dayjs from "dayjs";
 
 export const MASTERY_HOST = `${BACK_HOST}/mastery`
 
@@ -47,4 +48,29 @@ export const getExamAnalysis = async (resultId: number, analyzerName: string): P
 
 export const removeExamResult = async (resultId: number)=>{
     await axios.delete(`${MASTERY_HOST}/exam/result/${resultId}`)
+}
+
+
+export const isKnodeMonitored = async (knodeId: number)=>{
+    return await axios.get(`${MASTERY_HOST}/review/monitor?knodeId=${knodeId}`).then(({data})=>data)
+}
+
+export const startMonitor = async (knodeId: number)=>{
+    await axios.put(`${MASTERY_HOST}/review?rootId=${knodeId}`)
+}
+
+export const finishMonitor = async (knodeId: number)=>{
+    await axios.delete(`${MASTERY_HOST}/review?rootId=${knodeId}`)
+}
+
+export const getReviewKnodeIds = async (knodeId: number)=>{
+    return await axios.get(`${MASTERY_HOST}/review?rootId=${knodeId}&date=${dayjs().format("YYYY-MM-DD")}`).then(({data})=>data)
+}
+
+export const getQuiz = async (knodeId: number)=>{
+    return await axios.get(`${MASTERY_HOST}/knode/${knodeId}/quiz`).then(({data})=>data)
+}
+
+export const ackReview = async (knodeId: number, next: number)=>{
+    await axios.put(`${MASTERY_HOST}/review/schedule?knodeId=${knodeId}&next=${next}`).then(({data})=>data)
 }

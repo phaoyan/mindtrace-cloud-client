@@ -1,0 +1,16 @@
+.next {
+    display: flex;
+    
+}
+.next > *{
+    color: #666666;
+    font-style: oblique;
+    font-size: 1.1em;
+    font-weight: lighter;
+    margin-right: 2em;
+    text-decoration: underline;
+}
+.next > span:hover{
+    cursor: pointer;
+    color: #72aff6;
+}

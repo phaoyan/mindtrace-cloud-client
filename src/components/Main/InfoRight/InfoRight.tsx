@@ -10,7 +10,7 @@ import MdPreview from "../../utils/markdown/MdPreview";
 import {Breadcrumb, Col, Row, Tabs, Tooltip} from "antd";
 import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
 import {
-    BarChartOutlined,
+    BarChartOutlined, BookOutlined,
     ClockCircleOutlined, DownloadOutlined,
     EditOutlined,
     ShareAltOutlined
@@ -25,6 +25,7 @@ import {breadcrumbTitle} from "../../../service/data/Knode";
 import {CurrentTabAtom} from "./InfoRightHooks";
 import {getEnhancerCount} from "../../../service/api/EnhancerApi";
 import LocalPanel from "./LocalPanel/LocalPanel";
+import {finishMonitor, isKnodeMonitored, startMonitor} from "../../../service/api/MasteryApi";
 
 const InfoRight = () => {
 
@@ -36,14 +37,16 @@ const InfoRight = () => {
     const [leaveCount, setLeaveCount] = useState<number>()
     const [enhancerCount, setEnhancerCount] = useState<number | undefined>(undefined)
     const [currentTab, setCurrentTab] = useRecoilState(CurrentTabAtom)
+    const [isMonitored, setIsMonitored] = useState(false)
 
-    // title相关
+
     useEffect(()=>{
         const effect = async ()=>{
             if(!selectedKnodeId || selectedKnodeId === 0) return
             setChainStyleTitle(await getChainStyleTitle(selectedKnodeId))
             setLeaveCount(await getLeaveCount(selectedKnodeId))
             setEnhancerCount(await getEnhancerCount(selectedKnodeId))
+            setIsMonitored(await isKnodeMonitored(selectedKnodeId))
         }; effect()
         // eslint-disable-next-line
     }, [selectedKnodeId])
@@ -71,7 +74,21 @@ const InfoRight = () => {
                                     <div>{enhancerCount}</div>
                                 </Tooltip>
                             </Col>
-                            <Col span={21}  className={classes.title}>
+                            <Col span={1} offset={1} className={classes.review_mode_icon}>{
+                                !isMonitored &&
+                                <Tooltip title={"开启复习模式"}>
+                                    <BookOutlined
+                                        className={utils.icon_button}
+                                        onClick={async ()=>{setIsMonitored(true); await startMonitor(selectedKnodeId)}}/>
+                                </Tooltip>}{
+                                isMonitored &&
+                                <Tooltip title={"关闭复习模式"}>
+                                    <EditOutlined
+                                        className={utils.icon_button}
+                                        onClick={async ()=>{setIsMonitored(false); await finishMonitor(selectedKnodeId)}}/>
+                                </Tooltip>
+                            }</Col>
+                            <Col span={19}  className={classes.title}>
                                 <MdPreview>
                                     {" > "+selectedKnode?.title}
                                 </MdPreview>

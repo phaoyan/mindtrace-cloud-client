@@ -43,3 +43,9 @@
 .selected_knode_title > *{
     font-weight: bold;
 }
+.edit_time{
+    color: #666666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

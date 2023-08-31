@@ -1,6 +1,6 @@
 import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {CurrentUserAtom} from "../../../Main/MainHooks";
+import {CurrentUserAtom, FocusedKnodeIdAtom} from "../../../Main/MainHooks";
 import {User} from "../../../../../service/data/Gateway";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {CurrentTabAtom} from "../../InfoRightHooks";
@@ -29,10 +29,12 @@ export const useVisit = ()=>{
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
     const [selectedKnodeId, setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
+    const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
     return async (owner: User, knodeId?: number)=>{
         setKnodeIdBeforeVisit([...knodeIdBeforeVisit, selectedKnodeId])
         setCurrentUser(owner)
         setSelectedKnodeId(knodeId || -1)
+        setFocusedKnodeId(knodeId || -1)
         setCurrentTab("note")
     }
 }

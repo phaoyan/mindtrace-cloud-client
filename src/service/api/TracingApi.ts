@@ -24,6 +24,14 @@ export const startCurrentStudy = async (): Promise<CurrentStudy>=>{
     return await axios.post(`${TRACING_HOST}/study/current`).then(({data})=>data)
 }
 
+export const updateStartTime = async (startTime: string): Promise<CurrentStudy>=>{
+    return await axios.post(`${TRACING_HOST}/study/current/start?startTime=${startTime}`).then(({data})=>data)
+}
+
+export const updateEndTime = async (endTime: string): Promise<CurrentStudy>=>{
+    return await axios.post(`${TRACING_HOST}/study/current/end?endTime=${endTime}`).then(({data})=>data)
+}
+
 export const removeCurrentStudy = async ()=>{
     await axios.delete(`${TRACING_HOST}/study/current`)
 }

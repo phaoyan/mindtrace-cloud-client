@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Col, Divider, Input, Row} from "antd";
+import {Breadcrumb, Col, Divider, Input, Popover, Row, TimePicker} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId,
@@ -7,12 +7,17 @@ import {
     useRemoveCurrentStudy, useRemoveEnhancerId,
     useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
 } from "./CurrentStudyRecordHooks";
-import {editCurrentStudyTitle, getCurrentStudy} from "../../../../../service/api/TracingApi";
+import {
+    editCurrentStudyTitle,
+    getCurrentStudy,
+    updateEndTime,
+    updateStartTime
+} from "../../../../../service/api/TracingApi";
 import classes from "./CurrentStudyRecord.module.css"
 import utils from "../../../../../utils.module.css"
 import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
-import {DeleteOutlined, EditOutlined, MinusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, MinusOutlined, SettingOutlined} from "@ant-design/icons";
 import {
     CurrentChainStyleTitleAtom, SelectedKnodeIdAtom,
     SelectedKnodeSelector
@@ -22,6 +27,8 @@ import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import {Enhancer} from "../../../../../service/data/Enhancer";
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
 import {getEnhancerById, getEnhancersForKnode} from "../../../../../service/api/EnhancerApi";
+import dayjs from "dayjs";
+import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
 
 const CurrentStudyRecord = () => {
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
@@ -105,6 +112,45 @@ const CurrentStudyRecord = () => {
                             </Col>
                             <Col span={16}>
                                 <Row className={classes.options}>
+                                    <Col span={4}>
+                                        <Popover
+                                            content={(
+                                            <div style={{width: "24em"}}>
+                                                <Row>
+                                                    <Col span={6}>
+                                                        <span className={classes.edit_time}>设置起始时间</span>
+                                                    </Col>
+                                                    <Col span={16} offset={2}>
+                                                        <TimePicker
+                                                            size={"small"} defaultValue={dayjs(currentStudy.trace.startTime)}
+                                                            onChange={async (time)=>{
+                                                                if(!time) return
+                                                                const startTime = time.format(DEFAULT_DATE_TIME_PATTERN);
+                                                                setCurrentStudy({...currentStudy, trace: {...currentStudy?.trace, startTime: startTime}})
+                                                                await updateStartTime(startTime)
+                                                            }}/>
+                                                    </Col>
+                                                </Row>
+                                                <Divider/>
+                                                <Row>
+                                                    <Col span={6}>
+                                                        <span className={classes.edit_time}>设置结束时间</span>
+                                                    </Col>
+                                                    <Col span={16} offset={2}>
+                                                        <TimePicker
+                                                            size={"small"} defaultValue={dayjs()}
+                                                            onChange={async (time)=>{
+                                                                if(!time) return
+                                                                const endTime = time.format(DEFAULT_DATE_TIME_PATTERN);
+                                                                setCurrentStudy({...currentStudy, trace: {...currentStudy?.trace, endTime: endTime}})
+                                                                await updateEndTime(endTime)
+                                                            }}/>
+                                                    </Col>
+                                                </Row>
+                                            </div>)}>
+                                            <SettingOutlined className={utils.icon_button}/>
+                                        </Popover>
+                                    </Col>
                                     <Col span={4}>
                                         <div className={classes.pause_and_continue}>{
                                             currentStudy.trace.pauseList.length > currentStudy.trace.continueList.length ?
