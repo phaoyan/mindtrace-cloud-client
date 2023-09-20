@@ -36,6 +36,10 @@
     font-weight: bold;
     font-style: oblique;
     margin-right: 1em;
+    cursor: pointer;
+}
+.enhancer_title:hover{
+    opacity: 50%;
 }
 .distribution_info{
     color: #666666;
@@ -68,4 +72,10 @@
 }
 .enhancer_distribution_item > *{
     margin-right: 0.5em;
+}
+.trace_title{
+    color: #999999;
+    font-size: 1.3em;
+    font-style: oblique;
+    font-weight: bold;
 }

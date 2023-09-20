@@ -124,3 +124,4 @@ export const useRemoveEnhancerId = ()=>{
         setCurrentStudy({...currentStudy, enhancerIds: currentStudy.enhancerIds.filter(id=>id!==enhancerId)})
     }
 }
+

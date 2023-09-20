@@ -1,6 +1,7 @@
 import {Enhancer} from "../data/Enhancer";
 import axios from "axios";
 import {BACK_HOST} from "../utils/constants";
+import {Knode} from "../data/Knode";
 
 export const ENHANCER_HOST = `${BACK_HOST}/enhancer`
 
@@ -50,4 +51,8 @@ export const copyEnhancer = async (enhancerId:number, tarKnodeId: number)=>{
 
 export const getEnhancerCount = async (knodeId: number)=>{
     return await axios.get(`${ENHANCER_HOST}/knode/${knodeId}/enhancer/count`).then(({data})=>data)
+}
+
+export const getKnodesByEnhancerId = async (enhancerId: number): Promise<Knode[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}/knode`).then(({data})=>data)
 }

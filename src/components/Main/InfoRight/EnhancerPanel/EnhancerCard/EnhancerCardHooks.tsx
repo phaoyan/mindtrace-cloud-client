@@ -1,4 +1,4 @@
-import {atomFamily, useRecoilState} from "recoil";
+import {atomFamily, useRecoilState, useRecoilValue} from "recoil";
 import {defaultEnhancer, Enhancer} from "../../../../../service/data/Enhancer";
 import {
     FileSearchOutlined,
@@ -16,6 +16,9 @@ import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer/M
 import React from "react";
 import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
 import {addResource} from "../../../../../service/api/ResourceApi";
+import {addEnhancerToKnode} from "../../../../../service/api/EnhancerApi";
+import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
+import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -28,57 +31,59 @@ export const EnhancerResourcesAtomFamily = atomFamily<Resource[], number>({
 
 export const useAddResource = (enhancerId: number)=>{
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
-    return async (enhancerId: number, type: string)=>{
+    return async (type: string)=>{
          setResources([...resources, await addResource(enhancerId, {type: type})])
     }
 }
 
-export const useAddResourceDropdownItems = (enhancerId: number)=>{
-    const addResource = useAddResource(enhancerId)
+export const useAddResourceDropdownItems = ()=>{
     return [
         {
             key: ResourceType.QUIZCARD,
             label: "知识卡片",
             icon: <SwitcherOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.QUIZCARD)
         },
         {
             key: ResourceType.MARKDOWN,
             label: "知识概述",
             icon: <FileTextOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.MARKDOWN)
         },
         {
             key: ResourceType.CLOZE,
             label: "填空卡片",
             icon: <FileSearchOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.CLOZE)
         },
         {
             key: ResourceType.LINKOUT,
             label: "资源链接",
             icon: <LinkOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.LINKOUT)
         },
         {
             key: ResourceType.MINDTRACE_HUB_RESOURCE,
             label: "云端资源",
             icon: <ShareAltOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.MINDTRACE_HUB_RESOURCE)
         },
         {
             key: ResourceType.UNFOLDING,
             label: "知识梳理",
             icon: <InteractionOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.UNFOLDING)
         },
         {
             key: ResourceType.AUDIO,
             label: "音频资源",
             icon: <SoundOutlined className={classes.option}/>,
-            onClick: ()=>addResource(enhancerId, ResourceType.AUDIO)
         }
     ]
+}
+
+export const useAddEnhancer = ()=>{
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [enhancers, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
+    return async (data: any)=>{
+        const enhancer = await addEnhancerToKnode(selectedKnodeId)
+        await addResource(enhancer.id, {type: data.key})
+        setEnhancers([...enhancers, enhancer])
+    }
 }
 
 
@@ -89,11 +94,6 @@ export interface Resource {
     createTime?: string,
     createBy: number,
     privacy?: string
-}
-
-export interface ResourceWithData {
-    meta: Resource,
-    data: any
 }
 
 export const ResourceType = {
@@ -113,39 +113,6 @@ export const ResourceType = {
     MINDTRACE_HUB_RESOURCE: "mindtrace hub resource"
 }
 
-export const unfoldingTemplate = (userId:number): ResourceWithData=>({
-    meta:{
-        type: ResourceType.UNFOLDING,
-        createBy: userId
-    },
-    data:{
-        knodes:[{
-            title:"",
-            chainStyleTitle: [],
-            knodeId:-1,
-            stemId:-1,
-            unfolded:false,
-            tag:false
-        }],
-        configs:{
-            hotUpdate: true
-        }
-    }
-})
-
-export const mindtraceHubResourceTemplate = (userId: number): ResourceWithData=>({
-    meta:{
-        type: ResourceType.MINDTRACE_HUB_RESOURCE,
-        createBy: userId
-    },
-    data:{
-        id: 0,
-        url: "",
-        title: "",
-        contentType: "application/pdf",
-        size: 0
-    }
-})
 /**
  *  在此处注册 Resource
  */

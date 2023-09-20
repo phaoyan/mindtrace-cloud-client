@@ -17,7 +17,7 @@ import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     EnhancerAtomFamily,
-    EnhancerResourcesAtomFamily, ResourcePlayer,
+    EnhancerResourcesAtomFamily, ResourcePlayer, ResourceType, useAddResource,
     useAddResourceDropdownItems
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
@@ -30,8 +30,9 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(props.id))
     const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
-    const addResourceDropdownItems = useAddResourceDropdownItems(props.id)
+    const addResourceDropdownItems = useAddResourceDropdownItems()
     const handleRemove = useHandleRemoveEnhancer()
+    const addResource = useAddResource(props.id)
 
     useEffect(()=>{
         const init = async ()=>{
@@ -95,7 +96,7 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                     <Col span={1} offset={1}>{
                         !props.readonly &&
                         <Dropdown
-                            menu={{items: addResourceDropdownItems}}>
+                            menu={{items: addResourceDropdownItems, onClick: ()=>addResource(ResourceType.AUDIO)}}>
                             <PlusOutlined className={utils.icon_button}/>
                         </Dropdown>
                     }</Col>

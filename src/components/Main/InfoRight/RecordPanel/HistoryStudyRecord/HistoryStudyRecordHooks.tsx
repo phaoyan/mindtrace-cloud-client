@@ -16,7 +16,10 @@ import classes from "./HistoryStudyRecord.module.css";
 import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {Tooltip} from "antd";
-import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
+import {getEnhancerById, getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
+import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
+import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
+import {CurrentTabAtom} from "../../InfoRightHooks";
 
 export const StudyTracesAtom = atom<StudyTrace[]>({
     key: "StudyTracesAtom",
@@ -45,6 +48,21 @@ export const useCalculateTitle = ()=>{
         const chainStyleTitle = await getChainStyleTitle(coverages[0]);
         if(chainStyleTitle.length === 0) return ""
         return chainStyleTitle[chainStyleTitle.length - 2]
+    }
+}
+
+export const useJumpToEnhancer = ()=>{
+    const [, setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
+    const [, setCurrentTab] = useRecoilState(CurrentTabAtom)
+    const messageApi = useRecoilValue(MessageApiAtom)
+    return async (enhancerId: number)=>{
+        const knodes = await getKnodesByEnhancerId(enhancerId)
+        if(knodes.length === 0){
+            messageApi.error("找不到该笔记（或许已被删除）")
+            return
+        }
+        setSelectedKnodeId(knodes[0].id)
+        setCurrentTab("note")
     }
 }
 
@@ -110,12 +128,15 @@ export const useEnhancerTimeDistribution = ()=>{
     useEffect(()=>{
         const effect = async ()=>{
             const resp = await getStudyTraceEnhancerInfoUnderKnode(selectedKnodeId)
+            console.log("TES", resp)
             const data = []
             for(let info of resp)
                 data.push({
                     ...info,
-                    title: (await getEnhancerById(info.enhancerId)).title
+                    title: (await getEnhancerById(info.enhancerId)).title,
+                    traces: info.traces.reverse()
                 })
+            data.sort((a, b)=>-dayjs(a.moments[0], DEFAULT_DATE_TIME_PATTERN).diff(dayjs(b.moments[0], DEFAULT_DATE_TIME_PATTERN)))
             setEnhancerTimeDistribution(data)
         }; effect().then()
     }, [selectedKnodeId])

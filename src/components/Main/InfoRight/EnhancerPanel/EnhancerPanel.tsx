@@ -3,12 +3,12 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
 import {
-    addEnhancerToKnode, copyEnhancer,
+    copyEnhancer,
     getEnhancersForKnode,
     getEnhancersForOffsprings,
     scissorEnhancer
 } from "../../../../service/api/EnhancerApi";
-import {Col, Divider, Pagination, Row, Switch, Tooltip} from "antd";
+import {Col, Divider, Dropdown, Pagination, Row, Switch, Tooltip} from "antd";
 import {CopyOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
 import classes from "./EnhancerPanel.module.css";
 import utils from "../../../../utils.module.css"
@@ -26,6 +26,7 @@ import UserSubscribePanel from "../SharePanel/UserSubscribePanel/UserSubscribePa
 import KnodeSubscribePanel from "../SharePanel/KnodeSubscribePanel/KnodeSubscribePanel";
 import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/EnhancerSubscribePanel";
 import ReviewPanel from "./ReviewPanel/ReviewPanel";
+import {useAddEnhancer, useAddResourceDropdownItems} from "./EnhancerCard/EnhancerCardHooks";
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
@@ -39,6 +40,8 @@ const EnhancerPanel = () => {
     const [userSubscribes, setUserSubscribes] = useRecoilState(CurrentUserSubscribesAtom)
     const [knodeSubscribes, setKnodeSubscribes] = useRecoilState(CurrentKnodeSubscribesAtom)
     const [enhancerSubscribes, setEnhancerSubscribes] = useRecoilState(CurrentEnhancerSubscribesAtom)
+    const addResourceDropdownItems = useAddResourceDropdownItems()
+    const addEnhancer = useAddEnhancer()
     const pageSize = 8
 
     // selectedKnodeId -> enhancers
@@ -49,7 +52,7 @@ const EnhancerPanel = () => {
             setUserSubscribes(await getUserSubscribes(selectedKnodeId))
             setKnodeSubscribes(await getKnodeSubscribes(selectedKnodeId))
             setEnhancerSubscribes(await getEnhancerSubscribes(selectedKnodeId))
-        }; effect()
+        }; effect().then()
         // eslint-disable-next-line
     }, [selectedKnodeId, enhancerPanelKey])
     useEffect(()=>{
@@ -85,10 +88,12 @@ const EnhancerPanel = () => {
                     <Col span={18}>{
                         !readonly &&
                         <>
-                            <PlusOutlined
-                                className={utils.icon_button}
-                                onClick={async ()=>setEnhancers([...enhancers, await addEnhancerToKnode(selectedKnodeId)])
-                                }/>{
+                            <Dropdown
+                                menu={{items: addResourceDropdownItems, onClick: addEnhancer}}>
+                                <PlusOutlined
+                                    className={utils.icon_button}
+                                    style={{marginLeft:"2em"}}/>
+                            </Dropdown>{
                             enhancerIdClipboard &&
                             <>
                                 <Tooltip title={"剪切（删除原有笔记）"}>

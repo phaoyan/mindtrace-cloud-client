@@ -3,7 +3,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {
     HistoryStudyRecordKeyAtom,
     StudyTracesAtom,
-    useCalculateTitle, useEnhancerTimeDistribution, useKtreeTimeDistributionAntd,
+    useCalculateTitle, useEnhancerTimeDistribution, useJumpToEnhancer, useKtreeTimeDistributionAntd,
     useRemoveTraceRecord
 } from "./HistoryStudyRecordHooks";
 import {
@@ -188,7 +188,9 @@ const HistoryStudyRecord = () => {
                                     </Tooltip>
                                 </Col>
                                 <Col span={2}>
-                                    <span className={classes.enhancer_distribution_info}>{dayjs().diff(dayjs(info.moments[info.moments.length-1]),'day')}</span>
+                                    <span className={classes.enhancer_distribution_info}>
+                                        {dayjs().diff(dayjs(info.traces[0].startTime),'day')}
+                                    </span>
                                 </Col>
                             </Row>
                             <br/>
@@ -213,6 +215,7 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const [relEnhancerTitles, setRelEnhancerTitles] = useState<{enhancerId: number, title: string}[]>([])
     const removeTraceRecord = useRemoveTraceRecord()
     const calculateTitle = useCalculateTitle()
+    const jumpToEnhancer = useJumpToEnhancer()
     const [title, setTitle] = useState<string>("")
     useEffect(()=>{
         const effect = async ()=>{
@@ -267,7 +270,15 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                     <FieldTimeOutlined style={{scale:"120%"}}/>
                 }</Col>
                 <Col span={15}>{
-                    relEnhancerTitles.map(data=><span key={data.enhancerId} className={classes.enhancer_title}>{data.title}</span>)
+                    relEnhancerTitles.map(data=>
+                        <Tooltip key={data.enhancerId} title={"点击跳转"}>
+                            <span
+                                className={classes.enhancer_title}
+                                onClick={()=>jumpToEnhancer(data.enhancerId)}>
+                                {data.title}
+                            </span>
+                        </Tooltip>
+                    )
                 }</Col>
             </Row>
             <Row>

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Col, Divider, Input, Popover, Row, TimePicker} from "antd";
+import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId,
@@ -17,7 +17,7 @@ import classes from "./CurrentStudyRecord.module.css"
 import utils from "../../../../../utils.module.css"
 import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
-import {DeleteOutlined, EditOutlined, MinusOutlined, SettingOutlined} from "@ant-design/icons";
+import {CalendarOutlined, DeleteOutlined, EditOutlined, MinusOutlined, SettingOutlined} from "@ant-design/icons";
 import {
     CurrentChainStyleTitleAtom, SelectedKnodeIdAtom,
     SelectedKnodeSelector
@@ -29,6 +29,7 @@ import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer
 import {getEnhancerById, getEnhancersForKnode} from "../../../../../service/api/EnhancerApi";
 import dayjs from "dayjs";
 import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
+import {StudyTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 
 const CurrentStudyRecord = () => {
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
@@ -37,6 +38,7 @@ const CurrentStudyRecord = () => {
     const settleCurrentStudy = useSettleCurrentStudy()
     const pauseCurrentStudy = usePauseCurrentStudy()
     const continueCurrentStudy = useContinueCurrentStudy()
+    const [studyTraces,] = useRecoilState(StudyTracesAtom)
     const calculateDuration = useCalculateDuration()
     const setTitle = useSetTitle()
     const [timerKey, setTimerKey] = useState(0)
@@ -76,15 +78,32 @@ const CurrentStudyRecord = () => {
                     }{
                     currentStudy &&
                     <>
-                        <Col span={24}>
-                            <Input
-                                value={currentStudy.trace.title}
-                                onChange={({target: {value}})=>setTitle(value)}
-                                onBlur={()=>currentStudy.trace.title && editCurrentStudyTitle(currentStudy.trace.title)}
-                                bordered={false}
-                                className={classes.title}
-                                placeholder={"标题 . . ."}/>
-                        </Col>
+                        <Row>
+                            <Col span={1}>
+                                <Dropdown
+                                    arrow={false}
+                                    menu={{
+                                        items: studyTraces
+                                            .filter(trace=>trace.title && trace.title.trim() !== "")
+                                            .map(trace=>({
+                                                key: trace.id,
+                                                label: trace.title,
+                                                onClick: ()=> setTitle(trace.title)
+                                            }))
+                                            .splice(0,5)}}>
+                                    <CalendarOutlined className={`${utils.icon_button} ${classes.current_left_option}`}/>
+                                </Dropdown>
+                            </Col>
+                            <Col span={23}>
+                                <Input
+                                    value={currentStudy.trace.title}
+                                    onChange={({target: {value}})=>setTitle(value)}
+                                    onBlur={()=>currentStudy.trace.title && editCurrentStudyTitle(currentStudy.trace.title)}
+                                    bordered={false}
+                                    className={classes.title}
+                                    placeholder={"标题 . . ."}/>
+                            </Col>
+                        </Row>
                         <Row>
                             <Col span={24}>{
                                 currentStudy.knodeIds.map(knodeId=><PickedKnodeItem key={knodeId} knodeId={knodeId}/>)

@@ -49,3 +49,10 @@
     justify-content: center;
     align-items: center;
 }
+.current_left_option{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 0.7em;
+}
