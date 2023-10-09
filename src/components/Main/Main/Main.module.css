@@ -34,7 +34,11 @@
 .tree_wrapper > *{
     margin-bottom: 50vh;
 }
-.help_hotkey{
-
+.history_panel{
+    position: absolute;
+    left: 30vw;
+    top: 10vh;
+    background: beige;
+    width: 25vw;
+    height: 30vh;
 }
-

@@ -65,7 +65,7 @@ const InfoRight = () => {
                     <div className={classes.title}>
                         <Breadcrumb items={breadcrumbTitle(chainStyleTitle)}/>
                         <Row>
-                            <Col span={3} className={classes.left_info}>
+                            <Col span={5} className={classes.left_info}>
                                 <Tooltip title={"知识点数目"}>
                                     <div>{leaveCount}</div>
                                 </Tooltip>
@@ -74,7 +74,7 @@ const InfoRight = () => {
                                     <div>{enhancerCount}</div>
                                 </Tooltip>
                             </Col>
-                            <Col span={1} offset={1} className={classes.review_mode_icon}>{
+                            <Col span={1} className={classes.review_mode_icon}>{
                                 !isMonitored &&
                                 <Tooltip title={"开启复习模式"}>
                                     <BookOutlined
@@ -88,7 +88,7 @@ const InfoRight = () => {
                                         onClick={async ()=>{setIsMonitored(false); await finishMonitor(selectedKnodeId)}}/>
                                 </Tooltip>
                             }</Col>
-                            <Col span={19}  className={classes.title}>
+                            <Col span={18}  className={classes.title}>
                                 <MdPreview>
                                     {" > "+selectedKnode?.title}
                                 </MdPreview>

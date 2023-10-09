@@ -17,7 +17,7 @@ import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     EnhancerAtomFamily,
-    EnhancerResourcesAtomFamily, ResourcePlayer, ResourceType, useAddResource,
+    EnhancerResourcesAtomFamily, ResourcePlayer, useAddResource,
     useAddResourceDropdownItems
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
@@ -96,7 +96,7 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                     <Col span={1} offset={1}>{
                         !props.readonly &&
                         <Dropdown
-                            menu={{items: addResourceDropdownItems, onClick: ()=>addResource(ResourceType.AUDIO)}}>
+                            menu={{items: addResourceDropdownItems, onClick: (data: any)=>addResource(data.key)}}>
                             <PlusOutlined className={utils.icon_button}/>
                         </Dropdown>
                     }</Col>

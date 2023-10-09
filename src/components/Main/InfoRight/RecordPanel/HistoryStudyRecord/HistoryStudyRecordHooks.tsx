@@ -4,7 +4,7 @@ import {
     getStudyTraceEnhancerInfoUnderKnode,
     getStudyTraceKnodeInfo,
     getTraceKnodeRels,
-    removeStudyTrace
+    removeStudyTrace, updateStudyTrace
 } from "../../../../../service/api/TracingApi";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
@@ -63,6 +63,13 @@ export const useJumpToEnhancer = ()=>{
         }
         setSelectedKnodeId(knodes[0].id)
         setCurrentTab("note")
+    }
+}
+
+export const useUpdateTraceTitle = ()=>{
+
+    return async (traceId: number, title: string)=>{
+        await updateStudyTrace({id: traceId, title: title})
     }
 }
 
@@ -128,7 +135,6 @@ export const useEnhancerTimeDistribution = ()=>{
     useEffect(()=>{
         const effect = async ()=>{
             const resp = await getStudyTraceEnhancerInfoUnderKnode(selectedKnodeId)
-            console.log("TES", resp)
             const data = []
             for(let info of resp)
                 data.push({
@@ -136,7 +142,9 @@ export const useEnhancerTimeDistribution = ()=>{
                     title: (await getEnhancerById(info.enhancerId)).title,
                     traces: info.traces.reverse()
                 })
-            data.sort((a, b)=>-dayjs(a.moments[0], DEFAULT_DATE_TIME_PATTERN).diff(dayjs(b.moments[0], DEFAULT_DATE_TIME_PATTERN)))
+            data.sort((a, b)=>
+                -dayjs(a.traces[0].startTime, DEFAULT_DATE_TIME_PATTERN)
+                .diff(dayjs(b.traces[0].startTime, DEFAULT_DATE_TIME_PATTERN)))
             setEnhancerTimeDistribution(data)
         }; effect().then()
     }, [selectedKnodeId])

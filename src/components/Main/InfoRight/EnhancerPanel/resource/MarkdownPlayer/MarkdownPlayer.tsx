@@ -91,7 +91,7 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                             <span className={general.placeholder}> 知识概述 . . . </span>
                         </div>:
                         <>
-                            {data.content === "" && <span className={general.placeholder}>知识概述 . . . </span>}
+                            {data.content.trim().length === 0 && <span className={general.placeholder}>知识概述 . . . </span>}
                             <div className={milkdown.markdown} key={editorKey}>
                                 <MilkdownProvider>
                                     <MilkdownEditor

@@ -4,10 +4,24 @@ import classes from "./KnodeTitle.module.css"
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
 import {Input, InputRef, Tooltip} from "antd";
 import MdPreview from "../../utils/markdown/MdPreview";
-import {TitleEditKnodeIdAtom, useHandleSubmit} from "./KnodeTitleHooks";
-import {EditOutlined, MinusOutlined, PlusOutlined, StarOutlined} from "@ant-design/icons";
+import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom, useHandleSubmit} from "./KnodeTitleHooks";
+import {
+    DisconnectOutlined,
+    EditOutlined,
+    LinkOutlined,
+    MinusOutlined,
+    PlusOutlined,
+    StarOutlined,
+    SwapOutlined
+} from "@ant-design/icons";
 import utils from "../../../utils.module.css"
-import {CurrentUserIdSelector, useHandleBranch, useHandleRemove, useHandleSubscribe} from "../Main/MainHooks";
+import {
+    CurrentUserIdSelector, FocusedKnodeIdAtom,
+    useHandleBranch,
+    useHandleConnect, useHandleDisconnect,
+    useHandleRemove,
+    useHandleSubscribe,
+} from "../Main/MainHooks";
 import {LoginUserIdSelector} from "../../Login/LoginHooks";
 
 
@@ -16,24 +30,28 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
     const currentUserId = useRecoilValue(CurrentUserIdSelector)
     const [knode, setKnode] = useRecoilState(KnodeSelector(props.id))
     const [titleEditKnodeId, setTitleEditKnodeId] = useRecoilState(TitleEditKnodeIdAtom)
-    const selectedId = useRecoilValue(SelectedKnodeIdAtom)
+    const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
+    const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
+    const [knodeConnectionTemp, setKnodeConnectionTemp] = useRecoilState(KnodeConnectionIdTempAtom)
     const divRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<InputRef>(null)
     const handleSubmit = useHandleSubmit()
     const handleBranch = useHandleBranch()
     const handleRemove = useHandleRemove()
     const handleSubscribe = useHandleSubscribe()
+    const handleConnect = useHandleConnect(props.id)
+    const handleDisconnect = useHandleDisconnect(props.id)
     useEffect(()=>{
         if(titleEditKnodeId)
             inputRef.current?.focus()
-        if(!titleEditKnodeId && selectedId === props.id)
+        if(!titleEditKnodeId && selectedKnodeId === props.id)
             divRef.current?.focus()
         //eslint-disable-next-line
     }, [titleEditKnodeId])
     useEffect(()=>{
-        if(selectedId === props.id)
+        if(selectedKnodeId === props.id)
             divRef.current?.focus()
-    }, [props.id, selectedId])
+    }, [props.id, selectedKnodeId])
 
     if(!knode) return <></>
     return (
@@ -52,9 +70,37 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                     <div className={classes.title}>
                         <MdPreview>{knode.title}</MdPreview>{
                         loginUserId === currentUserId &&
-                        selectedId === knode.id &&
+                        selectedKnodeId === knode.id &&
                         !props.hideOptions &&
-                        <div className={classes.options} style={{left: knode.title === "" ? "7em" : "5em"}}>
+                        <div className={classes.options} style={{left: knode.title === "" ? "8em" : "6em"}}>{
+                            knode.connectionIds.length === 0 ? (
+                                knodeConnectionTemp ?
+                                <Tooltip title={"确认连接"}>
+                                    <LinkOutlined
+                                        className={utils.icon_button_normal}
+                                        onClick={()=>handleConnect()}/>
+                                </Tooltip>:
+                                <Tooltip title={"连接知识点"}>
+                                    <LinkOutlined
+                                        style={{color:"gray"}}
+                                        className={utils.icon_button_normal}
+                                        onClick={()=>setKnodeConnectionTemp(knode.id)}/>
+                                </Tooltip>):
+                            <Tooltip title={(
+                                <div>
+                                    <span>
+                                        跳转到相关知识点&nbsp;&nbsp;
+                                        <Tooltip title={"点击删除连接"}>
+                                            <DisconnectOutlined
+                                                className={utils.icon_button_normal}
+                                                onClick={()=>handleDisconnect()}/>
+                                        </Tooltip>
+                                    </span>
+                                </div>)}>
+                                <SwapOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>{setFocusedKnodeId(knode.connectionIds[0])}}/>
+                            </Tooltip>}
                             <EditOutlined
                                 className={utils.icon_button_normal}
                                 onClick={()=>setTitleEditKnodeId(knode.id)}/>
@@ -67,7 +113,7 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                                 onClick={handleRemove}/>}
                         </div>}{
                         loginUserId !== currentUserId &&
-                        selectedId === knode.id &&
+                        selectedKnodeId === knode.id &&
                         !props.hideOptions &&
                         <div  className={classes.other_user_options}>
                             <Tooltip title={"订阅该知识点"}>

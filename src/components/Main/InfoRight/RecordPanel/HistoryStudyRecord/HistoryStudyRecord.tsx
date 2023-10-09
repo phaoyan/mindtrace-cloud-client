@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
     HistoryStudyRecordKeyAtom,
     StudyTracesAtom,
     useCalculateTitle, useEnhancerTimeDistribution, useJumpToEnhancer, useKtreeTimeDistributionAntd,
-    useRemoveTraceRecord
+    useRemoveTraceRecord,
 } from "./HistoryStudyRecordHooks";
 import {
     getStudyTracesOfKnode, getTraceEnhancerRels,
-    getTraceKnodeRels
+    getTraceKnodeRels, updateStudyTrace
 } from "../../../../../service/api/TracingApi";
-import {Breadcrumb, Calendar, Col, Divider, Pagination, Popconfirm, Row, Timeline, Tooltip, Tree} from "antd";
+import {Breadcrumb, Calendar, Col, Divider, Input, Pagination, Popconfirm, Row, Timeline, Tooltip, Tree} from "antd";
 import {StudyTrace} from "../../../../../service/data/Tracing";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import PlainLoading from "../../../../utils/general/PlainLoading";
@@ -23,7 +23,7 @@ import {
     DeleteOutlined, EditOutlined,
     FieldTimeOutlined,
     HistoryOutlined,
-    PieChartOutlined
+    PieChartOutlined, SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {
@@ -35,6 +35,7 @@ import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
 import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
 import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
+import {CurrentTabAtom} from "../../InfoRightHooks";
 
 
 const HistoryStudyRecord = () => {
@@ -42,7 +43,7 @@ const HistoryStudyRecord = () => {
     const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
-    const studyTracePageSize = 3
+    const studyTracePageSize = 8
     const [statisticDisplay, setStatisticDisplay] = useState<
         "calendar" | "data" | "history" |
         "knode distribution" |
@@ -209,6 +210,8 @@ const HistoryStudyRecord = () => {
 
 const StudyTraceRecord = (props:{trace: StudyTrace})=>{
 
+    const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
+    const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [knodeRels, setKnodeRels] = useState<number[]>([])
     const [enhancerRels, setEnhancerRels] = useState<number[]>([])
     const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>([])
@@ -262,14 +265,19 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 </Col>
             </Row>
             <Row>
-                <Col span={8}>
-                    <span className={classes.trace_title}>{title}</span>
+                <Col span={12}>
+                    <Input
+                        value={title}
+                        onChange={({target:{value}})=>setTitle(value)}
+                        onBlur={()=>updateStudyTrace({id: props.trace.id, title: title})}
+                        bordered={false}
+                        className={classes.trace_title}/>
                 </Col>
                 <Col span={1}>{
                     relEnhancerTitles.length !== 0 &&
                     <FieldTimeOutlined style={{scale:"120%"}}/>
                 }</Col>
-                <Col span={15}>{
+                <Col span={11}>{
                     relEnhancerTitles.map(data=>
                         <Tooltip key={data.enhancerId} title={"点击跳转"}>
                             <span
@@ -286,7 +294,16 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                     <Divider type={"vertical"} style={{height:"100%"}}/>
                 </Col>
                 <Col span={22}>{
-                    relKnodeChainTitles.map(data=><Breadcrumb items={breadcrumbTitle(data.title, true)} key={data.knodeId}/>)
+                    relKnodeChainTitles.map(data=>(
+                        <div className={classes.knode_info}>
+                            <Breadcrumb items={breadcrumbTitle(data.title, true)} key={data.knodeId}/>
+                            <Tooltip title={"点击跳转"}>
+                                <SwapOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>{setSelectedKnodeId(data.knodeId); setCurrentTab("note")}}/>
+                            </Tooltip>
+                        </div>
+                    ))
                 }</Col>
             </Row>
         </div>

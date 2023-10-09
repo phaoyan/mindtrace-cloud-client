@@ -7,6 +7,11 @@ export const TitleEditKnodeIdAtom = atom<number | undefined>({
     default: undefined
 })
 
+export const KnodeConnectionIdTempAtom = atom<number | undefined>({
+    key: "KnodeConnectionIdTempAtom",
+    default: undefined
+})
+
 export const useHandleSubmit = ():(()=>void)=>{
     const [titleEditKnodeId, setTitleEditKnodeId] = useRecoilState(TitleEditKnodeIdAtom)
     const [knode, setKnode] = useRecoilState(KnodeSelector(titleEditKnodeId!))

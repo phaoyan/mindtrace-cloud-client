@@ -8,6 +8,10 @@ export const getStudyTraces = async ():Promise<StudyTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/study/trace`).then(({data})=>data)
 }
 
+export const updateStudyTrace = async (trace: { id: number; title: string })=>{
+    await axios.post(`${TRACING_HOST}/study/trace`, trace)
+}
+
 export const getStudyTracesOfKnode = async (knodeId: number):Promise<StudyTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/trace`).then(({data})=>data)
 }

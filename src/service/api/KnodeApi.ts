@@ -58,3 +58,11 @@ export const getLeaves = async (knodeId: number): Promise<Knode[]>=>{
 export const getLeaveCount = async (knodeId: number): Promise<number>=>{
     return await axios.get(`${KNODE_HOST}/knode/${knodeId}/leave/count`).then(({data})=>data)
 }
+
+export const connectKnode = async (knodeId1: number, knodeId2: number)=>{
+    await axios.post(`${KNODE_HOST}/knode/connection?knodeId1=${knodeId1}&knodeId2=${knodeId2}`)
+}
+
+export const disconnectKnode = async (knodeId1: number, knodeId2: number)=>{
+    await axios.delete(`${KNODE_HOST}/knode/connection?knodeId1=${knodeId1}&knodeId2=${knodeId2}`)
+}

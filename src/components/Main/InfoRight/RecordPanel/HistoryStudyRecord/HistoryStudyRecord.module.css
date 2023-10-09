@@ -73,9 +73,9 @@
 .enhancer_distribution_item > *{
     margin-right: 0.5em;
 }
-.trace_title{
-    color: #999999;
-    font-size: 1.3em;
-    font-style: oblique;
-    font-weight: bold;
+.knode_info{
+    display: flex;
+}
+.knode_info > *{
+    margin-right: 1em   ;
 }

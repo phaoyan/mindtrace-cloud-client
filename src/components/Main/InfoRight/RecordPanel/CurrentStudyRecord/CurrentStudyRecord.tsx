@@ -48,13 +48,13 @@ const CurrentStudyRecord = () => {
         const effect = async ()=>{
             if(!selectedKnodeId) return
             setEnhancers(await getEnhancersForKnode(selectedKnodeId))
-        }; effect()
+        }; effect().then()
         //eslint-disable-next-line
     }, [selectedKnodeId])
     useEffect(()=>{
         const effect = async ()=>{
             setCurrentStudy(await getCurrentStudy())
-        }; effect()
+        }; effect().then()
         //eslint-disable-next-line
     }, [])
     useEffect(()=>{
@@ -75,20 +75,25 @@ const CurrentStudyRecord = () => {
                             <span className={classes.start_prompt} onClick={()=>startStudy()}>开始学习</span>
                         </Col>
                     </Row>
-                    }{
-                    currentStudy &&
+                    }{currentStudy &&
                     <>
                         <Row>
                             <Col span={1}>
                                 <Dropdown
                                     arrow={false}
                                     menu={{
-                                        items: studyTraces
-                                            .filter(trace=>trace.title && trace.title.trim() !== "")
-                                            .map(trace=>({
-                                                key: trace.id,
-                                                label: trace.title,
-                                                onClick: ()=> setTitle(trace.title)
+                                        items:
+                                            [...new Set(
+                                                studyTraces
+                                                .filter(trace=>trace.title && trace.title.trim() !== "")
+                                                .map(trace=>trace.title))]
+                                            .map(title=>({
+                                                key: title,
+                                                label: title,
+                                                onClick: async ()=> {
+                                                    setTitle(title)
+                                                    await editCurrentStudyTitle(title)
+                                                }
                                             }))
                                             .splice(0,5)}}>
                                     <CalendarOutlined className={`${utils.icon_button} ${classes.current_left_option}`}/>

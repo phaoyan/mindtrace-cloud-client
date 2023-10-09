@@ -2,13 +2,20 @@ import React, {Key, useState} from "react";
 import {atom, selector, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
     FocusedKnodeSelector,
-    FocusedKnodeStemSelector,
+    FocusedKnodeStemSelector, KnodeSelector,
     KtreeFlatAtom, ScissoredKnodeIdAtom,
     SelectedKnodeIdAtom,
     SelectedKnodeStemSelector
 } from "../../../recoil/home/Knode";
-import {branch, getKnodeById, removeKnode, shiftKnode, swapBranchIndex} from "../../../service/api/KnodeApi";
-import {TitleEditKnodeIdAtom} from "../KnodeTitle/KnodeTitleHooks";
+import {
+    branch,
+    connectKnode, disconnectKnode,
+    getKnodeById,
+    removeKnode,
+    shiftKnode,
+    swapBranchIndex
+} from "../../../service/api/KnodeApi";
+import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom} from "../KnodeTitle/KnodeTitleHooks";
 import {MessageApiAtom} from "../../../recoil/utils/DocumentData";
 import {User} from "../../../service/data/Gateway";
 import {LoginUserAtom} from "../../Login/LoginHooks";
@@ -183,6 +190,31 @@ export const useHandleSubscribe = ()=>{
         messageApi.success("订阅知识点成功")
     }
 }
+
+export const useHandleConnect = (knodeId: number)=>{
+    const [knodeConnectionTemp, setConnectionTemp] = useRecoilState(KnodeConnectionIdTempAtom)
+    const [knode, setKnode] = useRecoilState(KnodeSelector(knodeId))
+    const [other, setOther] = useRecoilState(KnodeSelector(knodeConnectionTemp!))
+
+    return async ()=>{
+        if(!knodeConnectionTemp || !knode || !other) return
+        await connectKnode(knodeConnectionTemp, knodeId)
+        setKnode({...knode, connectionIds: [knodeConnectionTemp]})
+        setOther({...other, connectionIds: [knodeId]})
+        setConnectionTemp(undefined)
+    }
+}
+
+export const useHandleDisconnect = (knodeId: number)=>{
+    const [knode, setKnode] = useRecoilState(KnodeSelector(knodeId))
+    return async ()=>{
+        if (!knode || knode?.connectionIds.length === 0) return
+        await disconnectKnode(knodeId, knode.connectionIds[0]!)
+        setKnode({...knode, connectionIds: []})
+    }
+}
+
+
 
 export const useEditTitle = ()=>{
     const setTitleEditKnodeId = useSetRecoilState(TitleEditKnodeIdAtom);
