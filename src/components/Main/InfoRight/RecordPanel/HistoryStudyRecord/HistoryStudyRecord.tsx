@@ -22,7 +22,7 @@ import {
     CalendarOutlined,
     DeleteOutlined, EditOutlined,
     FieldTimeOutlined,
-    HistoryOutlined,
+    HistoryOutlined, MonitorOutlined,
     PieChartOutlined, SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
@@ -36,6 +36,7 @@ import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/
 import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 import {CurrentTabAtom} from "../../InfoRightHooks";
+import EnhancerTraceTimeline from "./EnhancerTraceTimeline/EnhancerTraceTimeline";
 
 
 const HistoryStudyRecord = () => {
@@ -47,13 +48,15 @@ const HistoryStudyRecord = () => {
     const [statisticDisplay, setStatisticDisplay] = useState<
         "calendar" | "data" | "history" |
         "knode distribution" |
-        "enhancer distribution">("history")
+        "enhancer distribution" |
+        "enhancer trace timeline">("history")
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
     const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
     const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
     const enhancerRecordInfoList = useEnhancerTimeDistribution()
+
 
     useEffect(()=>{
         if(!selectedKtree) return
@@ -101,6 +104,13 @@ const HistoryStudyRecord = () => {
                         <BookOutlined
                             className={utils.icon_button}
                             onClick={()=>setStatisticDisplay("enhancer distribution")}/>
+                    </Tooltip>
+                </Col>
+                <Col span={2}>
+                    <Tooltip title={"学习时间线（按笔记）"}>
+                        <MonitorOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setStatisticDisplay("enhancer trace timeline")}/>
                     </Tooltip>
                 </Col>
             </Row>
@@ -201,8 +211,12 @@ const HistoryStudyRecord = () => {
                                 </Col>
                             </Row>
                         </div>
-                    ))
-                }</div>
+                    ))}
+            </div>}{
+            statisticDisplay === "enhancer trace timeline" &&
+            <div key={statisticDisplayKey + 4}>
+                <EnhancerTraceTimeline/>
+            </div>
             }<br/>
         </div>
     );
@@ -295,8 +309,8 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 </Col>
                 <Col span={22}>{
                     relKnodeChainTitles.map(data=>(
-                        <div className={classes.knode_info}>
-                            <Breadcrumb items={breadcrumbTitle(data.title, true)} key={data.knodeId}/>
+                        <div className={classes.knode_info} key={data.knodeId}>
+                            <Breadcrumb items={breadcrumbTitle(data.title, true)}/>
                             <Tooltip title={"点击跳转"}>
                                 <SwapOutlined
                                     className={utils.icon_button_normal}
