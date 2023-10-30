@@ -41,8 +41,7 @@
     font-size: 0.6em;
     font-weight: lighter;
 }
-.cell_enhancer_title:hover{
-    background-color: #eeeeee;
+.cell_enhancer:hover{
     cursor: default;
 }
 .cell_enhancer_duration{

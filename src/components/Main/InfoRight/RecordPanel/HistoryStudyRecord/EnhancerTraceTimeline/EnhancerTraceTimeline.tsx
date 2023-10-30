@@ -4,6 +4,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {Breadcrumb, Col, Popover, Row, Slider} from "antd";
 import {
+    CurrentTracingEnhancerIdAtom,
     EnhancerTraceTimelineAtom,
     useCalculateDayCoordinate,
 } from "./EnhancerTraceTimelineHooks";
@@ -23,7 +24,7 @@ const EnhancerTraceTimeline = () => {
     const [timeline, setTimeline] = useRecoilState(EnhancerTraceTimelineAtom)
     const [minDuration, setMinDuration] = useState(3600)
     const [minInterval, setMinInterval] = useState(3600 * 24 * 7)
-    const [daysPerRow, setDaysPerRow] = useState(7)
+    const [daysPerRow, setDaysPerRow] = useState(4)
     const [datesGroupedByRow, setDatesGroupedByRow] = useState(new Map())
     const calculateDayCoordinate = useCalculateDayCoordinate()
     useEffect(()=>{
@@ -47,7 +48,11 @@ const EnhancerTraceTimeline = () => {
         //eslint-disable-next-line
     }, [timeline, daysPerRow])
 
-    if(!timeline) return <></>
+    if(!timeline || !timeline.items[0]) return (
+        <div className={utils.no_data}>
+            暂无记录
+        </div>
+    )
     return (
         <div>
             <Row>
@@ -103,7 +108,7 @@ export const RowLayer = (props:{info: any[], length: number})=>{
     const [datesGroupedByCol, setDatesGroupedByCol] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const jumpToEnhancer = useJumpToEnhancer()
-    const [currentItemEnhancerId, setCurrentItemEnhancerId] = useState<number>()
+    const [currentItemEnhancerId, setCurrentItemEnhancerId] = useRecoilState(CurrentTracingEnhancerIdAtom)
     useEffect(()=>{
         const temp: any[] = []
         for(let i = 0; i < props.length; i ++){
@@ -128,7 +133,11 @@ export const RowLayer = (props:{info: any[], length: number})=>{
                         .map((i)=>(
                             <div key={i} className={classes.row_layer_cell}>{
                                 datesGroupedByCol[i].map((item: any, j: number)=>(
-                                    <div key={j}>
+                                    <div
+                                        key={j}
+                                        className={classes.cell_enhancer}
+                                        onMouseEnter={()=>{setCurrentItemEnhancerId(item.item.enhancerId)}}
+                                        onMouseLeave={()=>setCurrentItemEnhancerId(undefined)}>
                                         <Popover
                                             placement={"topRight"}
                                             content={<EnhancerRelatedKnodeTitleBreadcrumb enhancerId={item.item.enhancerId}/>}>
@@ -139,9 +148,7 @@ export const RowLayer = (props:{info: any[], length: number})=>{
                                         </Popover>
                                         &nbsp;
                                         <span
-                                            className={classes.cell_enhancer_title}
-                                            onMouseEnter={()=>{setCurrentItemEnhancerId(item.item.enhancerId)}}
-                                            onMouseLeave={()=>setCurrentItemEnhancerId(undefined)}>
+                                            className={classes.cell_enhancer_title}>
                                             {item.item.enhancer.title}
                                         </span>{
                                         !item.isStart &&

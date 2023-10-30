@@ -33,6 +33,11 @@ export const EnhancerTraceTimelineAtom = atom<EnhancerTraceTimeline | undefined>
     default: undefined
 })
 
+export const CurrentTracingEnhancerIdAtom = atom<number | undefined>({
+    key: "CurrentTracingEnhancerIdAtom",
+    default: undefined
+})
+
 export const TimelineItemCard = (props: {item: EnhancerTraceTimelineItem})=>{
     const jumpToEnhancer = useJumpToEnhancer()
     const [knode, setKnode] = useState<Knode>()
