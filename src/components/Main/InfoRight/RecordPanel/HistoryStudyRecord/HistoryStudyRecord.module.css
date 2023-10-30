@@ -79,3 +79,16 @@
 .knode_info > *{
     margin-right: 1em   ;
 }
+
+
+.add_box{
+    display: flex;
+    justify-content: left;
+    color: #666666;
+    font-style: oblique;
+    font-weight: lighter;
+}
+
+.add_prompt{
+    scale: 90%;
+}

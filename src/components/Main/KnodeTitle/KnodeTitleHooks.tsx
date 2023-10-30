@@ -1,6 +1,7 @@
 import {atom, useRecoilState} from "recoil";
-import {updateKnode} from "../../../service/api/KnodeApi";
-import {KnodeSelector} from "../../../recoil/home/Knode";
+import {getChainStyleTitle, updateKnode} from "../../../service/api/KnodeApi";
+import {CurrentChainStyleTitleAtom, KnodeSelector} from "../../../recoil/home/Knode";
+import {useEffect} from "react";
 
 export const TitleEditKnodeIdAtom = atom<number | undefined>({
     key: "TitleEditKnodeIdAtom",
@@ -15,12 +16,14 @@ export const KnodeConnectionIdTempAtom = atom<number | undefined>({
 export const useHandleSubmit = ():(()=>void)=>{
     const [titleEditKnodeId, setTitleEditKnodeId] = useRecoilState(TitleEditKnodeIdAtom)
     const [knode, setKnode] = useRecoilState(KnodeSelector(titleEditKnodeId!))
+    const [, setCurrentChainStyleTitle] = useRecoilState(CurrentChainStyleTitleAtom)
 
     return async ()=>{
         if(!knode) return
         await updateKnode(knode)
         setKnode(knode)
         setTitleEditKnodeId(undefined)
+        setCurrentChainStyleTitle(await getChainStyleTitle(knode.id))
     }
 }
 

@@ -7,6 +7,7 @@ import {
     useRemoveTraceRecord,
 } from "./HistoryStudyRecordHooks";
 import {
+    getMilestonesBeneathKnode,
     getStudyTracesOfKnode, getTraceEnhancerRels,
     getTraceKnodeRels, updateStudyTrace
 } from "../../../../../service/api/TracingApi";
@@ -23,7 +24,7 @@ import {
     DeleteOutlined, EditOutlined,
     FieldTimeOutlined,
     HistoryOutlined, MonitorOutlined,
-    PieChartOutlined, SwapOutlined
+    PieChartOutlined, PlusOutlined, RiseOutlined, SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {
@@ -37,26 +38,41 @@ import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 import {CurrentTabAtom} from "../../InfoRightHooks";
 import EnhancerTraceTimeline from "./EnhancerTraceTimeline/EnhancerTraceTimeline";
+import MilestonePanel from "./MilestonePanel/MilestonePanel";
+import {ReadonlyModeAtom} from "../../../Main/MainHooks";
+import {MilestoneCardsSelector, MilestonesAtom, useAddMilestone} from "./MilestonePanel/MilestonePanelHooks";
 
 
 const HistoryStudyRecord = () => {
+    const readonly = useRecoilValue(ReadonlyModeAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
+    const [, setMilestones] = useRecoilState(MilestonesAtom)
+    const milestoneCards = useRecoilValue(MilestoneCardsSelector)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
     const studyTracePageSize = 8
     const [statisticDisplay, setStatisticDisplay] = useState<
         "calendar" | "data" | "history" |
         "knode distribution" |
         "enhancer distribution" |
-        "enhancer trace timeline">("history")
+        "enhancer trace timeline" |
+        "milestone">("history")
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
     const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
     const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
     const enhancerRecordInfoList = useEnhancerTimeDistribution()
+    const addMilestone = useAddMilestone()
 
+
+    useEffect(()=>{
+        const effect = async ()=>{
+            setMilestones(await getMilestonesBeneathKnode(selectedKnodeId))
+        }; effect().then()
+        //eslint-disable-next-line
+    }, [selectedKnodeId])
 
     useEffect(()=>{
         if(!selectedKtree) return
@@ -65,7 +81,7 @@ const HistoryStudyRecord = () => {
     useEffect(()=>{
         const effect = async ()=>{
             setStudyTraces((await getStudyTracesOfKnode(selectedKnodeId)).reverse())
-        }; effect()
+        }; effect().then()
         //eslint-disable-next-line
     }, [selectedKnodeId, currentStudy])
     useEffect(()=>{
@@ -113,6 +129,13 @@ const HistoryStudyRecord = () => {
                             onClick={()=>setStatisticDisplay("enhancer trace timeline")}/>
                     </Tooltip>
                 </Col>
+                <Col span={2}>
+                    <Tooltip title={"学习里程碑"}>
+                        <RiseOutlined
+                            className={utils.icon_button}
+                            onClick={()=>setStatisticDisplay("milestone")}/>
+                    </Tooltip>
+                </Col>
             </Row>
             <br/>{
                 statisticDisplay === "calendar" &&
@@ -145,11 +168,32 @@ const HistoryStudyRecord = () => {
                     }}/>
                 </div>}{
                 statisticDisplay === 'history'  &&
-                <div key={statisticDisplayKey + 1}>
+                    <div key={statisticDisplayKey + 1}>{
+                        !readonly &&
+                        <Row>
+                            <Col span={22} offset={1}>
+                                <div className={`${classes.add_box}`}>
+                                    <PlusOutlined
+                                        className={utils.icon_button}
+                                        onClick={()=>addMilestone()}/>
+                                    &nbsp;&nbsp;
+                                    <span>添加里程碑 . . . </span>
+                                </div>
+                            </Col>
+                        </Row>
+                    }<br/>
                     <Timeline
-                        items={studyTraces
+                        items={
+                            [
+                                ...studyTraces.map(trace=>({
+                                    children: <StudyTraceRecord key={trace.id} trace={trace}/>,
+                                    time: trace.startTime})),
+                                ...milestoneCards
+                            ]
+                            .sort((a,b)=>dayjs(b.time).diff(a.time))
                             .slice((studyTraceCurrentPage - 1) * studyTracePageSize, studyTraceCurrentPage * studyTracePageSize)
-                            .map(trace=>({children: <StudyTraceRecord key={trace.id} trace={trace}/>}))}/>
+                        }
+                    />
                     <Pagination
                         onChange={(page)=>setStudyTraceCurrentPage(page)}
                         defaultCurrent={studyTraceCurrentPage}
@@ -216,14 +260,19 @@ const HistoryStudyRecord = () => {
             statisticDisplay === "enhancer trace timeline" &&
             <div key={statisticDisplayKey + 4}>
                 <EnhancerTraceTimeline/>
+            </div>}{
+            statisticDisplay === "milestone" &&
+            <div key={statisticDisplayKey + 5}>
+                <MilestonePanel/>
             </div>
-            }<br/>
+        }<br/>
         </div>
     );
 };
 
 const StudyTraceRecord = (props:{trace: StudyTrace})=>{
 
+    const readonly = useRecoilValue(ReadonlyModeAtom)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [knodeRels, setKnodeRels] = useState<number[]>([])
@@ -239,7 +288,7 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
             setKnodeRels(await getTraceKnodeRels(props.trace.id))
             setEnhancerRels(await getTraceEnhancerRels(props.trace.id))
             setTitle(await calculateTitle(props.trace))
-        }; effect()
+        }; effect().then()
         //eslint-disable-next-line
     }, [props.trace])
     useEffect(()=>{
@@ -263,14 +312,15 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     return (
         <div>
             <Row>
-                <Col span={1}>
+                <Col span={1}>{
+                    !readonly &&
                     <Popconfirm
                         title={"确定要删除该学习记录？"}
                         showCancel={false}
                         onConfirm={()=>removeTraceRecord(props.trace.id)}>
                         <DeleteOutlined className={utils.icon_button_normal}/>
                     </Popconfirm>
-                </Col>
+                }</Col>
                 <Col span={6}>
                     <span className={classes.time_bar}>{dayjs(props.trace.startTime).format("YYYY-MM-DD HH:mm")}</span>
                 </Col>
@@ -285,7 +335,8 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                         onChange={({target:{value}})=>setTitle(value)}
                         onBlur={()=>updateStudyTrace({id: props.trace.id, title: title})}
                         bordered={false}
-                        className={classes.trace_title}/>
+                        className={classes.trace_title}
+                        disabled={readonly}/>
                 </Col>
                 <Col span={1}>{
                     relEnhancerTitles.length !== 0 &&

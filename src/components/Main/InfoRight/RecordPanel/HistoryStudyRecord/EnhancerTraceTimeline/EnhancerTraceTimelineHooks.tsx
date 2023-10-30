@@ -93,3 +93,12 @@ export const useTimelineItemToCard = ()=>{
     }
 }
 
+export const useCalculateDayCoordinate = ()=>{
+    return (start: string, daysPerLine: number, date: string): number[]=>{
+        const diff = dayjs(date).diff(start, "day")
+        const r = Math.floor(diff / daysPerLine)
+        const c = r % 2 === 1 ? daysPerLine - diff % daysPerLine - 1 : diff % daysPerLine
+        // 第一个为第几行，第二个为该行的第几个
+        return [r, c]
+    }
+}

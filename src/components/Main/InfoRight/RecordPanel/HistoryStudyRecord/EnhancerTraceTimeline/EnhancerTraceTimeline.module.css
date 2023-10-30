@@ -26,3 +26,33 @@
     top: 0.3em;
     left: 0.5em;
 }
+.row_layer{
+    display: flex;
+    justify-content: space-around;
+}
+.row_layer_cell{
+    display: flex;
+    flex-direction: column-reverse;
+    flex:1;
+    overflow-x: visible;
+    white-space: nowrap;
+}
+.cell_enhancer_title{
+    font-size: 0.6em;
+    font-weight: lighter;
+}
+.cell_enhancer_title:hover{
+    background-color: #eeeeee;
+    cursor: default;
+}
+.cell_enhancer_duration{
+    font-size: 0.6em;
+    color: #666666;
+}
+.time_stamp{
+    position: absolute;
+    font-size: 0.7em;
+    font-style: oblique;
+    font-weight: lighter;
+    color: #666666;
+}

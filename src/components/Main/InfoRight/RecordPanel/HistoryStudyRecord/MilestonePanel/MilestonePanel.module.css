@@ -1,0 +1,25 @@
+.add_box{
+    display: flex;
+    justify-content: left;
+    color: #666666;
+    font-style: oblique;
+    font-weight: lighter;
+}
+
+.add_prompt{
+    scale: 90%;
+}
+
+.timestamp{
+    color: #666666;
+    font-weight: bold;
+    font-size: 1.2em;
+    position: relative;
+    top: -0.1em;
+}
+
+.description{
+    font-weight: bold;
+    color: #666666;
+    font-size: 1.2em;
+}

@@ -92,3 +92,39 @@ export const getStudyTraceEnhancerInfoUnderKnode = async (knodeId: number): Prom
 export const getEnhancerTraceTimeline = async (knodeId: number, minDuration: number, minInterval: number): Promise<any> =>{
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/timeline/enhancer?minDuration=${minDuration}&minInterval=${minInterval}`).then(({data})=>data)
 }
+
+export const addMilestone = async (knodeId: number)=>{
+    return await axios.put(`${TRACING_HOST}/milestone?knodeId=${knodeId}`).then(({data})=>data)
+}
+
+export const removeMilestone = async (id: number)=>{
+    await axios.delete(`${TRACING_HOST}/milestone/${id}`)
+}
+
+export const setMilestoneKnodeId = async (milestoneId: number, knodeId: number)=>{
+    await axios.post(`${TRACING_HOST}/milestone/${milestoneId}/knode?knodeId=${knodeId}`)
+}
+
+export const setMilestoneDescription = async (milestoneId: number, description: string)=>{
+    await axios.post(`${TRACING_HOST}/milestone/${milestoneId}/description`, description,{headers:{"Content-Type":"text/plain"}})
+}
+
+export const addResourceToMilestone = async (milestoneId: number, type: string)=>{
+    return axios.put(`${TRACING_HOST}/milestone/${milestoneId}/resource?type=${type}`).then(({data})=>data)
+}
+
+export const removeResourceFromMilestone = async (resourceId: number)=>{
+    await axios.delete(`${TRACING_HOST}/milestone/resource/${resourceId}`)
+}
+
+export const getMilestoneById = async (milestoneId: number)=>{
+    return axios.get(`${TRACING_HOST}/milestone/${milestoneId}`).then(({data})=>data)
+}
+
+export const getResourcesFromMilestone = async (milestoneId: number)=>{
+    return axios.get(`${TRACING_HOST}/milestone/${milestoneId}/resource`).then(({data})=>data)
+}
+
+export const getMilestonesBeneathKnode = async (knodeId: number)=>{
+    return axios.get(`${TRACING_HOST}/milestone?knodeId=${knodeId}`).then(({data})=>data)
+}
