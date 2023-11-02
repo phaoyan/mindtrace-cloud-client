@@ -48,6 +48,7 @@ const HistoryStudyRecord = () => {
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
+    const [studyTimePerDayCurrentMonth, setStudyTimePerDayCurrentMonth] = useState<string>()
     const [, setMilestones] = useRecoilState(MilestonesAtom)
     const milestoneCards = useRecoilValue(MilestoneCardsSelector)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
@@ -69,11 +70,10 @@ const HistoryStudyRecord = () => {
 
     useEffect(()=>{
         const effect = async ()=>{
-            setMilestones(await getMilestonesBeneathKnode(selectedKnodeId))
+            setMilestones((await getMilestonesBeneathKnode(selectedKnodeId)).filter((e: any)=>e !== undefined && e !== null))
         }; effect().then()
         //eslint-disable-next-line
     }, [selectedKnodeId])
-
     useEffect(()=>{
         if(!selectedKtree) return
         setTimeDistributionExpandedKeys([selectedKtree.knode.id, ...selectedKtree.branches.map(branch=>branch.knode.id)])
@@ -88,6 +88,17 @@ const HistoryStudyRecord = () => {
         setStatisticDisplayKey(statisticDisplayKey + 1)
         //eslint-disable-next-line
     }, [statisticDisplay])
+    useEffect(()=>{
+        const tracesCurrentMonth = studyTraces.filter(trace=>sameMonth(dayjs(), dayjs(trace.startTime)))
+        if(tracesCurrentMonth.length === 0){
+            setStudyTimePerDayCurrentMonth("00:00")
+            return
+        }
+        const totalDuration = tracesCurrentMonth
+            .map(trace=>trace.seconds)
+            .reduce((d1, d2) => d1 + d2);
+        setStudyTimePerDayCurrentMonth(formatMillisecondsToHHMM(Math.round(totalDuration / dayjs().date()) * 1000))
+    },[studyTraces])
 
 
     if(currentStudy) return <></>
@@ -169,18 +180,27 @@ const HistoryStudyRecord = () => {
                 </div>}{
                 statisticDisplay === 'history'  &&
                     <div key={statisticDisplayKey + 1}>{
-                        !readonly &&
-                        <Row>
-                            <Col span={22} offset={1}>
-                                <div className={`${classes.add_box}`}>
-                                    <PlusOutlined
-                                        className={utils.icon_button}
-                                        onClick={()=>addMilestone()}/>
-                                    &nbsp;&nbsp;
-                                    <span>添加里程碑 . . . </span>
-                                </div>
-                            </Col>
-                        </Row>
+                    <Row>
+                        <Col span={6} offset={1}>
+                            <span className={classes.info_prompt}>当月日均学时</span>
+                        </Col>
+                        <Col span={6}>
+                            <span className={classes.info_data}>{studyTimePerDayCurrentMonth}</span>
+                        </Col>
+                    </Row>}
+                    <br/>{
+                    !readonly &&
+                    <Row>
+                        <Col span={24}>
+                            <div className={`${classes.add_box}`}>
+                                <PlusOutlined
+                                    className={utils.icon_button}
+                                    onClick={()=>addMilestone()}/>
+                                &nbsp;&nbsp;
+                                <span>添加里程碑 . . . </span>
+                            </div>
+                        </Col>
+                    </Row>
                     }<br/>
                     <Timeline
                         items={
@@ -297,7 +317,7 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
             for(let coverage of knodeRels)
                 temp.push({knodeId: coverage, title: await getChainStyleTitle(coverage)})
             setRelKnodeChainTitles(temp)
-        }; effect()
+        }; effect().then()
     }, [knodeRels])
     useEffect(()=>{
         const effect = async ()=>{
@@ -305,7 +325,7 @@ const StudyTraceRecord = (props:{trace: StudyTrace})=>{
             for (let id of enhancerRels)
                 temp.push({enhancerId: id, title: (await getEnhancerById(id)).title})
             setRelEnhancerTitles(temp)
-        }; effect()
+        }; effect().then()
     }, [enhancerRels])
 
     if(!props.trace || !relKnodeChainTitles) return <PlainLoading/>

@@ -18,10 +18,7 @@ import utils from "../../../../../utils.module.css"
 import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
 import {CalendarOutlined, DeleteOutlined, EditOutlined, MinusOutlined, SettingOutlined} from "@ant-design/icons";
-import {
-    CurrentChainStyleTitleAtom, SelectedKnodeIdAtom,
-    SelectedKnodeSelector
-} from "../../../../../recoil/home/Knode";
+import {KnodeSelector, SelectedKnodeIdAtom, SelectedKnodeSelector} from "../../../../../recoil/home/Knode";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import {Enhancer} from "../../../../../service/data/Enhancer";
@@ -43,6 +40,7 @@ const CurrentStudyRecord = () => {
     const setTitle = useSetTitle()
     const [timerKey, setTimerKey] = useState(0)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnode = useRecoilValue(SelectedKnodeSelector)
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
     useEffect(()=>{
         const effect = async ()=>{
@@ -74,8 +72,8 @@ const CurrentStudyRecord = () => {
                         <Col span={24}>
                             <span className={classes.start_prompt} onClick={()=>startStudy()}>开始学习</span>
                         </Col>
-                    </Row>
-                    }{currentStudy &&
+                    </Row>}{
+                    currentStudy &&
                     <>
                         <Row>
                             <Col span={1}>
@@ -110,9 +108,9 @@ const CurrentStudyRecord = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={24}>{
-                                currentStudy.knodeIds.map(knodeId=><PickedKnodeItem key={knodeId} knodeId={knodeId}/>)
-                            }<ToPickKnodeItem/>
+                            <Col span={24}>
+                                {currentStudy.knodeIds.map(knodeId=><PickedKnodeItem key={knodeId} knodeId={knodeId}/>)}
+                                {[selectedKnodeId, ...selectedKnode?.branchIds!].map((knodeId)=>(<ToPickKnodeItem knodeId={knodeId} key={knodeId}/>))}
                             </Col>
                         </Row>
                         <Divider className={utils.small_horizontal_divider}/>
@@ -215,7 +213,7 @@ const PickedKnodeItem = (props: {knodeId: number})=>{
     useEffect(()=>{
         const effect = async ()=>{
             setChainStyleTitle(await getChainStyleTitle(props.knodeId))
-        }; effect()
+        }; effect().then()
     }, [props.knodeId])
 
     return (
@@ -232,15 +230,22 @@ const PickedKnodeItem = (props: {knodeId: number})=>{
     )
 }
 
-const ToPickKnodeItem = ()=>{
-    const [selectedKnode,] = useRecoilState(SelectedKnodeSelector)
-    const chainStyleTitle = useRecoilValue(CurrentChainStyleTitleAtom)
-    const addKnodeId = useAddKnodeId()
+const ToPickKnodeItem = (props:{knodeId: number})=>{
+    const [knode,] = useRecoilState(KnodeSelector(props.knodeId))
+    const [chainStyleTitle, setChainStyleTitle] = useState<string[]>([])
+    const addKnodeId = useAddKnodeId(props.knodeId)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
 
+    useEffect(()=>{
+        const effect = async ()=>{
+            setChainStyleTitle(await getChainStyleTitle(props.knodeId))
+        }; effect().then()
+        //eslint-disable-next-line
+    }, [knode])
+
     if(!currentStudy) return <></>
-    if(!selectedKnode) return <></>
-    if(currentStudy.knodeIds.find(knodeId=>knodeId === selectedKnode.id)) return <></>
+    if(!knode) return <></>
+    if(currentStudy.knodeIds.find(knodeId=>knodeId === knode.id)) return <></>
     return (
         <Row>
             <Col span={1} offset={1}>

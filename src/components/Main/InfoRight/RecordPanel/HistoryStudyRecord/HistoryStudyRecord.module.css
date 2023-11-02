@@ -92,3 +92,16 @@
 .add_prompt{
     scale: 90%;
 }
+
+.info_prompt{
+    color: #888888;
+    font-weight: lighter;
+    font-size: 1.3em;
+    font-style: oblique;
+}
+.info_data{
+    color: #666666;
+    font-weight: lighter;
+    font-size: 1.3em;
+    font-style: oblique;
+}

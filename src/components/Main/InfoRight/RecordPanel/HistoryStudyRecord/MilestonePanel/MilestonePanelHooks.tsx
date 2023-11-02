@@ -91,7 +91,10 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                     <Input
                         defaultValue={milestone.description}
                         placeholder={"描述 . . ."}
-                        onChange={({target: {value}})=>setMilestone({...milestone, description: value})}
+                        onChange={({target: {value}})=> {
+                            setMilestone({...milestone, description: value})
+                            setMilestones([{...milestone, description: value}, ...milestones.filter((item)=>item.id !== milestone?.id)])
+                        }}
                         onBlur={async ()=>await setMilestoneDescription(props.milestoneId, milestone?.description || " ")}
                         className={classes.description}
                         bordered={false}

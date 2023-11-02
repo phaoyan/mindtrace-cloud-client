@@ -7,7 +7,6 @@ import {
     removeTraceKnodeRel,
     settleCurrentStudy, startCurrentStudy
 } from "../../../../../service/api/TracingApi";
-import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {HistoryStudyRecordKeyAtom, StudyTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
@@ -88,13 +87,12 @@ export const useSetTitle = ()=>{
     }
 }
 
-export const useAddKnodeId = ()=>{
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+export const useAddKnodeId = (knodeId:number)=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async ()=>{
         if(!currentStudy) return
-        await addTraceKnodeRel(selectedKnodeId)
-        setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, selectedKnodeId]})
+        await addTraceKnodeRel(knodeId)
+        setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, knodeId]})
     }
 }
 

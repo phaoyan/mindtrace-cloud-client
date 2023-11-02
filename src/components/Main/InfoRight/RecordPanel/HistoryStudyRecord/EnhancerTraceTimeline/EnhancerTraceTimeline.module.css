@@ -41,12 +41,20 @@
     font-size: 0.6em;
     font-weight: lighter;
 }
+
 .cell_enhancer:hover{
     cursor: default;
 }
 .cell_enhancer_duration{
     font-size: 0.6em;
     color: #666666;
+}
+.cell_milestone_description{
+    font-size: 0.8em;
+    color: #666666;
+    font-weight: bold;
+    font-style: oblique;
+    margin-left: 0.7em;
 }
 .time_stamp{
     position: absolute;
