@@ -1,5 +1,6 @@
 .container{
     display: flex;
+    border-radius: 20%;
 }
 
 .title{

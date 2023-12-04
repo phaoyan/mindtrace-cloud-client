@@ -1,10 +1,14 @@
-import {atom, selector, useRecoilState, useRecoilValue} from "recoil";
+import {atom, atomFamily, selector, useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {
     addMilestone,
     addResourceToMilestone,
     getMilestoneById,
-    getResourcesFromMilestone, removeMilestone, removeResourceFromMilestone, setMilestoneDescription
+    getResourcesFromMilestone,
+    getStudyTracesInMilestone,
+    removeMilestone,
+    removeResourceFromMilestone,
+    setMilestoneDescription
 } from "../../../../../../service/api/TracingApi";
 import React, {useEffect, useState} from "react";
 import {Col, Dropdown, Input, Popconfirm, Row} from "antd";
@@ -14,10 +18,12 @@ import {
     ResourcePlayer,
     useAddResourceDropdownItems
 } from "../../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
-import {DeleteOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {CalendarOutlined, DeleteOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
 import classes from "./MilestonePanel.module.css"
 import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
+import {StudyTrace} from "../../../../../../service/data/Tracing";
+import {MilestoneCard} from "./MilestoneCard";
 
 export interface Milestone{
     id: number
@@ -43,84 +49,28 @@ export const MilestoneCardsSelector = selector<any[]>({
     }
 })
 
-export const MilestoneCard = (props:{milestoneId: number})=>{
+export const MilestoneTracesAtomFamily = atomFamily<StudyTrace[], number | undefined>({
+    key: "MilestoneCardTracesAtomFamily",
+    default: []
+})
 
-    const readonly = useRecoilValue(ReadonlyModeAtom)
-    const [milestone, setMilestone] = useState<Milestone>()
-    const [milestones, setMilestones] = useRecoilState(MilestonesAtom)
-    const [resources, setResources] = useState<Resource[]>([])
-    const addResourceDropdownItems = useAddResourceDropdownItems()
+export const MilestoneTraceIdsAtom = atom<number[]>({
+    key:"MilestoneCardTracesAtomFamily",
+    default:[]
+})
 
-    useEffect(()=>{
-        const effect = async ()=>{
-            setMilestone(await getMilestoneById(props.milestoneId))
-            setResources(await getResourcesFromMilestone(props.milestoneId))
-        }; effect().then()
-    }, [props.milestoneId])
+export const SelectedMilestoneIdAtom = atom<number | undefined>({
+    key: "SelectedMilestoneIdAtom",
+    default: undefined
+})
 
-    if(!milestone) return <></>
-    return (
-        <div>
-            <Row>
-                <Col span={1}>
-                    <Popconfirm
-                        title={"确定删除？"}
-                        showCancel={false}
-                        onConfirm={async ()=>{
-                            await removeMilestone(milestone?.id)
-                            setMilestones(milestones.filter(milestone=>milestone.id !== props.milestoneId))
-                        }}>
-                        <DeleteOutlined className={utils.icon_button_normal}/>
-                    </Popconfirm>
-                </Col>
-                <Col span={6}>
-                    <span className={classes.timestamp}>{dayjs(milestone.time).format("YYYY-MM-DD")}</span>
-                </Col>
-                <Col span={1}>
-                    <Dropdown
-                        menu={{items: addResourceDropdownItems, onClick: async (data: any)=>{
-                                const resource = await addResourceToMilestone(props.milestoneId, data.key);
-                                setResources([...resources, resource])
-                            }}}>
-                        <PlusOutlined className={utils.icon_button}/>
-                    </Dropdown>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Input
-                        defaultValue={milestone.description}
-                        placeholder={"描述 . . ."}
-                        onChange={({target: {value}})=> {
-                            setMilestone({...milestone, description: value})
-                            setMilestones([{...milestone, description: value}, ...milestones.filter((item)=>item.id !== milestone?.id)])
-                        }}
-                        onBlur={async ()=>await setMilestoneDescription(props.milestoneId, milestone?.description || " ")}
-                        className={classes.description}
-                        bordered={false}
-                        disabled={readonly}/>
-                </Col>
-            </Row>{
-                resources.map((resource=>(
-                    <Row key={resource.id}>
-                        <Col span={23}>
-                            <ResourcePlayer resource={resource} readonly={readonly}/>
-                        </Col>
-                        <Col span={1}>{
-                            !readonly &&
-                            <MinusOutlined
-                                className={`${classes.resource_delete} ${utils.icon_button}`}
-                                onClick={async ()=>{
-                                    await removeResourceFromMilestone(resource.id!)
-                                    setResources(resources.filter(temp=>temp.id !== resource.id))
-                                }}/>
-                        }</Col>
-                    </Row>
-                )))
-            }<br/>
-        </div>
-    )
-}
+export const SelectedMilestoneTracesSelector = selector<StudyTrace[]>({
+    key: "SelectedMilestoneTracesSelector",
+    get: ({get})=> get(MilestoneTracesAtomFamily(get(SelectedMilestoneIdAtom))),
+    set: ({get, set}, newValue)=>{
+        set(MilestoneTracesAtomFamily(get(SelectedMilestoneIdAtom)), newValue)
+    }
+})
 
 export const useAddMilestone = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)

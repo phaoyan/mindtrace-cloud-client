@@ -30,13 +30,12 @@ export const updateKnode = async (updated: Knode)=>{
     return await axios.post(`${KNODE_HOST}/knode/${updated.id}`, {title: updated.title})
 }
 
-export const shiftKnode = async (stemId: number , branchId: number)=>{
-    return await
-        axios.post(`${KNODE_HOST}/knode/${stemId}/branch/${branchId}`)
-            .then(({data})=>{
-                console.log("shift knode", data)
-                return data
-            })
+export const shiftKnode = async (stemId: number , branchIds: number[])=>{
+    return await axios.post(
+        `${KNODE_HOST}/knode/shift?stemId=${stemId}`,
+        branchIds,
+        {headers:{"Content-Type":"application/json"}})
+        .then(({data})=>data)
 }
 
 export const swapBranchIndex = async (stemId: number, index1: number, index2: number)=>{

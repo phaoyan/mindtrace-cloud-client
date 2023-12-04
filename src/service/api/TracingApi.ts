@@ -28,6 +28,10 @@ export const startCurrentStudy = async (): Promise<CurrentStudy>=>{
     return await axios.post(`${TRACING_HOST}/study/current`).then(({data})=>data)
 }
 
+export const restartCurrentStudy = async (traceId: number): Promise<CurrentStudy>=>{
+    return await axios.post(`${TRACING_HOST}/study/current?traceId=${traceId}`).then(({data})=>data)
+}
+
 export const updateStartTime = async (startTime: string): Promise<CurrentStudy>=>{
     return await axios.post(`${TRACING_HOST}/study/current/start?startTime=${startTime}`).then(({data})=>data)
 }
@@ -127,4 +131,24 @@ export const getResourcesFromMilestone = async (milestoneId: number)=>{
 
 export const getMilestonesBeneathKnode = async (knodeId: number)=>{
     return axios.get(`${TRACING_HOST}/milestone?knodeId=${knodeId}`).then(({data})=>data)
+}
+
+export const addMilestoneTraceRel = async (milestoneId: number, traceId: number)=>{
+    await axios.put(`${TRACING_HOST}/rel/milestone/trace?milestoneId=${milestoneId}&traceId=${traceId}`)
+}
+
+export const removeMilestoneTraceRel = async (milestoneId: number, traceId: number)=>{
+    await axios.delete(`${TRACING_HOST}/rel/milestone/trace?milestoneId=${milestoneId}&traceId=${traceId}`)
+}
+
+export const getStudyTracesInMilestone = async (milestoneId: number): Promise<StudyTrace[]>=>{
+    return await axios.get(`${TRACING_HOST}/rel/milestone/trace?milestoneId=${milestoneId}`).then(({data})=>data)
+}
+
+export const getMilestoneOfStudyTrace = async (traceId: number): Promise<number[]>=>{
+    return await axios.get(`${TRACING_HOST}/rel/milestone/trace?traceId=${traceId}`).then(({data})=>data)
+}
+
+export const setMilestoneTime = async (milestoneId: number, timeString: string)=>{
+    await axios.post(`${TRACING_HOST}/milestone/${milestoneId}/time?dateTime=${timeString}`)
 }

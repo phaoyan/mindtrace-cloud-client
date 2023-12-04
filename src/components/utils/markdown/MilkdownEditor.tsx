@@ -18,6 +18,8 @@ import {listener, listenerCtx} from "@milkdown/plugin-listener";
 import {history} from "@milkdown/plugin-history";
 import {useEffect} from "react";
 import {Ctx} from "@milkdown/ctx";
+import { upload, uploadConfig, Uploader } from '@milkdown/plugin-upload';
+import type { Node } from '@milkdown/prose/model';
 
 export const MilkdownEditor = (props:{
     md: string,
@@ -26,8 +28,30 @@ export const MilkdownEditor = (props:{
     command?: (ctx: Ctx)=>any,
     // 父组件可以通过使用一个state并修改state来告知milkdown editor需要执行command命令了
     trigger?: any,
-    latexDisplayMode?: any}) => {
+    latexDisplayMode?: any,
+    updateImage?: (image: File)=>Promise<string>}) => {
 
+    // 支持图片以url方式粘贴
+    const uploader: Uploader = async (files, schema) => {
+        const images: File[] = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files.item(i);
+            if (!file)
+                continue;
+            // You can handle whatever the file type you want, we handle image here.
+            if (!file.type.includes('image'))
+                continue;
+            images.push(file);
+        }
+        const nodes: Node[] = await Promise.all(
+            images.map(async (image) => {
+                const src = await props.updateImage!(image);
+                const alt = image.name;
+                return schema.nodes.image.createAndFill({src, alt}) as Node;
+            }),
+        );
+        return nodes;
+    };
 
     let useEditorReturn = useEditor((root) => {
         return  Editor
@@ -67,14 +91,22 @@ export const MilkdownEditor = (props:{
                     }
                 })
             })
-
             // onChange
             .config(ctx=>{
                 ctx.get(listenerCtx).markdownUpdated((ctx, cur, prev)=>{
                     if(!prev) prev = ""
                     if(cur !== prev && props.onChange) props.onChange(cur, prev)
                 })
+
             })
+           // 支持图片以url的形式粘贴
+            .config((ctx) => {
+                ctx.update(uploadConfig.key, (prev) => ({
+                    ...prev,
+                    uploader,
+                }));
+            })
+            .use(upload)
             .use(listener)
             .use(history)
     }, []);

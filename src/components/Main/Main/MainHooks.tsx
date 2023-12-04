@@ -3,7 +3,7 @@ import {atom, selector, useRecoilState, useRecoilValue, useSetRecoilState} from 
 import {
     FocusedKnodeSelector,
     FocusedKnodeStemSelector, KnodeSelector,
-    KtreeFlatAtom, ScissoredKnodeIdAtom,
+    KtreeFlatAtom, ScissoredKnodeIdsAtom,
     SelectedKnodeIdAtom,
     SelectedKnodeStemSelector
 } from "../../../recoil/home/Knode";
@@ -271,22 +271,22 @@ export const useKnodeShiftDown = ()=>{
         })
     }
 }
-export const useScissorSelectedKnode = ()=>{
-    const setScissored = useSetRecoilState(ScissoredKnodeIdAtom)
-    const selectedId = useRecoilValue(FocusedKnodeIdAtom)
-    return ()=> setScissored(selectedId)
+export const useScissorKnode = ()=>{
+    const [scissored, setScissored] = useRecoilState(ScissoredKnodeIdsAtom)
+    return (knodeId: number)=> setScissored([...scissored, knodeId])
 }
 export const usePasteSelectedKnode = ()=>{
-    const [scissored, setScissored] = useRecoilState(ScissoredKnodeIdAtom)
+    const [scissored, setScissored] = useRecoilState(ScissoredKnodeIdsAtom)
     const selectedId = useRecoilValue(FocusedKnodeIdAtom)
     const setKtreeFlat = useSetRecoilState(KtreeFlatAtom)
     return async ()=>{
-        scissored && setKtreeFlat(await shiftKnode(selectedId, scissored))
-        setScissored(undefined)
+        setKtreeFlat(await shiftKnode(selectedId, scissored))
+        setScissored([])
     }
 }
 export const useHotkeys = ()=>{
 
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const shiftUp = useShiftUp()
     const shiftDown = useShiftDown()
     const shiftRight = useShiftRight()
@@ -296,7 +296,7 @@ export const useHotkeys = ()=>{
     const editTitle = useEditTitle()
     const knodeShiftUp = useKnodeShiftUp()
     const knodeShiftDown = useKnodeShiftDown()
-    const scissorSelectedKnode = useScissorSelectedKnode()
+    const scissorSelectedKnode = useScissorKnode()
     const pasteSelectedKnode = usePasteSelectedKnode()
     const readonly = useRecoilValue(ReadonlyModeAtom)
 
@@ -320,7 +320,7 @@ export const useHotkeys = ()=>{
         else if(event.altKey && event.key === "ArrowDown" && !readonly)
             knodeShiftDown().then()
         else if(event.ctrlKey && event.altKey && event.key === "x" && !readonly)
-            scissorSelectedKnode()
+            scissorSelectedKnode(selectedKnodeId)
         else if(event.ctrlKey && event.altKey && event.key === "v" && !readonly)
             pasteSelectedKnode().then()
     }

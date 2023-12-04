@@ -2,14 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
     HistoryStudyRecordKeyAtom,
-    StudyTracesAtom,
+    StudyTracesAtom, useAddMilestoneTraceRel,
     useCalculateTitle, useEnhancerTimeDistribution, useJumpToEnhancer, useKtreeTimeDistributionAntd,
     useRemoveTraceRecord,
 } from "./HistoryStudyRecordHooks";
 import {
     getMilestonesBeneathKnode,
     getStudyTracesOfKnode, getTraceEnhancerRels,
-    getTraceKnodeRels, updateStudyTrace
+    getTraceKnodeRels, restartCurrentStudy, updateStudyTrace
 } from "../../../../../service/api/TracingApi";
 import {Breadcrumb, Calendar, Col, Divider, Input, Pagination, Popconfirm, Row, Timeline, Tooltip, Tree} from "antd";
 import {StudyTrace} from "../../../../../service/data/Tracing";
@@ -40,7 +40,13 @@ import {CurrentTabAtom} from "../../InfoRightHooks";
 import EnhancerTraceTimeline from "./EnhancerTraceTimeline/EnhancerTraceTimeline";
 import MilestonePanel from "./MilestonePanel/MilestonePanel";
 import {ReadonlyModeAtom} from "../../../Main/MainHooks";
-import {MilestoneCardsSelector, MilestonesAtom, useAddMilestone} from "./MilestonePanel/MilestonePanelHooks";
+import {
+    MilestoneCardsSelector,
+    MilestonesAtom, MilestoneTraceIdsAtom,
+    SelectedMilestoneIdAtom,
+    useAddMilestone
+} from "./MilestonePanel/MilestonePanelHooks";
+import {StudyTraceRecord} from "./StudyTraceRecord";
 
 
 const HistoryStudyRecord = () => {
@@ -51,6 +57,7 @@ const HistoryStudyRecord = () => {
     const [studyTimePerDayCurrentMonth, setStudyTimePerDayCurrentMonth] = useState<string>()
     const [, setMilestones] = useRecoilState(MilestonesAtom)
     const milestoneCards = useRecoilValue(MilestoneCardsSelector)
+    const milestoneTraceIds = useRecoilValue(MilestoneTraceIdsAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
     const studyTracePageSize = 8
     const [statisticDisplay, setStatisticDisplay] = useState<
@@ -205,7 +212,9 @@ const HistoryStudyRecord = () => {
                     <Timeline
                         items={
                             [
-                                ...studyTraces.map(trace=>({
+                                ...studyTraces
+                                    .filter(trace=>!milestoneTraceIds.includes(trace.id))
+                                    .map((trace)=>({
                                     children: <StudyTraceRecord key={trace.id} trace={trace}/>,
                                     time: trace.startTime})),
                                 ...milestoneCards
@@ -289,110 +298,4 @@ const HistoryStudyRecord = () => {
         </div>
     );
 };
-
-const StudyTraceRecord = (props:{trace: StudyTrace})=>{
-
-    const readonly = useRecoilValue(ReadonlyModeAtom)
-    const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
-    const setCurrentTab = useSetRecoilState(CurrentTabAtom)
-    const [knodeRels, setKnodeRels] = useState<number[]>([])
-    const [enhancerRels, setEnhancerRels] = useState<number[]>([])
-    const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>([])
-    const [relEnhancerTitles, setRelEnhancerTitles] = useState<{enhancerId: number, title: string}[]>([])
-    const removeTraceRecord = useRemoveTraceRecord()
-    const calculateTitle = useCalculateTitle()
-    const jumpToEnhancer = useJumpToEnhancer()
-    const [title, setTitle] = useState<string>("")
-    useEffect(()=>{
-        const effect = async ()=>{
-            setKnodeRels(await getTraceKnodeRels(props.trace.id))
-            setEnhancerRels(await getTraceEnhancerRels(props.trace.id))
-            setTitle(await calculateTitle(props.trace))
-        }; effect().then()
-        //eslint-disable-next-line
-    }, [props.trace])
-    useEffect(()=>{
-        const effect = async ()=>{
-            const temp = []
-            for(let coverage of knodeRels)
-                temp.push({knodeId: coverage, title: await getChainStyleTitle(coverage)})
-            setRelKnodeChainTitles(temp)
-        }; effect().then()
-    }, [knodeRels])
-    useEffect(()=>{
-        const effect = async ()=>{
-            const temp = []
-            for (let id of enhancerRels)
-                temp.push({enhancerId: id, title: (await getEnhancerById(id)).title})
-            setRelEnhancerTitles(temp)
-        }; effect().then()
-    }, [enhancerRels])
-
-    if(!props.trace || !relKnodeChainTitles) return <PlainLoading/>
-    return (
-        <div>
-            <Row>
-                <Col span={1}>{
-                    !readonly &&
-                    <Popconfirm
-                        title={"确定要删除该学习记录？"}
-                        showCancel={false}
-                        onConfirm={()=>removeTraceRecord(props.trace.id)}>
-                        <DeleteOutlined className={utils.icon_button_normal}/>
-                    </Popconfirm>
-                }</Col>
-                <Col span={6}>
-                    <span className={classes.time_bar}>{dayjs(props.trace.startTime).format("YYYY-MM-DD HH:mm")}</span>
-                </Col>
-                <Col span={6} offset={9}>
-                    <span className={classes.duration}>{formatMillisecondsToHHMMSS(props.trace.seconds * 1000)}</span>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={12}>
-                    <Input
-                        value={title}
-                        onChange={({target:{value}})=>setTitle(value)}
-                        onBlur={()=>updateStudyTrace({id: props.trace.id, title: title})}
-                        bordered={false}
-                        className={classes.trace_title}
-                        disabled={readonly}/>
-                </Col>
-                <Col span={1}>{
-                    relEnhancerTitles.length !== 0 &&
-                    <FieldTimeOutlined style={{scale:"120%"}}/>
-                }</Col>
-                <Col span={11}>{
-                    relEnhancerTitles.map(data=>
-                        <Tooltip key={data.enhancerId} title={"点击跳转"}>
-                            <span
-                                className={classes.enhancer_title}
-                                onClick={()=>jumpToEnhancer(data.enhancerId)}>
-                                {data.title}
-                            </span>
-                        </Tooltip>
-                    )
-                }</Col>
-            </Row>
-            <Row>
-                <Col span={1}>
-                    <Divider type={"vertical"} style={{height:"100%"}}/>
-                </Col>
-                <Col span={22}>{
-                    relKnodeChainTitles.map(data=>(
-                        <div className={classes.knode_info} key={data.knodeId}>
-                            <Breadcrumb items={breadcrumbTitle(data.title, true)}/>
-                            <Tooltip title={"点击跳转"}>
-                                <SwapOutlined
-                                    className={utils.icon_button_normal}
-                                    onClick={()=>{setSelectedKnodeId(data.knodeId); setCurrentTab("note")}}/>
-                            </Tooltip>
-                        </div>
-                    ))
-                }</Col>
-            </Row>
-        </div>
-    )
-}
-
 export default HistoryStudyRecord;

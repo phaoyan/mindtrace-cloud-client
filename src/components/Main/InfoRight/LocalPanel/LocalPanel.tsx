@@ -1,5 +1,5 @@
 import React from 'react';
-import {Col, Row, Tooltip, Upload} from "antd";
+import {Col, Divider, Row, Tooltip, Upload} from "antd";
 import {DownloadOutlined, UploadOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import classes from "./LocalPanel.module.css"
@@ -11,6 +11,11 @@ const LocalPanel = () => {
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     return (
         <div>
+            <Row>
+                <Col span={12}>
+                    <span className={classes.prompt}>原文件下载 / 上传</span>
+                </Col>
+            </Row>
             <Row>
                 <Col span={10} offset={2}>
                     <div className={classes.download_wrapper}>
@@ -36,6 +41,27 @@ const LocalPanel = () => {
                                 onChange={async (info)=>info.file.status === 'done' && window.location.reload()}>
                                 <UploadOutlined className={utils.icon_button_large}/>
                             </Upload>
+                        </Tooltip>
+                    </div>
+                </Col>
+            </Row>
+            <Divider/>
+            <Row>
+                <Col span={12}>
+                    <span className={classes.prompt}>Markdown 下载</span>
+                </Col>
+            </Row>
+            <Row>
+                <Col span={24}>
+                    <div className={classes.download_wrapper}>
+                        <Tooltip title={"点击下载当前知识数据(解析过程可能会花费若干分钟，请耐心等待)"}>
+                            <a
+                                href={`${LOCAL_HOST}/knode/${selectedKnodeId}/content`}
+                                download={"data.md"}
+                                target={"_blank"}
+                                rel={"noreferrer"}>
+                                <DownloadOutlined className={utils.icon_button_large}/>
+                            </a>
                         </Tooltip>
                     </div>
                 </Col>

@@ -4,3 +4,8 @@
     justify-content: center;
     align-items: center;
 }
+.prompt{
+    color: #666666;
+    font-size: 1.2em;
+    font-weight: bold;
+}

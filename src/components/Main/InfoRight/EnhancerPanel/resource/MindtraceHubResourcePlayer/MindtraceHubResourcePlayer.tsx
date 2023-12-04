@@ -42,12 +42,11 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                             name={"file"}
                             action={`${ENHANCER_HOST}/resource/${props.meta.id}/data/data/file`}
                             withCredentials={true}
-                            showUploadList={false}
                             onChange={async (resp)=>{
                                 if (resp.file.status === 'done'){
-                                    console.log("RESP", resp)
-                                    setInfo({...info, data: true, title: resp.file.name})
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify({...info, data: true}))
+                                    const tempInfo  = {...info, data: true, remark: resp.file.name}
+                                    setInfo(tempInfo)
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify({tempInfo, data: true}))
                                 } else if (resp.file.status === 'error')
                                     message.error(`${resp.file.name} file upload failed.`)
                             }}>

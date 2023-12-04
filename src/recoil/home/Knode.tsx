@@ -164,7 +164,7 @@ export const sortKtree = (ktree: Ktree)=>{
     for(let branch of ktree.branches) sortKtree(branch)
 }
 
-export const ScissoredKnodeIdAtom = atom<number | undefined>({
-    key: "ScissoredKnodeIdAtom",
-    default: undefined
+export const ScissoredKnodeIdsAtom = atom<number[]>({
+    key: "ScissoredKnodeIdsAtom",
+    default: []
 })

@@ -18,6 +18,7 @@ import {replaceAll} from "@milkdown/utils"
 import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {useDisplayTxt, useSegment} from "./ClozePlayerHooks";
+import {updateImage} from "../ResourcePlayerUtils";
 
 const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
     const [data, setData ] = useState(" ")
@@ -113,7 +114,8 @@ const ClozePlayer = (props:{meta:Resource, readonly?: boolean}) => {
                                         editable={true}
                                         onChange={cur=>{setData(cur)}}
                                         command={replaceAll(data, true)}
-                                        trigger={trigger}/>
+                                        trigger={trigger}
+                                        updateImage={(image)=>updateImage(image, props.meta.id!)}/>
                                 </MilkdownProvider>
                             </div> :
                         mode === "view" ?

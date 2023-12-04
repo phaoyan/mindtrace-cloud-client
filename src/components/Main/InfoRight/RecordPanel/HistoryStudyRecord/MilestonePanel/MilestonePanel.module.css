@@ -10,6 +10,12 @@
     scale: 90%;
 }
 
+.show_traces_prompt{
+    color: #999999;
+    font-size: 0.9em;
+    font-style: oblique;
+}
+
 .timestamp{
     color: #666666;
     font-weight: bold;

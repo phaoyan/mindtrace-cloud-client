@@ -24,11 +24,6 @@ export const useMenuItems = ()=>{
             icon: <UserOutlined/>
         },
         {
-            label: "Mindtrace Hub",
-            key: "/hub",
-            icon: <ShareAltOutlined />
-        },
-        {
             label: <>{isLogin ? "登出" : "登录"}</>,
             key: "/login",
             icon: <>{isLogin ? <LogoutOutlined/> : <LoginOutlined/>}</>,

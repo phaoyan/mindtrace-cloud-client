@@ -10,6 +10,8 @@ import {
 import {HistoryStudyRecordKeyAtom, StudyTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
+import {useAddEnhancer} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
+import {CurrentTabAtom} from "../../InfoRightHooks";
 export const CurrentStudyAtom = atom<CurrentStudy | undefined>({
     key: "CurrentStudyAtom",
     default: undefined
@@ -123,3 +125,12 @@ export const useRemoveEnhancerId = ()=>{
     }
 }
 
+export const useAddEnhancerToCurrentStudy = ()=>{
+    const addEnhancer = useAddEnhancer()
+    const addEnhancerId = useAddEnhancerId()
+    const [,setCurrentTab] = useRecoilState(CurrentTabAtom)
+    return async (data: any)=>{
+        await addEnhancerId(await addEnhancer(data))
+        setCurrentTab("note")
+    }
+}

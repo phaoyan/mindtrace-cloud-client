@@ -1,16 +1,17 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
 import classes from "./KnodeTitle.module.css"
-import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
+import {KnodeSelector, ScissoredKnodeIdsAtom, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
 import {Input, InputRef, Tooltip} from "antd";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom, useHandleSubmit} from "./KnodeTitleHooks";
 import {
+    CopyOutlined,
     DisconnectOutlined,
     EditOutlined,
     LinkOutlined,
     MinusOutlined,
-    PlusOutlined,
+    PlusOutlined, ScissorOutlined,
     StarOutlined,
     SwapOutlined
 } from "@ant-design/icons";
@@ -20,7 +21,7 @@ import {
     useHandleBranch,
     useHandleConnect, useHandleDisconnect,
     useHandleRemove,
-    useHandleSubscribe,
+    useHandleSubscribe, usePasteSelectedKnode, useScissorKnode,
 } from "../Main/MainHooks";
 import {LoginUserIdSelector} from "../../Login/LoginHooks";
 
@@ -28,6 +29,7 @@ import {LoginUserIdSelector} from "../../Login/LoginHooks";
 const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
     const loginUserId = useRecoilValue(LoginUserIdSelector)
     const currentUserId = useRecoilValue(CurrentUserIdSelector)
+    const scissoredKnodeIds = useRecoilValue(ScissoredKnodeIdsAtom)
     const [knode, setKnode] = useRecoilState(KnodeSelector(props.id))
     const [titleEditKnodeId, setTitleEditKnodeId] = useRecoilState(TitleEditKnodeIdAtom)
     const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
@@ -41,6 +43,8 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
     const handleSubscribe = useHandleSubscribe()
     const handleConnect = useHandleConnect(props.id)
     const handleDisconnect = useHandleDisconnect(props.id)
+    const scissorKnode = useScissorKnode();
+    const pasteKnode = usePasteSelectedKnode();
     useEffect(()=>{
         if(titleEditKnodeId)
             inputRef.current?.focus()
@@ -55,7 +59,9 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
 
     if(!knode) return <></>
     return (
-        <div className={classes.container}>
+        <div
+            className={classes.container}
+            style={{backgroundColor: scissoredKnodeIds.includes(props.id) ? "#eee":"transparent"}}>
             <div tabIndex={0} ref={divRef}>
                 {
                     titleEditKnodeId === knode.id?
@@ -72,7 +78,7 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                         loginUserId === currentUserId &&
                         selectedKnodeId === knode.id &&
                         !props.hideOptions &&
-                        <div className={classes.options} style={{left: knode.title === "" ? "8em" : "6em"}}>{
+                        <div className={classes.options} style={{left: knode.title === "" ? "9em" : "7em"}}>{
                             knode.connectionIds.length === 0 ? (
                                 knodeConnectionTemp ?
                                 <Tooltip title={"确认连接"}>
@@ -101,6 +107,15 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                                     className={utils.icon_button_normal}
                                     onClick={()=>{setFocusedKnodeId(knode.connectionIds[0])}}/>
                             </Tooltip>}
+                            <Tooltip title={
+                                <CopyOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>pasteKnode()}
+                                />}>
+                                <ScissorOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>scissorKnode(props.id)}/>
+                            </Tooltip>
                             <EditOutlined
                                 className={utils.icon_button_normal}
                                 onClick={()=>setTitleEditKnodeId(knode.id)}/>

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Col, Form, Input, Modal, Row, Typography} from "antd";
+import {Button, Col, Form, Input, Modal, Row, Tooltip, Typography} from "antd";
 import classes from "./Login.module.css"
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
@@ -127,6 +127,12 @@ const Login = () => {
                                 rules={[{required: true, message:"请输入验证码"}]}>
                                 <Input/>
                             </Form.Item>
+                            <span className={classes.info}>
+                                网站作者注（重要）：注册后，我会同时收到通知并主动根据你的QQ邮箱加你的QQ号。有任何使用上的问题或者建议可以直接和我沟通。
+                                目前网站的用户很少，我十分希望能够留住除了我自己以外的其他长期使用者。
+                                Mindtrace的大愿景是知识共享，你在Mindtrace中记录的笔记将会被所有其他Mindtrace使用者看到，相应地，你也能无条件地查看任何其他Mindtrace使用者的笔记。
+                                我本人（Mindtrace中搜索juumii）在Mindtrace中记录了自己在大学课内学习过程中的笔记，以及目前学习编曲的笔记和网站教学资源等，注册后可以直接查看我的笔记。我们可以分享交流相关学习经验。
+                            </span>
                             <Form.Item wrapperCol={{span:24}}>
                                 <div className={classes.register_complete_wrapper}>
                                     <Button

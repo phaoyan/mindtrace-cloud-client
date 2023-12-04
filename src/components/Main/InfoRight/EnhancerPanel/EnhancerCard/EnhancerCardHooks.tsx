@@ -83,6 +83,7 @@ export const useAddEnhancer = ()=>{
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
         await addResource(enhancer.id, {type: data.key})
         setEnhancers([...enhancers, enhancer])
+        return enhancer.id
     }
 }
 
