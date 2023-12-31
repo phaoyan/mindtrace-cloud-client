@@ -27,6 +27,8 @@ import KnodeSubscribePanel from "../SharePanel/KnodeSubscribePanel/KnodeSubscrib
 import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/EnhancerSubscribePanel";
 import ReviewPanel from "./ReviewPanel/ReviewPanel";
 import {useAddEnhancer, useAddResourceDropdownItems} from "./EnhancerCard/EnhancerCardHooks";
+import {CopiedMilestoneIdAtom} from "../RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
+import {copyMilestoneAsEnhancerToKnode} from "../../../../service/api/TracingApi";
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
@@ -34,6 +36,7 @@ const EnhancerPanel = () => {
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
     const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
     const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)
+    const [copiedMilestoneId, setCopiedMilestoneId] = useRecoilState(CopiedMilestoneIdAtom)
     const [offspringMode, setOffspringMode] = useState<boolean>(false)
     const [offspringEnhancers, setOffspringEnhancers] = useState<Enhancer[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -48,7 +51,7 @@ const EnhancerPanel = () => {
     useEffect(() => {
         const effect = async ()=>{
             if(!selectedKnodeId) return
-            setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+            setEnhancers((await getEnhancersForKnode(selectedKnodeId)))
             setUserSubscribes(await getUserSubscribes(selectedKnodeId))
             setKnodeSubscribes(await getKnodeSubscribes(selectedKnodeId))
             setEnhancerSubscribes(await getEnhancerSubscribes(selectedKnodeId))
@@ -116,7 +119,18 @@ const EnhancerPanel = () => {
                                             setEnhancerIdClipboard(undefined)
                                         }}/>
                                 </Tooltip>
-                            </>
+                            </>}{
+                                copiedMilestoneId &&
+                                <Tooltip title={"粘贴笔记"}>
+                                    <CopyOutlined
+                                        className={utils.icon_button}
+                                        style={{marginLeft:"2em"}}
+                                        onClick={ async ()=>{
+                                            await copyMilestoneAsEnhancerToKnode(copiedMilestoneId,selectedKnodeId)
+                                            setEnhancerPanelKey(enhancerPanelKey+1)
+                                            setCopiedMilestoneId(undefined)
+                                        }}/>
+                                </Tooltip>
                             }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
                         </>
                     }</Col>

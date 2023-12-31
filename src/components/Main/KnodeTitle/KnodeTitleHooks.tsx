@@ -1,7 +1,6 @@
 import {atom, useRecoilState} from "recoil";
 import {getChainStyleTitle, updateKnode} from "../../../service/api/KnodeApi";
 import {CurrentChainStyleTitleAtom, KnodeSelector} from "../../../recoil/home/Knode";
-import {useEffect} from "react";
 
 export const TitleEditKnodeIdAtom = atom<number | undefined>({
     key: "TitleEditKnodeIdAtom",

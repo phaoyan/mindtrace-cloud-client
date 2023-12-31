@@ -9,6 +9,7 @@ import {
 } from "./MilestonePanel/MilestonePanelHooks";
 import React, {useEffect, useState} from "react";
 import {
+    AccumulateDurationAtom,
     useAddMilestoneTraceRel,
     useCalculateTitle,
     useJumpToEnhancer, useRemoveMilestoneTraceRel,
@@ -16,7 +17,7 @@ import {
 } from "./HistoryStudyRecordHooks";
 import {
     getTraceEnhancerRels,
-    getTraceKnodeRels, removeMilestoneTraceRel,
+    getTraceKnodeRels,
     restartCurrentStudy,
     updateStudyTrace
 } from "../../../../../service/api/TracingApi";
@@ -35,7 +36,7 @@ import {
 import utils from "../../../../../utils.module.css";
 import classes from "./HistoryStudyRecord.module.css";
 import dayjs from "dayjs";
-import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
+import {formatMillisecondsToHHMM, formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
 
 export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number})=>{
@@ -44,6 +45,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number}
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     const [selectedMilestoneId,] = useRecoilState(SelectedMilestoneIdAtom)
+    const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
     const [knodeRels, setKnodeRels] = useState<number[]>([])
     const [enhancerRels, setEnhancerRels] = useState<number[]>([])
     const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>([])
@@ -119,8 +121,12 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number}
                             onClick={()=>removeMilestoneTraceRel()}/>
                     </Tooltip>
                 }</Col>
-                <Col span={6} offset={6}>
-                    <span className={classes.duration}>{formatMillisecondsToHHMMSS(props.trace.seconds * 1000)}</span>
+                <Col span={9} offset={3}>
+                    <span className={classes.duration}>
+                        {formatMillisecondsToHHMMSS(props.trace.seconds * 1000)}
+                        &nbsp;&nbsp;/&nbsp;&nbsp;
+                        {formatMillisecondsToHHMM(accumulatedDuration.get(props.trace.id)! * 1000)}
+                    </span>
                 </Col>
             </Row>
             <Row>

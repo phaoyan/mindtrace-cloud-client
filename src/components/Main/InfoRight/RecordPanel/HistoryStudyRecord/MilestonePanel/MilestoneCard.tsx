@@ -6,20 +6,19 @@ import {
     ResourcePlayer,
     useAddResourceDropdownItems
 } from "../../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
-import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {
     addResourceToMilestone,
     getMilestoneById,
     getResourcesFromMilestone,
     getStudyTracesInMilestone, removeMilestone, removeResourceFromMilestone, setMilestoneDescription, setMilestoneTime
 } from "../../../../../../service/api/TracingApi";
-import {Col, DatePicker, Dropdown, Input, Popconfirm, Popover, Row} from "antd";
+import {Col, DatePicker, Dropdown, Input, Popconfirm, Popover, Row, Tooltip} from "antd";
 import {
-    CalendarOutlined,
+    CalendarOutlined, CopyOutlined,
     DeleteOutlined,
     DownOutlined,
     MinusOutlined,
-    PlusOutlined,
+    PlusOutlined, ScissorOutlined,
     UpOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
@@ -30,7 +29,7 @@ import {
     MilestoneTracesAtomFamily,
     MilestonesAtom,
     SelectedMilestoneIdAtom,
-    MilestoneTraceIdsAtom
+    CopiedMilestoneIdAtom, ScissoredMilestoneIdAtom
 } from "./MilestonePanelHooks";
 import {StudyTraceRecord} from "../StudyTraceRecord";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
@@ -42,9 +41,10 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
     const [milestone, setMilestone] = useState<Milestone>()
     const [milestones, setMilestones] = useRecoilState(MilestonesAtom)
     const [selectedMilestoneId, setSelectedMilestoneId] = useRecoilState(SelectedMilestoneIdAtom)
+    const [copiedMilestoneId, setCopiedMilestoneId] = useRecoilState(CopiedMilestoneIdAtom)
+    const [scissoredMilestoneId, setScissoredMilestoneId] = useRecoilState(ScissoredMilestoneIdAtom)
     const [resources, setResources] = useState<Resource[]>([])
     const [traces, setTraces] = useRecoilState(MilestoneTracesAtomFamily(props.milestoneId))
-    const [, setTraceIds] = useRecoilState(MilestoneTraceIdsAtom)
     const [showTraces, setShowTraces] = useState<boolean>(false)
     const [duration, setDuration] = useState<number>(0)
     const addResourceDropdownItems = useAddResourceDropdownItems()
@@ -53,21 +53,25 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
         const effect = async ()=>{
             setMilestone(await getMilestoneById(props.milestoneId))
             setResources(await getResourcesFromMilestone(props.milestoneId))
-            const studyTraces = await getStudyTracesInMilestone(props.milestoneId);
+            const studyTraces =
+                (await getStudyTracesInMilestone(props.milestoneId))
+                .sort((a, b)=>dayjs(b.startTime).diff(a.startTime))
             setTraces(studyTraces)
-            setTraceIds((traceIds)=>[...traceIds, ...studyTraces.map(trace=>trace.id)])
         }; effect().then()
         //eslint-disable-next-line
     }, [props.milestoneId])
     useEffect(()=>{
-        setDuration([0, ...traces.map(trace=>trace.seconds)].reduce((sec1,sec2)=>sec1+sec2))
+        setDuration([0, ...traces
+            .map(trace=>trace.seconds)]
+            .reduce((sec1,sec2)=>sec1+sec2))
     }, [traces])
 
     if(!milestone) return <></>
     return (
         <div>
             <Row>
-                <Col span={1}>
+                <Col span={1}>{
+                    !readonly &&
                     <Popconfirm
                         title={"确定删除？"}
                         showCancel={false}
@@ -77,12 +81,14 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                         }}>
                         <DeleteOutlined className={utils.icon_button_normal}/>
                     </Popconfirm>
-                </Col>
+                }</Col>
                 <Col span={8}>
                     <Popover
                         content={
                         <div>
-                            <DatePicker onChange={async (date,dateString)=> {
+                            <DatePicker
+                                disabled={readonly}
+                                onChange={async (date,dateString)=> {
                                 const dateTime = dayjs(dateString).format(DEFAULT_DATE_TIME_PATTERN);
                                 setMilestone({...milestone, time: dateTime})
                                 await setMilestoneTime(props.milestoneId, dateTime)
@@ -93,13 +99,41 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                                 {traces.length !== 0 && formatMillisecondsToHHMM(duration * 1000)}
                         </span>
                     </Popover>
-                </Col>
-                <Col span={1}>
+                </Col>{
+                !readonly &&
+                <Col span={1}>{
+                    scissoredMilestoneId !== props.milestoneId ?
+                        <Tooltip title={"将其剪切到其他知识点"}>
+                            <ScissorOutlined
+                                className={utils.icon_button}
+                                onClick={()=>setScissoredMilestoneId(props.milestoneId)}/>
+                        </Tooltip> :
+                        <ScissorOutlined
+                            className={utils.icon_button}
+                            style={{color: "#999"}}
+                            onClick={()=>setScissoredMilestoneId(undefined)}/>
+                }</Col>}{
+                !readonly &&
+                <Col span={1} offset={1}>{
+                    copiedMilestoneId !== props.milestoneId ?
+                        <Tooltip title={"将其以笔记的形式复制"}>
+                            <CopyOutlined
+                                className={utils.icon_button}
+                                onClick={()=>setCopiedMilestoneId(props.milestoneId)}/>
+                        </Tooltip> :
+                        <CopyOutlined
+                            className={utils.icon_button}
+                            style={{color: "#999"}}
+                            onClick={()=>setCopiedMilestoneId(undefined)}/>
+                }</Col>}{
+                !readonly &&
+                <Col span={1} offset={1}>
                     <CalendarOutlined
                         className={utils.icon_button}
                         style={{color: selectedMilestoneId === props.milestoneId ? "#44a393" : "#333"}}
                         onClick={()=>{setSelectedMilestoneId(selectedMilestoneId === props.milestoneId ? undefined : props.milestoneId)}}/>
-                </Col>
+                </Col>}{
+                !readonly &&
                 <Col span={1} offset={1}>
                     <Dropdown
                         menu={{items: addResourceDropdownItems, onClick: async (data: any)=>{
@@ -108,12 +142,12 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                             }}}>
                         <PlusOutlined className={utils.icon_button}/>
                     </Dropdown>
-                </Col>
+                </Col>}
             </Row>
             <Row>
                 <Col span={24}>
                     <Input
-                        defaultValue={milestone.description}
+                        value={milestone.description}
                         placeholder={"描述 . . ."}
                         onChange={({target: {value}})=> {
                             setMilestone({...milestone, description: value})
@@ -152,10 +186,10 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                         onClick={()=>setShowTraces(true)}/>
                 }</Col>
                 <Col span={23}>{
-                    showTraces &&
-                    traces.map(trace=><StudyTraceRecord trace={trace} milestoneId={props.milestoneId} key={trace.id}/>)}
+                    showTraces ?
+                    traces.map(trace=><StudyTraceRecord trace={trace} milestoneId={props.milestoneId} key={trace.id}/>) :
                     <span className={classes.show_traces_prompt}>点击展开学习记录 . . .</span>
-                </Col>
+                }</Col>
             </Row>
         <br/>
     </div>

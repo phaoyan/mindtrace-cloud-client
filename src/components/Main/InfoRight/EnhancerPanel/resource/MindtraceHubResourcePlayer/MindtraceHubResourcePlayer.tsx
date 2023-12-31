@@ -11,7 +11,7 @@ import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {ENHANCER_HOST} from "../../../../../../service/api/EnhancerApi";
 
 const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) => {
-    const [info, setInfo] = useState<{data?: boolean, title?: string, remark?: string}>({})
+    const [info, setInfo] = useState<{data?: boolean, remark?: string}>({})
     const [loading, setLoading] = useState(true)
     useEffect(()=>{
         const effect = async ()=>{
@@ -31,7 +31,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
             <Row>
                 <Col span={1} offset={1} className={classes.option}>{
                         info.data &&
-                        <a target={"_blank"} rel={"noreferrer"} href={`${ENHANCER_HOST}/resource/${props.meta.id}/data/data/file?fileName=${info.title}`}>
+                        <a target={"_blank"} rel={"noreferrer"} href={`${ENHANCER_HOST}/resource/${props.meta.id}/data/data/file?fileName=${info.remark}`}>
                             <Tooltip
                                 title={"点击跳转"}>
                                 <ShareAltOutlined className={utils.icon_button}/>
@@ -46,7 +46,7 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                                 if (resp.file.status === 'done'){
                                     const tempInfo  = {...info, data: true, remark: resp.file.name}
                                     setInfo(tempInfo)
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify({tempInfo, data: true}))
+                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(tempInfo))
                                 } else if (resp.file.status === 'error')
                                     message.error(`${resp.file.name} file upload failed.`)
                             }}>

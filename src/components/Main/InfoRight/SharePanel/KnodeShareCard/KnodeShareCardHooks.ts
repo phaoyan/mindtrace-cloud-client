@@ -11,6 +11,7 @@ import {
     subscribeUser
 } from "../../../../../service/api/ShareApi";
 import {CurrentKnodeSubscribesAtom, CurrentUserSubscribesAtom} from "../SharePanelHooks";
+import {CurrentPageAtom} from "../../../../../recoil/utils/DocumentData";
 
 export const KnodeIdBeforeVisitAtom = atom<number[]>({
     key: "KnodeIdBeforeVisitAtom",
@@ -25,6 +26,7 @@ export const useEnhancerExists = ()=>{
 }
 
 export const useVisit = ()=>{
+    const setCurrentPage = useSetRecoilState(CurrentPageAtom)
     const setCurrentUser = useSetRecoilState(CurrentUserAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
@@ -36,6 +38,7 @@ export const useVisit = ()=>{
         setSelectedKnodeId(knodeId || -1)
         setFocusedKnodeId(knodeId || -1)
         setCurrentTab("note")
+        setCurrentPage("main")
     }
 }
 

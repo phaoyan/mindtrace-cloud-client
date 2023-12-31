@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {Avatar, Divider, Input, Popover, Tree} from "antd";
 import {QuestionCircleOutlined, UserOutlined} from "@ant-design/icons";
@@ -28,12 +28,13 @@ import {
 import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
 import {VisitOutlined} from "../../utils/antd/icons/Icons";
 import dayjs from "dayjs";
+import {Navigate} from "react-router-dom";
 
 const Main = () => {
 
     const setReadonlyMode = useSetRecoilState(ReadonlyModeAtom)
-    const loginUser = useRecoilValue(LoginUserAtom)
-    const [currentUser, setCurrentUser] = useRecoilState(CurrentUserAtom)
+    const [loading, setLoading] = useState(true)
+    const [currentUser,] = useRecoilState(CurrentUserAtom)
     // 指定Main页面的宽高：本组件和InfoRight的ResizableBox需要用到
     const mainPageRef = useRef<HTMLDivElement>(null)
     const [mainPageHeight, setMainPageHeight] = useRecoilState(MainPageHeightAtom)
@@ -60,7 +61,8 @@ const Main = () => {
                 setMainPageHeight(mainPageRef.current.scrollHeight)
                 setMainPageWidth(mainPageRef.current.scrollWidth)
             }
-        }; effect()
+            setLoading(false)
+        }; effect().then()
         //eslint-disable-next-line
     }, [userId])
     useEffect(()=>{
@@ -85,12 +87,10 @@ const Main = () => {
         currentUser && setReadonlyMode(currentUser.id !== loginId)
         //eslint-disable-next-line
     }, [currentUser])
-    useEffect(()=>{
-        !currentUser && loginUser && setCurrentUser(loginUser)
-        //eslint-disable-next-line
-    }, [currentUser, loginUser])
 
-    if(!currentUser) return <></>
+
+    if(loading) return <></>
+    if(!currentUser) return <Navigate to={"/search"}/>
     return (
         <div className={classes.container} ref={mainPageRef}>
             <div

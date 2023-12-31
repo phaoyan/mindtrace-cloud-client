@@ -69,3 +69,11 @@
 .milestone_title{
 
 }
+
+.move_enhancer_box{
+    position: relative;
+    top: -0.1em;
+}
+.move_enhancer_box > *{
+    display: block;
+}

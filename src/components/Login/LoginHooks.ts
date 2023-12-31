@@ -1,6 +1,6 @@
-import {getLoginData, login, registerConfirm, sendValidateCode} from "../../service/api/LoginApi";
+import {login, registerConfirm, sendValidateCode} from "../../service/api/LoginApi";
 import {atom, selector, useRecoilValue, useSetRecoilState} from "recoil";
-import {CurrentPageAtom, MessageApiAtom} from "../../recoil/utils/DocumentData";
+import {MessageApiAtom} from "../../recoil/utils/DocumentData";
 import {User} from "../../service/data/Gateway";
 
 
@@ -29,14 +29,11 @@ export const LoginErrorAtom = atom<string | undefined>({
     default: undefined
 })
 export const useLogin = ()=>{
-    const setUser = useSetRecoilState(LoginUserAtom)
     const setError = useSetRecoilState(LoginErrorAtom)
-    const setCurrentPage = useSetRecoilState(CurrentPageAtom)
     return async (username: string, password: string)=>{
         const saResult = await login(username, password);
         if(saResult.code === 200){
-            setUser(await getLoginData())
-            setCurrentPage("/main")
+            window.location.href = window.location.href.replace("search", "main")
         }else setError(saResult.msg)
     }
 }
@@ -64,5 +61,11 @@ export const useRegisterConfirm = ()=>{
             messageApi.success("注册成功！")
             setRegisterModalOpen(false)
         }
+    }
+}
+
+export const useQuickStart = ()=>{
+    return ()=>{
+        console.log("Quick Start")
     }
 }

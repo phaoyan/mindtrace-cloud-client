@@ -1,13 +1,12 @@
 .login{
-    background: #f2f3f7;
     border-radius: 20px;
     margin: auto;
     text-align: center;
     justify-content: center;
-    padding: 51px 60px;
+    padding: 3vh 3vw;
 }
 .form{
-    width: 30vw;
+    width: 20vw;
 }
 .resize_box{
     border-bottom: 1px solid #DCDCDC;

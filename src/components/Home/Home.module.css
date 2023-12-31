@@ -1,15 +1,10 @@
 .container{
-    margin: 1em;
+    width: 25vw;
 }
 .header{
-    height: 20vh;
-    border-radius: 1em;
-    /*background-image: url("/src/static/img/logo_banner.png");*/
-    /*background-size: contain;*/
-    /*background-repeat: no-repeat;*/
-    /*background-position: center;*/
-    background-color: #F3F3F3;
+    height: 8vh;
     position: relative;
+    top: 1.2em;
 }
 .header_info{
     display: flex;

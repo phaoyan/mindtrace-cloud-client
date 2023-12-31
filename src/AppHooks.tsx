@@ -1,60 +1,28 @@
-import {HomeOutlined, LoginOutlined, LogoutOutlined, ShareAltOutlined, UserOutlined} from "@ant-design/icons";
-import {logout, getLoginData} from "./service/api/LoginApi";
-import React, {useMemo} from "react";
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {useNavigate} from "react-router-dom";
-import {getUserShare} from "./service/api/ShareApi";
-import {CurrentPageAtom, MessageApiAtom} from "./recoil/utils/DocumentData";
+import {
+    HomeOutlined,
+    SearchOutlined,
+} from "@ant-design/icons";
+import React from "react";
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import {MessageApiAtom} from "./recoil/utils/DocumentData";
 import {message} from "antd";
-import {IsLogin, LoginUserAtom} from "./components/Login/LoginHooks";
-import {UserShareAtom} from "./components/Main/InfoRight/SharePanel/SharePanelHooks";
+import {CurrentUserAtom} from "./components/Main/Main/MainHooks";
 
 export const useMenuItems = ()=>{
-    const isLogin = useRecoilValue(IsLogin)
-    const navigate = useNavigate()
+    const currentUser = useRecoilValue(CurrentUserAtom)
     return [
         {
             label: "主页",
             key: "/main",
+            disabled: !currentUser,
             icon: <HomeOutlined/>
         },
         {
-            label: "我的",
-            key: "/home",
-            icon: <UserOutlined/>
-        },
-        {
-            label: <>{isLogin ? "登出" : "登录"}</>,
-            key: "/login",
-            icon: <>{isLogin ? <LogoutOutlined/> : <LoginOutlined/>}</>,
-            onClick: async ()=> {
-                if(isLogin){
-                    await logout()
-                    navigate("/Login")
-                    window.location.reload()
-                }
-            }
-        },
-    ]
-}
-export const useLoadLoginData = ()=>{
-    const isLogin = useRecoilValue(IsLogin)
-    const [current, setCurrent] = useRecoilState(CurrentPageAtom)
-    const setUser = useSetRecoilState(LoginUserAtom)
-    const setUserShare = useSetRecoilState(UserShareAtom)
-    useMemo(async ()=>{
-        if(!isLogin && current !== "login"){
-            try{
-                let userData = await getLoginData();
-                setUser(userData);
-                setUserShare(await getUserShare(userData.id!))
-            }catch (err){
-                // 未登录则跳转至登陆页面
-                setCurrent("login")
-            }
+            label: "搜索",
+            key: "/search",
+            icon: <SearchOutlined/>
         }
-        //eslint-disable-next-line
-    },[current])
+    ]
 }
 
 export const useSetGlobalMessage = ()=>{

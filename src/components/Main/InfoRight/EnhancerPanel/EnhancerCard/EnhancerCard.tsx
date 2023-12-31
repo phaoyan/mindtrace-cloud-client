@@ -3,10 +3,10 @@ import classes from "./EnhancerCard.module.css";
 import {Col, Dropdown, Input, Row, Tooltip} from "antd";
 import {
     BookOutlined,
-    DeleteOutlined, FormOutlined,
+    DeleteOutlined, DownOutlined, FormOutlined,
     MinusOutlined,
     PlusOutlined,
-    ScissorOutlined
+    ScissorOutlined, UpOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {getEnhancerById, setEnhancerIsQuiz, setEnhancerTitle} from "../../../../../service/api/EnhancerApi";
@@ -18,7 +18,7 @@ import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     EnhancerAtomFamily,
     EnhancerResourcesAtomFamily, ResourcePlayer, useAddResource,
-    useAddResourceDropdownItems
+    useAddResourceDropdownItems, useShiftEnhancer
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
 import dayjs from "dayjs";
@@ -33,12 +33,13 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
     const addResourceDropdownItems = useAddResourceDropdownItems()
     const handleRemove = useHandleRemoveEnhancer()
     const addResource = useAddResource(props.id)
+    const shiftEnhancer = useShiftEnhancer()
 
     useEffect(()=>{
         const init = async ()=>{
             setEnhancer(await getEnhancerById(props.id))
             setResources(await getResourcesFromEnhancer(props.id))
-        };init()
+        };init().then()
         //eslint-disable-next-line
     }, [props.id])
 
@@ -61,10 +62,17 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                             className={classes.title}
                             bordered={false}/>
                     }</Col>
-                    <Col span={9} className={classes.tag_wrapper}>
+                    <Col span={7} className={classes.tag_wrapper}>
                         <span className={classes.date}>{dayjs(enhancer.createTime).format("YYYY-MM-DD")}</span>
                     </Col>
                     <Col span={1}>{
+                        !props.readonly &&
+                        <div className={classes.move_enhancer_box}>
+                            <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, -1)}/>
+                            <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, 1)}/>
+                        </div>
+                    }</Col>
+                    <Col span={1} offset={1}>{
                         !props.readonly && !enhancer.isQuiz &&
                         <Tooltip title={"将笔记加入测试题库"}>
                             <BookOutlined

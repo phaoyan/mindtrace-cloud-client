@@ -56,3 +56,11 @@ export const getEnhancerCount = async (knodeId: number)=>{
 export const getKnodesByEnhancerId = async (enhancerId: number): Promise<Knode[]>=>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}/knode`).then(({data})=>data)
 }
+
+export const setEnhancerIndexInKnode = async (knodeId: number, enhancerId: number, index: number) =>{
+    return await axios.post(`${ENHANCER_HOST}/rel/knode/enhancer/index?knodeId=${knodeId}&enhancerId=${enhancerId}&index=${index}`)
+}
+
+export const setResourceIndexInEnhancer = async (enhancerId: number, resourceId: number, index: number) =>{
+    return await axios.post(`${ENHANCER_HOST}/rel/enhancer/resource/index?enhancerId=${enhancerId}&resourceId=${resourceId}&index=${index}`)
+}

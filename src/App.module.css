@@ -15,7 +15,12 @@
 }
 
 .menu{
-    width: 20em;
+    width: 18em;
+    display: flex;
+    justify-content: space-between;
+}
+.user_info{
+    width: 4em;
 }
 .logo_container{
     display: flex;

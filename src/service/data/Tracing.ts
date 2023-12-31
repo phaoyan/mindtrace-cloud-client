@@ -8,7 +8,8 @@ export interface StudyTrace{
     endTime: string,
     pauseList: string[],
     continueList: string[],
-    seconds: number
+    seconds: number,
+    milestoneId?: number
 }
 
 export interface TraceCoverage{

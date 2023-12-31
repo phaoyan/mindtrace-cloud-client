@@ -2,26 +2,8 @@ import {atom, atomFamily, selector, useRecoilState, useRecoilValue} from "recoil
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {
     addMilestone,
-    addResourceToMilestone,
-    getMilestoneById,
-    getResourcesFromMilestone,
-    getStudyTracesInMilestone,
-    removeMilestone,
-    removeResourceFromMilestone,
-    setMilestoneDescription
 } from "../../../../../../service/api/TracingApi";
-import React, {useEffect, useState} from "react";
-import {Col, Dropdown, Input, Popconfirm, Row} from "antd";
-import dayjs from "dayjs";
-import {
-    Resource,
-    ResourcePlayer,
-    useAddResourceDropdownItems
-} from "../../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
-import {CalendarOutlined, DeleteOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
-import utils from "../../../../../../utils.module.css";
-import classes from "./MilestonePanel.module.css"
-import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
+import React from "react";
 import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {MilestoneCard} from "./MilestoneCard";
 
@@ -53,12 +35,6 @@ export const MilestoneTracesAtomFamily = atomFamily<StudyTrace[], number | undef
     key: "MilestoneCardTracesAtomFamily",
     default: []
 })
-
-export const MilestoneTraceIdsAtom = atom<number[]>({
-    key:"MilestoneCardTracesAtomFamily",
-    default:[]
-})
-
 export const SelectedMilestoneIdAtom = atom<number | undefined>({
     key: "SelectedMilestoneIdAtom",
     default: undefined
@@ -70,6 +46,16 @@ export const SelectedMilestoneTracesSelector = selector<StudyTrace[]>({
     set: ({get, set}, newValue)=>{
         set(MilestoneTracesAtomFamily(get(SelectedMilestoneIdAtom)), newValue)
     }
+})
+
+export const CopiedMilestoneIdAtom = atom<number | undefined>({
+    key: "CopiedMilestoneIdAtom",
+    default: undefined
+})
+
+export const ScissoredMilestoneIdAtom = atom<number | undefined>({
+    key: "ScissoredMilestoneIdAtom",
+    default: undefined
 })
 
 export const useAddMilestone = ()=>{

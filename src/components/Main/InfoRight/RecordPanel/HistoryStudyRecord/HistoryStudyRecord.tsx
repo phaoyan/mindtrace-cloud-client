@@ -1,49 +1,40 @@
 import React, {useEffect, useState} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    AccumulateDurationAtom,
     HistoryStudyRecordKeyAtom,
-    StudyTracesAtom, useAddMilestoneTraceRel,
-    useCalculateTitle, useEnhancerTimeDistribution, useJumpToEnhancer, useKtreeTimeDistributionAntd,
-    useRemoveTraceRecord,
+    StudyTracesAtom,
+    useEnhancerTimeDistribution, useKtreeTimeDistributionAntd,
 } from "./HistoryStudyRecordHooks";
 import {
     getMilestonesBeneathKnode,
-    getStudyTracesOfKnode, getTraceEnhancerRels,
-    getTraceKnodeRels, restartCurrentStudy, updateStudyTrace
+    getStudyTracesOfKnode, getTraceIdsInMilestones, setMilestoneKnodeId,
 } from "../../../../../service/api/TracingApi";
-import {Breadcrumb, Calendar, Col, Divider, Input, Pagination, Popconfirm, Row, Timeline, Tooltip, Tree} from "antd";
-import {StudyTrace} from "../../../../../service/data/Tracing";
-import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
-import PlainLoading from "../../../../utils/general/PlainLoading";
-import {breadcrumbTitle} from "../../../../../service/data/Knode";
+import {Calendar, Col, Pagination, Row, Timeline, Tooltip, Tree} from "antd";
 import classes from "./HistoryStudyRecord.module.css"
 import dayjs from "dayjs";
 import {
     BookOutlined,
     CalendarOutlined,
-    DeleteOutlined, EditOutlined,
+    EditOutlined,
     FieldTimeOutlined,
     HistoryOutlined, MonitorOutlined,
-    PieChartOutlined, PlusOutlined, RiseOutlined, SwapOutlined
+    PieChartOutlined, PlusOutlined, RiseOutlined, ScissorOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {
     formatMillisecondsToHHMM,
-    formatMillisecondsToHHMMSS,
     sameDay, sameMonth,
 } from "../../../../../service/utils/TimeUtils";
 import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
 import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
-import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
-import {CurrentTabAtom} from "../../InfoRightHooks";
 import EnhancerTraceTimeline from "./EnhancerTraceTimeline/EnhancerTraceTimeline";
 import MilestonePanel from "./MilestonePanel/MilestonePanel";
 import {ReadonlyModeAtom} from "../../../Main/MainHooks";
 import {
     MilestoneCardsSelector,
-    MilestonesAtom, MilestoneTraceIdsAtom,
-    SelectedMilestoneIdAtom,
+    MilestonesAtom, ScissoredMilestoneIdAtom,
     useAddMilestone
 } from "./MilestonePanel/MilestonePanelHooks";
 import {StudyTraceRecord} from "./StudyTraceRecord";
@@ -51,13 +42,15 @@ import {StudyTraceRecord} from "./StudyTraceRecord";
 
 const HistoryStudyRecord = () => {
     const readonly = useRecoilValue(ReadonlyModeAtom)
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
     const selectedKtree = useRecoilValue(SelectedKtreeSelector)
     const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
+    const [, setAccumulatedDuration] = useRecoilState(AccumulateDurationAtom)
+    const [tracesAndMilestones, setTracesAndMilestones] = useState<any[]>([])
     const [studyTimePerDayCurrentMonth, setStudyTimePerDayCurrentMonth] = useState<string>()
-    const [, setMilestones] = useRecoilState(MilestonesAtom)
+    const [milestones, setMilestones] = useRecoilState(MilestonesAtom)
     const milestoneCards = useRecoilValue(MilestoneCardsSelector)
-    const milestoneTraceIds = useRecoilValue(MilestoneTraceIdsAtom)
+    const [scissoredMilestoneId, setScissoredMilestoneId] = useRecoilState(ScissoredMilestoneIdAtom)
     const [studyTraceCurrentPage, setStudyTraceCurrentPage] = useState<number>(1)
     const studyTracePageSize = 8
     const [statisticDisplay, setStatisticDisplay] = useState<
@@ -68,7 +61,7 @@ const HistoryStudyRecord = () => {
         "milestone">("history")
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
-    const componentKey = useRecoilValue(HistoryStudyRecordKeyAtom)
+    const [componentKey, setComponentKey] = useRecoilState(HistoryStudyRecordKeyAtom)
     const timeDistribution = useKtreeTimeDistributionAntd()
     const [timeDistributionExpandedKeys, setTimeDistributionExpandedKeys] = useState<number[]>([])
     const enhancerRecordInfoList = useEnhancerTimeDistribution()
@@ -77,17 +70,32 @@ const HistoryStudyRecord = () => {
 
     useEffect(()=>{
         const effect = async ()=>{
-            setMilestones((await getMilestonesBeneathKnode(selectedKnodeId)).filter((e: any)=>e !== undefined && e !== null))
+            setMilestones(
+                (await getMilestonesBeneathKnode(selectedKnodeId))
+                .filter((e: any)=>e !== undefined && e !== null)
+                .sort((e1: any, e2: any)=>dayjs(e2.time).diff(dayjs(e1.time))))
         }; effect().then()
         //eslint-disable-next-line
-    }, [selectedKnodeId])
+    }, [selectedKnodeId, componentKey])
+    useEffect(()=>{
+
+    }, [milestones])
     useEffect(()=>{
         if(!selectedKtree) return
         setTimeDistributionExpandedKeys([selectedKtree.knode.id, ...selectedKtree.branches.map(branch=>branch.knode.id)])
     }, [selectedKtree])
     useEffect(()=>{
         const effect = async ()=>{
-            setStudyTraces((await getStudyTracesOfKnode(selectedKnodeId)).reverse())
+            const traces = await getStudyTracesOfKnode(selectedKnodeId)
+            traces.sort((a,b)=>-dayjs(b.startTime).diff(a.startTime))
+            let cur = 0
+            let temp = new Map()
+            for(let i = 0; i < traces.length; i ++){
+                cur += traces[i].seconds
+                temp.set(traces[i].id, cur)
+            }
+            setStudyTraces(traces.reverse())
+            setAccumulatedDuration(temp)
         }; effect().then()
         //eslint-disable-next-line
     }, [selectedKnodeId, currentStudy])
@@ -106,6 +114,20 @@ const HistoryStudyRecord = () => {
             .reduce((d1, d2) => d1 + d2);
         setStudyTimePerDayCurrentMonth(formatMillisecondsToHHMM(Math.round(totalDuration / dayjs().date()) * 1000))
     },[studyTraces])
+    useEffect(()=>{
+        const effect = async ()=>{
+            const traceIdsInMilestone = new Set(await getTraceIdsInMilestones(studyTraces.map(trace=>trace.id)));
+            setTracesAndMilestones([
+                ...studyTraces
+                    .filter(trace=>!traceIdsInMilestone.has(trace.id))
+                    .map((trace)=>({
+                        children: <StudyTraceRecord key={trace.id} trace={trace}/>,
+                        time: trace.startTime})),
+                ...milestoneCards
+            ])
+        }; effect().then()
+        //eslint-disable-next-line
+    }, [studyTraces, milestones])
 
 
     if(currentStudy) return <></>
@@ -197,38 +219,41 @@ const HistoryStudyRecord = () => {
                     </Row>}
                     <br/>{
                     !readonly &&
-                    <Row>
-                        <Col span={24}>
-                            <div className={`${classes.add_box}`}>
-                                <PlusOutlined
+                    <Row className={`${classes.add_box}`}>
+                        <Col span={1}>
+                            <PlusOutlined
+                                className={utils.icon_button}
+                                onClick={()=>addMilestone()}/>
+                        </Col>
+                        <Col span={1}>{
+                            scissoredMilestoneId &&
+                            <Tooltip title={"粘贴里程碑到该知识点"}>
+                                <ScissorOutlined
                                     className={utils.icon_button}
-                                    onClick={()=>addMilestone()}/>
-                                &nbsp;&nbsp;
-                                <span>添加里程碑 . . . </span>
-                            </div>
+                                    onClick={async ()=>{
+                                        await setMilestoneKnodeId(scissoredMilestoneId, selectedKnodeId)
+                                        setComponentKey(componentKey + 1)
+                                        setScissoredMilestoneId(undefined)
+                                    }}/>
+                            </Tooltip>
+                        }</Col>
+                        <Col span={4}>
+                            <span>添加里程碑 . . . </span>
                         </Col>
                     </Row>
                     }<br/>
                     <Timeline
                         items={
-                            [
-                                ...studyTraces
-                                    .filter(trace=>!milestoneTraceIds.includes(trace.id))
-                                    .map((trace)=>({
-                                    children: <StudyTraceRecord key={trace.id} trace={trace}/>,
-                                    time: trace.startTime})),
-                                ...milestoneCards
-                            ]
+                            tracesAndMilestones
                             .sort((a,b)=>dayjs(b.time).diff(a.time))
                             .slice((studyTraceCurrentPage - 1) * studyTracePageSize, studyTraceCurrentPage * studyTracePageSize)
-                        }
-                    />
+                        }/>
                     <Pagination
                         onChange={(page)=>setStudyTraceCurrentPage(page)}
                         defaultCurrent={studyTraceCurrentPage}
                         pageSize={studyTracePageSize}
                         hideOnSinglePage={true}
-                        total={studyTraces.length}/>
+                        total={tracesAndMilestones.length}/>
                 </div>}{
                 statisticDisplay === 'knode distribution' &&
                 timeDistribution &&

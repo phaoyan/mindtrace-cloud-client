@@ -32,7 +32,10 @@ export const getLoginData = async (): Promise<User>=>{
 export const getUserPublicInfo = async (userId: number): Promise<User>=>{
     return await axios.get(`${BACK_HOST}/user/${userId}`).then(({data})=>data)
 }
-
+export const getUserPublicInfoByUsername = async (username: string): Promise<User>=>{
+    console.log("USERNAME", username)
+    return await axios.get(`${BACK_HOST}/user?username=${username}`).then(({data})=>data)
+}
 export const getUserInfoByLike = async (like: string)=>{
     return await axios.get(`${BACK_HOST}/like/user?like=${like}`).then(({data})=>data)
 }

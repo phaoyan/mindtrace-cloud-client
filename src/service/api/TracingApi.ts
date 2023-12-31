@@ -145,10 +145,18 @@ export const getStudyTracesInMilestone = async (milestoneId: number): Promise<St
     return await axios.get(`${TRACING_HOST}/rel/milestone/trace?milestoneId=${milestoneId}`).then(({data})=>data)
 }
 
+export const getTraceIdsInMilestones = async (traceIds: number[]): Promise<number[]>=>{
+    return await axios.post(`${TRACING_HOST}/batch/exist/rel/milestone/trace`, traceIds).then(({data})=>data)
+}
+
 export const getMilestoneOfStudyTrace = async (traceId: number): Promise<number[]>=>{
     return await axios.get(`${TRACING_HOST}/rel/milestone/trace?traceId=${traceId}`).then(({data})=>data)
 }
 
 export const setMilestoneTime = async (milestoneId: number, timeString: string)=>{
     await axios.post(`${TRACING_HOST}/milestone/${milestoneId}/time?dateTime=${timeString}`)
+}
+
+export const copyMilestoneAsEnhancerToKnode = async (milestoneId: number, knodeId: number) =>{
+    await axios.post(`${TRACING_HOST}/milestone/copy?milestoneId=${milestoneId}&knodeId=${knodeId}`)
 }

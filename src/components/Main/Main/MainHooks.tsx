@@ -67,8 +67,9 @@ export const useBack = ()=>{
     const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
     return async ()=>{
+        if(!loginUser) return
         if(currentUser?.id === loginUser?.id) return
-        if(!knodeIdBeforeVisit) return
+        if(!knodeIdBeforeVisit || knodeIdBeforeVisit.length === 0) window.location.reload()
         let lastId = knodeIdBeforeVisit[knodeIdBeforeVisit.length-1]
         const knode = await getKnodeById(lastId)
         setCurrentUser(await getUserPublicInfo(knode.createBy))

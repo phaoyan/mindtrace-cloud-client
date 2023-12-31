@@ -36,7 +36,6 @@ export const useChangePassword = ()=>{
     const user = useRecoilValue(LoginUserAtom)
     const setChangePasswordModal = useSetRecoilState(ChangePasswordModalAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
-
     return async (oriPassword: string, newPassword: string, confirmPassword: string)=>{
         if(!user) return
         if(newPassword !== confirmPassword) return

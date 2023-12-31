@@ -17,8 +17,10 @@ export const formatMillisecondsToHHMMSS = (milliseconds: number, noPadding?: boo
 
 export const formatMillisecondsToHHMM = (milliseconds: number, noPadding?: boolean)=>{
     const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    let hours = Math.floor(totalSeconds / 3600);
+    if(isNaN(hours)) hours = 0;
+    let minutes = Math.floor((totalSeconds % 3600) / 60);
+    if(isNaN(minutes)) minutes = 0;
     const paddedHours = String(hours).padStart(2, '0');
     const paddedMinutes = String(minutes).padStart(2, '0');
     if(!noPadding)

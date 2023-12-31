@@ -16,7 +16,11 @@ import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer/M
 import React from "react";
 import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
 import {addResource} from "../../../../../service/api/ResourceApi";
-import {addEnhancerToKnode} from "../../../../../service/api/EnhancerApi";
+import {
+    addEnhancerToKnode,
+    getEnhancersForKnode,
+    setEnhancerIndexInKnode
+} from "../../../../../service/api/EnhancerApi";
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 
@@ -64,11 +68,6 @@ export const useAddResourceDropdownItems = ()=>{
             icon: <ShareAltOutlined className={classes.option}/>,
         },
         {
-            key: ResourceType.UNFOLDING,
-            label: "知识梳理",
-            icon: <InteractionOutlined className={classes.option}/>,
-        },
-        {
             key: ResourceType.AUDIO,
             label: "音频资源",
             icon: <SoundOutlined className={classes.option}/>,
@@ -84,6 +83,18 @@ export const useAddEnhancer = ()=>{
         await addResource(enhancer.id, {type: data.key})
         setEnhancers([...enhancers, enhancer])
         return enhancer.id
+    }
+}
+
+export const useShiftEnhancer = ()=>{
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [enhancers, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom);
+    return async (knodeId: number, enhancerId: number, shift: number)=>{
+        const index1 = enhancers.findIndex((enhancer)=>enhancer.id === enhancerId)
+        const index2 = index1 + shift
+        if(index2 < 0 || index2 >= enhancers.length) return
+        await setEnhancerIndexInKnode(knodeId, enhancerId, index2)
+        setEnhancers(await getEnhancersForKnode(selectedKnodeId))
     }
 }
 

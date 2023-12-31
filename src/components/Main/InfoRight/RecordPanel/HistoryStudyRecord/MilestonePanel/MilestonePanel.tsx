@@ -1,8 +1,7 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Col, Row, Timeline} from "antd";
-import {useRecoilState, useRecoilValue} from "recoil";
-import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
-import {MilestoneCardsSelector, MilestonesAtom, useAddMilestone} from "./MilestonePanelHooks";
+import {useRecoilValue} from "recoil";
+import {MilestoneCardsSelector, useAddMilestone} from "./MilestonePanelHooks";
 import {PlusOutlined} from "@ant-design/icons";
 import classes from "./MilestonePanel.module.css"
 import utils from "../../../../../../utils.module.css"

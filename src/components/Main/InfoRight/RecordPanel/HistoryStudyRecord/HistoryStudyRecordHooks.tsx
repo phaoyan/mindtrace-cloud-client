@@ -5,7 +5,7 @@ import {
     getStudyTraceEnhancerInfoUnderKnode,
     getStudyTraceKnodeInfo, getStudyTracesInMilestone,
     getTraceKnodeRels, removeMilestoneTraceRel,
-    removeStudyTrace, updateStudyTrace
+    removeStudyTrace,
 } from "../../../../../service/api/TracingApi";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
 import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
@@ -22,7 +22,6 @@ import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants"
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {CurrentTabAtom} from "../../InfoRightHooks";
 import {
-    MilestoneTraceIdsAtom,
     MilestoneTracesAtomFamily,
     SelectedMilestoneIdAtom,
     SelectedMilestoneTracesSelector
@@ -36,6 +35,11 @@ export const StudyTracesAtom = atom<StudyTrace[]>({
 export const HistoryStudyRecordKeyAtom = atom<number>({
     key: "HistoryStudyRecordKeyAtom",
     default: 0
+})
+
+export const AccumulateDurationAtom = atom<Map<number, number>>({
+    key: "AccumulateDurationAtom",
+    default: new Map()
 })
 
 export const useRemoveTraceRecord = ()=>{
@@ -153,22 +157,18 @@ export const useEnhancerTimeDistribution = ()=>{
 
 export const useAddMilestoneTraceRel = ()=>{
     const selectedMilestoneId = useRecoilValue(SelectedMilestoneIdAtom)
-    const [traceIds, setTraceIds] = useRecoilState(MilestoneTraceIdsAtom)
     const [, setMilestoneTraces] = useRecoilState(SelectedMilestoneTracesSelector);
     return async (traceId: number)=>{
         if(!selectedMilestoneId) return
         await addMilestoneTraceRel(selectedMilestoneId, traceId)
         setMilestoneTraces(await getStudyTracesInMilestone(selectedMilestoneId))
-        setTraceIds([...traceIds, traceId])
     }
 }
 
 export const useRemoveMilestoneTraceRel = (traceId: number, milestoneId?: number)=>{
     const [traces, setTraces] = useRecoilState(MilestoneTracesAtomFamily(milestoneId))
-    const [traceIds, setTraceIds] = useRecoilState(MilestoneTraceIdsAtom)
     return async ()=>{
         await removeMilestoneTraceRel(milestoneId!, traceId)
         setTraces(traces.filter(trace=>trace.id !== traceId))
-        setTraceIds(traceIds.filter(id=>id!==traceId))
     }
 }

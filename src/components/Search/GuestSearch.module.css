@@ -1,0 +1,35 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+.container > *{
+    margin-bottom: 0.7em;
+}
+.icon{
+    position: relative;
+    font-size: 2em;
+    font-weight: lighter;
+    font-style: oblique;
+}
+.input{
+    position: relative;
+    left: -3em;
+}
+.search_mode{
+    height: 3em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.search_bar{
+    width: 30vw;
+}
+.results{
+    min-width: 40vw;
+    max-width: 70vw;
+    min-height: 30vh;
+    overflow-y: scroll;
+}
