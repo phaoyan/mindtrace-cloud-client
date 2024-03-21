@@ -1,0 +1,50 @@
+.container{
+    height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 2vw;
+}
+.container > *{
+    width: 100%;
+}
+.logo_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.logo_container > * {
+    margin-right: 1em;
+}
+.logo_txt{
+    color: #666666;
+    font-size: 3em;
+    font-weight: bold;
+    font-style: oblique;
+}
+.logo{
+    height: 10vh;
+    scale: 250%;
+    position: relative;
+    top: 2em;
+    left: -1em;
+}
+.title{
+    display: flex;
+    justify-content: center;
+}
+.title_span{
+    font-size: 2.2em;
+    font-weight: lighter;
+}
+.sub_title{
+    display: flex;
+    justify-content: center;
+}
+.sub_img{
+    width: 100%;
+}
+.col{
+    height: 68vh;
+}

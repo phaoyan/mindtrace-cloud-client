@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Col, Row, Tooltip} from "antd";
+import {Col, Divider, Row, Tooltip} from "antd";
 import utils from "../../../../../../utils.module.css"
 import general from "../Player.module.css"
 import {FileTextFilled, FileTextOutlined} from "@ant-design/icons";
@@ -13,14 +13,15 @@ import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {useRecoilValue} from "recoil";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
-import dayjs from "dayjs";
-import axios from "axios";
-import {ENHANCER_HOST} from "../../../../../../service/api/EnhancerApi";
 import {updateImage} from "../ResourcePlayerUtils";
+import MdPreview from "../../../../../utils/markdown/MdPreview";
+import classes from "./MarkdownPlayer.module.css";
+import TextArea from "antd/es/input/TextArea";
 
 const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
 
-    const [data, setData ] = useState({content: "", config: {hide: false, latexDisplayMode: true}})
+    const [data, setData ] = useState({content: "", config: {hide: false, latexDisplayMode: false}})
+    const [doublePanel, setDoublePanel] = useState(false)
     const [loading, setLoading] = useState(true)
     const [editorKey, setEditorKey] = useState(0)
     const currentTab = useRecoilValue(CurrentTabAtom)
@@ -48,7 +49,7 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                 setData({config: config, content: content})
             }
             setLoading(false)
-        }; init()
+        }; init().then()
         //eslint-disable-next-line
     },[])
 
@@ -68,22 +69,24 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                             onClick={()=>setHide(true)}/>
                     }<br/>{
                         !props.readonly && (
-                        data.config.latexDisplayMode ?
-                            <Tooltip title={"切换为行内模式"}>
+                        doublePanel ?
+                            <Tooltip title={"切换为正常模式"}>
                                 <LatexDarkOutlined
                                     className={utils.icon_button}
                                     onClick={()=>{
                                         const newValue = {...data, config: {...data.config, latexDisplayMode: false}};
                                         setData(newValue)
+                                        setDoublePanel(false)
                                         !props.readonly && addDataToResource(props.meta.id!, "config.json" , JSON.stringify(newValue.config))
                                     }}/>
                             </Tooltip> :
-                            <Tooltip title={"切换为段落模式"}>
+                            <Tooltip title={"切换为双屏模式"}>
                                 <LatexLightOutlined
                                     className={utils.icon_button}
                                     onClick={()=>{
                                         const newValue = {...data, config: {...data.config, latexDisplayMode: true}};
                                         setData(newValue)
+                                        setDoublePanel(true)
                                         !props.readonly && addDataToResource(props.meta.id!,"config.json" , JSON.stringify(newValue.config))
                                     }}/>
                             </Tooltip>
@@ -96,16 +99,30 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                         </div>:
                         <>
                             {data.content.trim().length === 0 && <span className={general.placeholder}>知识概述 . . . </span>}
-                            <div className={milkdown.markdown} key={editorKey}>
+                            <div className={milkdown.markdown} key={editorKey}>{
+                                doublePanel ?
+                                <Row className={classes.double_txt}>
+                                    <Col span={12}>
+                                        <TextArea
+                                            autoSize={true}
+                                            bordered={false}
+                                            value={data.content}
+                                            onChange={cur=>setData({...data, content: cur.target.value})}/>
+                                        <Divider type={"vertical"}/>
+                                    </Col>
+                                    <Col span={12}>
+                                        <MdPreview>{data.content}</MdPreview>
+                                    </Col>
+                                </Row>    :
                                 <MilkdownProvider>
                                     <MilkdownEditor
                                         md={data.content}
                                         editable={!props.readonly}
-                                        latexDisplayMode={data.config.latexDisplayMode}
                                         onChange={cur=>setData({...data, content: cur})}
                                         updateImage={(image)=>updateImage(image, props.meta.id!)}/>
                                 </MilkdownProvider>
-                            </div>
+                            }</div>
+
                         </>
                 }</Col>
             </Row>

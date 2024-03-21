@@ -87,6 +87,7 @@ const GuestSearch = () => {
                     </div>
                 }</Col>
             </Row>
+            <a className={classes.ipc_info} href="https://beian.miit.gov.cn/" target="_blank">互联网IPC备案 : 赣2024020351 审核通过日期 : 2024-01-17</a>
         </div>
     );
 };

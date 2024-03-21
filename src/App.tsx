@@ -20,6 +20,7 @@ import {IsLogin, LoginUserAtom} from "./components/Login/LoginHooks";
 import {UserOutlined} from "@ant-design/icons";
 import utils from "./utils.module.css"
 import Login from "./components/Login/Login";
+import Intro from "./components/Intro/Intro";
 
 const App = ()=> {
     const [loading, setLoading] = useState(true)
@@ -73,6 +74,7 @@ const App = ()=> {
                     </div>
                     <div className={classes.menu}>
                         <Menu
+                            className={classes.menu_item}
                             selectedKeys={[current]}
                             onClick={({key})=>{setCurrent(key)}}
                             mode={"horizontal"}
@@ -109,6 +111,7 @@ const App = ()=> {
                     <Route path="/" element={<Navigate to={"/main"}/>}/>
                     <Route path="/main" element={<Main/>}/>
                     <Route path="/home" element=<Home/>/>
+                    <Route path="/intro" element=<Intro/>/>
                     <Route path="/search" element=<GuestSearch/>/>
                 </Routes>
             </div>

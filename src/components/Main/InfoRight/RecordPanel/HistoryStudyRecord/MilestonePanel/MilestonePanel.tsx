@@ -1,7 +1,7 @@
 import React from 'react';
 import {Col, Row, Timeline} from "antd";
 import {useRecoilValue} from "recoil";
-import {MilestoneCardsSelector, useAddMilestone} from "./MilestonePanelHooks";
+import {MilestoneCardsSelector, useAddMilestone, useInitMilestoneData} from "./MilestonePanelHooks";
 import {PlusOutlined} from "@ant-design/icons";
 import classes from "./MilestonePanel.module.css"
 import utils from "../../../../../../utils.module.css"
@@ -11,6 +11,7 @@ const MilestonePanel = () => {
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const milestoneCards = useRecoilValue(MilestoneCardsSelector)
     const addMilestone = useAddMilestone()
+    useInitMilestoneData()
     return (
         <div>{
             !readonly &&

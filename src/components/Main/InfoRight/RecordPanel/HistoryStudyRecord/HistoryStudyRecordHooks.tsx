@@ -1,24 +1,13 @@
 import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {StudyTrace} from "../../../../../service/data/Tracing";
 import {
-    addMilestoneTraceRel,
-    getStudyTraceEnhancerInfoUnderKnode,
-    getStudyTraceKnodeInfo, getStudyTracesInMilestone,
+    addMilestoneTraceRel, getStudyTracesInMilestone,
     getTraceKnodeRels, removeMilestoneTraceRel,
     removeStudyTrace,
 } from "../../../../../service/api/TracingApi";
 import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
-import {SelectedKnodeIdAtom, SelectedKtreeSelector} from "../../../../../recoil/home/Knode";
-import React, {useEffect, useState} from "react";
-import KnodeTitle from "../../../KnodeTitle/KnodeTitle";
-import {Ktree} from "../../../../../service/data/Knode";
-import {formatMillisecondsToHHMM} from "../../../../../service/utils/TimeUtils";
-import classes from "./HistoryStudyRecord.module.css";
-import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
-import dayjs from "dayjs";
-import {Tooltip} from "antd";
-import {getEnhancerById, getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
-import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
+import {SelectedKnodeIdAtom,} from "../../../../../recoil/home/Knode";
+import {getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {CurrentTabAtom} from "../../InfoRightHooks";
 import {
@@ -27,8 +16,8 @@ import {
     SelectedMilestoneTracesSelector
 } from "./MilestonePanel/MilestonePanelHooks";
 
-export const StudyTracesAtom = atom<StudyTrace[]>({
-    key: "StudyTracesAtom",
+export const LoadedTracesAtom = atom<StudyTrace[]>({
+    key: "LoadedTracesAtom",
     default: []
 })
 
@@ -37,13 +26,13 @@ export const HistoryStudyRecordKeyAtom = atom<number>({
     default: 0
 })
 
-export const AccumulateDurationAtom = atom<Map<number, number>>({
+export const AccumulateDurationAtom = atom<any>({
     key: "AccumulateDurationAtom",
-    default: new Map()
+    default: {}
 })
 
 export const useRemoveTraceRecord = ()=>{
-    const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
+    const [studyTraces, setStudyTraces] = useRecoilState(LoadedTracesAtom)
     return async (traceId: number)=>{
         await removeStudyTrace(traceId)
         setStudyTraces(studyTraces.filter(trace=>trace.id !== traceId))
@@ -77,98 +66,24 @@ export const useJumpToEnhancer = ()=>{
     }
 }
 
-export interface KtreeTimeDistributionAntd{
-    key: number,
-    title: any,
-    children: KtreeTimeDistributionAntd[]
-}
-
-export const useKtreeTimeDistributionAntd = ()=>{
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [timeDistributionAntd, setTimeDistributionAntd] = useState<KtreeTimeDistributionAntd>()
-    const selectedKtree = useRecoilValue(SelectedKtreeSelector)
-    useEffect(()=>{
-        const effect = async ()=>{
-            if(!selectedKtree) return
-            const info = await getStudyTraceKnodeInfo(selectedKnodeId);
-            const map: any = {}
-            for(let item of info)
-                map[item.knodeId] = item
-            setTimeDistributionAntd(convertKtreeAntd([selectedKtree], map)[0])
-        }; effect()
-        //eslint-disable-next-line
-    }, [selectedKnodeId])
-    return timeDistributionAntd
-}
-
-const convertKtreeAntd = (ori: Ktree[], infoMap: any): KtreeTimeDistributionAntd[]=>{
-    if (ori[0] == null) return []
-    return ori.map(ktree => ({
-        key: ktree.knode.id,
-        title: (<div style={{display:"flex"}}>
-            <KnodeTitle id={ktree?.knode.id!} hideOptions={true}/>
-            <span className={classes.distribution_info}>{
-                infoMap[ktree.knode.id].duration !== 0 && (
-                <Tooltip title={"学习时长"}>
-                    <FieldTimeOutlined style={{marginRight:"0.5em"}}/>
-                    {formatMillisecondsToHHMM(infoMap[ktree.knode.id].duration*1000)}
-                </Tooltip>)
-            }</span>
-            <span className={classes.distribution_info}>{
-                infoMap[ktree.knode.id].review !== 0 && (
-                <Tooltip title={"学习次数"}>
-                    <EditOutlined style={{marginRight:"0.5em"}}/>
-                    {infoMap[ktree.knode.id].review}
-                </Tooltip>)
-            }</span>
-            <span className={classes.distribution_info}>{
-                infoMap[ktree.knode.id].moments.length !== 0 && (
-                <Tooltip title={"距离上次学习的天数"}>
-                    <CalendarOutlined style={{marginRight:"0.5em"}}/>
-                    {dayjs().diff(dayjs(infoMap[ktree.knode.id].moments[infoMap[ktree.knode.id].moments.length - 1]), "day")}
-                </Tooltip>)
-            }</span>
-        </div>),
-        children: convertKtreeAntd(ktree.branches, infoMap)
-    }))
-}
-
-export const useEnhancerTimeDistribution = ()=>{
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [enhancerTimeDistribution, setEnhancerTimeDistribution] = useState<any[]>()
-    useEffect(()=>{
-        const effect = async ()=>{
-            const resp = await getStudyTraceEnhancerInfoUnderKnode(selectedKnodeId)
-            const data = []
-            for(let info of resp)
-                data.push({
-                    ...info,
-                    title: (await getEnhancerById(info.enhancerId)).title,
-                    traces: info.traces.reverse()
-                })
-            data.sort((a, b)=>
-                -dayjs(a.traces[0].startTime, DEFAULT_DATE_TIME_PATTERN)
-                .diff(dayjs(b.traces[0].startTime, DEFAULT_DATE_TIME_PATTERN)))
-            setEnhancerTimeDistribution(data)
-        }; effect().then()
-    }, [selectedKnodeId])
-    return enhancerTimeDistribution
-}
-
 export const useAddMilestoneTraceRel = ()=>{
     const selectedMilestoneId = useRecoilValue(SelectedMilestoneIdAtom)
-    const [, setMilestoneTraces] = useRecoilState(SelectedMilestoneTracesSelector);
+    const [, setMilestoneTraces] = useRecoilState(SelectedMilestoneTracesSelector)
+    const [, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     return async (traceId: number)=>{
         if(!selectedMilestoneId) return
         await addMilestoneTraceRel(selectedMilestoneId, traceId)
         setMilestoneTraces(await getStudyTracesInMilestone(selectedMilestoneId))
+        setLoadedTraces(traces=>traces.map(tr=>tr.id === traceId ? {...tr, milestoneId: selectedMilestoneId} : tr))
     }
 }
 
 export const useRemoveMilestoneTraceRel = (traceId: number, milestoneId?: number)=>{
     const [traces, setTraces] = useRecoilState(MilestoneTracesAtomFamily(milestoneId))
+    const [, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     return async ()=>{
         await removeMilestoneTraceRel(milestoneId!, traceId)
         setTraces(traces.filter(trace=>trace.id !== traceId))
+        setLoadedTraces(traces=>traces.map(tr=>tr.id === traceId ? {...tr, milestoneId: undefined} : tr))
     }
 }

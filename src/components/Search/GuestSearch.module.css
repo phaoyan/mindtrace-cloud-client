@@ -33,3 +33,11 @@
     min-height: 30vh;
     overflow-y: scroll;
 }
+.ipc_info{
+    position: absolute;
+    left: 1em;
+    bottom: 1em;
+    text-decoration: none;
+    color: #cccccc;
+    font-size: 0.8em;
+}

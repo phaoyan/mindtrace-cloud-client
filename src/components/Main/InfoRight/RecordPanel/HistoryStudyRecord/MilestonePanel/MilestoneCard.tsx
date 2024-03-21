@@ -31,7 +31,7 @@ import {
     SelectedMilestoneIdAtom,
     CopiedMilestoneIdAtom, ScissoredMilestoneIdAtom
 } from "./MilestonePanelHooks";
-import {StudyTraceRecord} from "../StudyTraceRecord";
+import {StudyTraceRecord} from "../StudyTraceTimeline/StudyTraceRecord";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
 import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../../service/utils/constants";
 
@@ -187,7 +187,7 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                 }</Col>
                 <Col span={23}>{
                     showTraces ?
-                    traces.map(trace=><StudyTraceRecord trace={trace} milestoneId={props.milestoneId} key={trace.id}/>) :
+                    traces.map(trace=><StudyTraceRecord trace={trace} key={trace.id}/>) :
                     <span className={classes.show_traces_prompt}>点击展开学习记录 . . .</span>
                 }</Col>
             </Row>

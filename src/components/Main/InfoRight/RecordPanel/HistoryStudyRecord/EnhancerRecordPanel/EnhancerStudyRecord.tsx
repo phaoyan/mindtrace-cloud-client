@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {Col, Pagination, Row, Timeline, Tooltip} from "antd";
-import classes from "./HistoryStudyRecord.module.css";
+import classes from "../HistoryStudyRecord.module.css";
 import {CalendarOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
-import {formatMillisecondsToHHMM} from "../../../../../service/utils/TimeUtils";
-import {StudyTrace} from "../../../../../service/data/Tracing";
+import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
+import {StudyTrace} from "../../../../../../service/data/Tracing";
 
 const EnhancerStudyRecord = (props: {info: any}) => {
     const [currentPage, setCurrentPage] = useState(1)

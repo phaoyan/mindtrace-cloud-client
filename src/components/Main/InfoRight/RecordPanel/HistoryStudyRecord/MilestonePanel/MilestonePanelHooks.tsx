@@ -1,11 +1,12 @@
 import {atom, atomFamily, selector, useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {
-    addMilestone,
+    addMilestone, getMilestonesBeneathKnode,
 } from "../../../../../../service/api/TracingApi";
-import React from "react";
+import React, {useEffect} from "react";
 import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {MilestoneCard} from "./MilestoneCard";
+import dayjs from "dayjs";
 
 export interface Milestone{
     id: number
@@ -62,6 +63,20 @@ export const useAddMilestone = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [milestones, setMilestones] = useRecoilState(MilestonesAtom)
     return async ()=>{
-        setMilestones([...milestones, await addMilestone(selectedKnodeId)])
+        setMilestones([await addMilestone(selectedKnodeId), ...milestones])
     }
+}
+
+export const useInitMilestoneData = ()=>{
+    const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
+    const [, setMilestones] = useRecoilState(MilestonesAtom)
+    useEffect(()=>{
+        const effect = async ()=>{
+            setMilestones(
+                (await getMilestonesBeneathKnode(selectedKnodeId))
+                    .filter((e: any)=>e !== undefined && e !== null)
+                    .sort((e1: any, e2: any)=>dayjs(e2.time).diff(dayjs(e1.time))))
+        }; effect().then()
+        //eslint-disable-next-line
+    }, [selectedKnodeId])
 }

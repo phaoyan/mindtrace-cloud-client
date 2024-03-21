@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {MilkdownProvider} from "@milkdown/react";
 import {MilkdownEditor} from "../../../../../utils/markdown/MilkdownEditor";
-import {Col, Row} from "antd";
+import {Col, Divider, Row} from "antd";
 import {SwitcherFilled, SwitcherOutlined} from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css"
 import classes from "../Player.module.css"
@@ -12,15 +12,18 @@ import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 import {updateImage} from "../ResourcePlayerUtils";
+import TextArea from "antd/es/input/TextArea";
+import MdPreview from "../../../../../utils/markdown/MdPreview";
 
 const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
     const [data, setData] = useState({
         front: "",
         back: "",
         config:{
-            frontLatexDisplayMode: true,
-            backLatexDisplayMode: true
+            frontLatexDisplayMode: false,
+            backLatexDisplayMode: false
         }})
+    const [doublePanel, setDoublePanel] = useState(false)
     const [isFront, setIsFront] = useState(true)
     const [loading, setLoading] = useState(true)
     const [frontEditorKey, setFrontEditorKey] = useState(0)
@@ -66,7 +69,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                         <SwitcherOutlined
                             className={`${utils.icon_button}`}
                             onClick={() => setIsFront(false)}/>{
-                            data.config.frontLatexDisplayMode ?
+                            doublePanel ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
                                 onClick={async ()=>{
@@ -86,12 +89,13 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                         <SwitcherFilled
                             className={`${utils.icon_button}`}
                             onClick={() => {setIsFront(true)}}/>{
-                            data.config.backLatexDisplayMode ?
+                            doublePanel ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
                                 onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, backLatexDisplayMode: false}}
                                     setData(newValue)
+                                    setDoublePanel(false)
                                     await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>:
                             <LatexLightOutlined
@@ -99,6 +103,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                                 onClick={async ()=>{
                                     const newValue = {...data, config: {...data.config, backLatexDisplayMode: true}}
                                     setData(newValue)
+                                    setDoublePanel(true)
                                     await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
                                 }}/>
                     }</div>
@@ -109,29 +114,55 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                         {/*似乎缺少这个react不能检测到变化从而响应渲染*/}
                         <span></span>
                         {data.front === "" && <span className={classes.placeholder}>卡片正面 . . . </span>}
-                        <div className={milkdown.markdown} key={frontEditorKey}>
+                        <div className={milkdown.markdown} key={frontEditorKey}>{
+                            data.config.frontLatexDisplayMode ?
+                            <Row className={classes.double_txt}>
+                                <Col span={12}>
+                                    <TextArea
+                                        autoSize={true}
+                                        bordered={false}
+                                        value={data.front}
+                                        onChange={cur=>setData({...data, front: cur.target.value})}/>
+                                    <Divider type={"vertical"}/>
+                                </Col>
+                                <Col span={12}>
+                                    <MdPreview>{data.front}</MdPreview>
+                                </Col>
+                            </Row>:
                             <MilkdownProvider>
-                                <MilkdownEditor
-                                    md={data.front}
-                                    editable={!props.readonly}
-                                    latexDisplayMode={data.config.frontLatexDisplayMode}
-                                    onChange={cur => setData({...data, front: cur})}
-                                    updateImage={(image)=>updateImage(image, props.meta.id!)}/>
+                            <MilkdownEditor
+                                md={data.front}
+                                editable={!props.readonly}
+                                onChange={cur => setData({...data, front: cur})}
+                                updateImage={(image)=>updateImage(image, props.meta.id!)}/>
                             </MilkdownProvider>
-                        </div>
+                        }</div>
                     </div>:
                     <div className={classes.back_wrapper}>
                         {data.back === "" && <span className={classes.placeholder}>卡片背面 . . . </span>}
-                        <div className={milkdown.markdown} key={backEditorKey}>
+                        <div className={milkdown.markdown} key={backEditorKey}>{
+                            doublePanel ?
+                            <Row className={classes.double_txt}>
+                                <Col span={12}>
+                                    <TextArea
+                                        autoSize={true}
+                                        bordered={false}
+                                        value={data.back}
+                                        onChange={cur=>setData({...data, back: cur.target.value})}/>
+                                    <Divider type={"vertical"}/>
+                                </Col>
+                                <Col span={12}>
+                                    <MdPreview>{data.back}</MdPreview>
+                                </Col>
+                            </Row> :
                             <MilkdownProvider>
-                                <MilkdownEditor
-                                    md={data.back}
-                                    editable={!props.readonly}
-                                    latexDisplayMode={data.config.backLatexDisplayMode}
-                                    onChange={cur=>setData({...data, back: cur})}
-                                    updateImage={(image)=>updateImage(image, props.meta.id!)}/>
+                            <MilkdownEditor
+                                md={data.back}
+                                editable={!props.readonly}
+                                onChange={cur=>setData({...data, back: cur})}
+                                updateImage={(image)=>updateImage(image, props.meta.id!)}/>
                             </MilkdownProvider>
-                        </div>
+                        }</div>
                     </div>
                 }</Col>
             </Row>

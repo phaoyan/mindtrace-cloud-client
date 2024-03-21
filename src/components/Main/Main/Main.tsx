@@ -25,7 +25,7 @@ import {
     useHotkeysHelp,
     useSearchBar
 } from "./MainHooks";
-import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
+import {LoginUserIdSelector} from "../../Login/LoginHooks";
 import {VisitOutlined} from "../../utils/antd/icons/Icons";
 import dayjs from "dayjs";
 import {Navigate} from "react-router-dom";

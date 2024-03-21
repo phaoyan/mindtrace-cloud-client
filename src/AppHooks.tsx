@@ -1,4 +1,5 @@
 import {
+    AlertOutlined,
     HomeOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
@@ -11,6 +12,11 @@ import {CurrentUserAtom} from "./components/Main/Main/MainHooks";
 export const useMenuItems = ()=>{
     const currentUser = useRecoilValue(CurrentUserAtom)
     return [
+        {
+            label:"介绍",
+            key:"/intro",
+            icon: <AlertOutlined/>
+        },
         {
             label: "主页",
             key: "/main",

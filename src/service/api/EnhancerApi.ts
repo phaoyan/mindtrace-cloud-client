@@ -9,6 +9,10 @@ export const getEnhancerById = async (enhancerId: number): Promise<Enhancer>=>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}`).then(({data})=>data)
 }
 
+export const getEnhancerByResourceId = async (resourceId: number): Promise<Enhancer>=>{
+    return await axios.get(`${ENHANCER_HOST}/enhancer/resource/${resourceId}`).then(({data})=>data)
+}
+
 export const getEnhancersByDate = async (userId: number, left?: string, right?: string): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/date/enhancer?userId=${userId}&left=${left || ""}&right=${right || ""}`).then(({data})=>data)
 }

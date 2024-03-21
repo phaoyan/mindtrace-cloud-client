@@ -64,6 +64,9 @@ const LocalPanel = () => {
                             </a>
                         </Tooltip>
                     </div>
+                    <div className={classes.tips}>
+                        * 可访问通义千问等大模型（<a href="https://tongyi.aliyun.com/qianwen/" target={"_blank"} rel="noreferrer">通义千问</a>），将markdown文件导入后获得专属指导AI
+                    </div>
                 </Col>
             </Row>
         </div>

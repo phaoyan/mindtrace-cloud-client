@@ -2,9 +2,9 @@ import {atomFamily, useRecoilState, useRecoilValue} from "recoil";
 import {defaultEnhancer, Enhancer} from "../../../../../service/data/Enhancer";
 import {
     FileSearchOutlined,
-    FileTextOutlined, InteractionOutlined,
+    FileTextOutlined,
     LinkOutlined,
-    ShareAltOutlined, SoundOutlined,
+    ShareAltOutlined, SnippetsOutlined, SoundOutlined,
     SwitcherOutlined
 } from "@ant-design/icons";
 import classes from "./EnhancerCard.module.css";
@@ -23,6 +23,7 @@ import {
 } from "../../../../../service/api/EnhancerApi";
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import NoteLinkPlayer from "../resource/NoteLinkPlayer/NoteLinkPlayer";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -71,6 +72,11 @@ export const useAddResourceDropdownItems = ()=>{
             key: ResourceType.AUDIO,
             label: "音频资源",
             icon: <SoundOutlined className={classes.option}/>,
+        },
+        {
+            key: ResourceType.NOTE_LINK,
+            label: "笔记链接",
+            icon: <SnippetsOutlined className={classes.option}/>,
         }
     ]
 }
@@ -112,6 +118,7 @@ export const ResourceType = {
     QUIZCARD: "quizcard",
     MARKDOWN: "markdown",
     LINKOUT: "linkout",
+    NOTE_LINK: "note link",
     CLOZE: "cloze",
     GPT_PROMPTS: "gpt prompts",
     AUDIO: "audio",
@@ -134,7 +141,8 @@ export const resourceTypePlayerMapper = {
     [ResourceType.LINKOUT]: (meta: Resource, readonly:boolean) => <LinkoutPlayer  meta={meta} readonly={readonly}/>,
     [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
     [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>,
-    [ResourceType.AUDIO]: (meta: Resource, readonly:boolean)=> <AudioPlayer meta={meta} readonly={readonly}/>
+    [ResourceType.AUDIO]: (meta: Resource, readonly:boolean)=> <AudioPlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.NOTE_LINK]: (meta: Resource, readonly:boolean)=> <NoteLinkPlayer meta={meta} readonly={readonly}/>
 }
 
 export const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{

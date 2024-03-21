@@ -16,6 +16,15 @@ export const getStudyTracesOfKnode = async (knodeId: number):Promise<StudyTrace[
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/trace`).then(({data})=>data)
 }
 
+export const getStudyTracesOfKnodeBySlice = async (knodeId: number, moment: string, count: number):Promise<StudyTrace[]>=>{
+    return await axios.get(`${TRACING_HOST}/slice/study/knode/${knodeId}/trace?moment=${moment}&count=${count}`).then(({data})=>data)
+}
+
+export const getStudyTracesOfKnodeByPage = async (knodeId: number, page: number, size: number):Promise<StudyTrace[]>=>{
+    return await axios.get(`${TRACING_HOST}/page/study/knode/${knodeId}/trace?page=${page}&size=${size}`).then(({data})=>data)
+}
+
+
 export const removeStudyTrace = async (traceId: number)=>{
     return await axios.delete(`${TRACING_HOST}/study/trace/${traceId}`)
 }
@@ -144,19 +153,35 @@ export const removeMilestoneTraceRel = async (milestoneId: number, traceId: numb
 export const getStudyTracesInMilestone = async (milestoneId: number): Promise<StudyTrace[]>=>{
     return await axios.get(`${TRACING_HOST}/rel/milestone/trace?milestoneId=${milestoneId}`).then(({data})=>data)
 }
-
-export const getTraceIdsInMilestones = async (traceIds: number[]): Promise<number[]>=>{
-    return await axios.post(`${TRACING_HOST}/batch/exist/rel/milestone/trace`, traceIds).then(({data})=>data)
-}
-
-export const getMilestoneOfStudyTrace = async (traceId: number): Promise<number[]>=>{
-    return await axios.get(`${TRACING_HOST}/rel/milestone/trace?traceId=${traceId}`).then(({data})=>data)
-}
-
 export const setMilestoneTime = async (milestoneId: number, timeString: string)=>{
     await axios.post(`${TRACING_HOST}/milestone/${milestoneId}/time?dateTime=${timeString}`)
 }
 
 export const copyMilestoneAsEnhancerToKnode = async (milestoneId: number, knodeId: number) =>{
     await axios.post(`${TRACING_HOST}/milestone/copy?milestoneId=${milestoneId}&knodeId=${knodeId}`)
+}
+
+export const getCurrentMonthStudyTime = async (knodeId: number):Promise<number>=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/current-month-study-time`).then(({data})=>data)
+}
+
+export const getStudyTimeAccumulation = async (knodeId: number)=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/study-time-accumulation`).then(({data})=>data)
+}
+
+export const getStudyTraceCount = async (knodeId: number): Promise<number>=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/trace-count`).then(({data})=>data)
+}
+
+
+export const getTraceCount = async (knodeId: number)=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/trace-count`).then(({data})=>data)
+}
+
+export const getCalendarDay = async (knodeId: number)=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/calendar-day`).then(({data})=>data)
+}
+
+export const getCalendarMonth = async (knodeId: number)=>{
+    return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/calendar-month`).then(({data})=>data)
 }

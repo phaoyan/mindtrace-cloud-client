@@ -63,9 +63,3 @@ export const useRegisterConfirm = ()=>{
         }
     }
 }
-
-export const useQuickStart = ()=>{
-    return ()=>{
-        console.log("Quick Start")
-    }
-}

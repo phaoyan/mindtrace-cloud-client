@@ -7,7 +7,7 @@ import {
     removeTraceKnodeRel,
     settleCurrentStudy, startCurrentStudy
 } from "../../../../../service/api/TracingApi";
-import {HistoryStudyRecordKeyAtom, StudyTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
+import {HistoryStudyRecordKeyAtom, LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {useAddEnhancer} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
@@ -34,7 +34,7 @@ export const useRemoveCurrentStudy = ()=>{
 
 export const useSettleCurrentStudy = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    const [studyTraces, setStudyTraces] = useRecoilState(StudyTracesAtom)
+    const [loadedTraces, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     const [historyStudyRecordKey,setHistoryStudyRecordKey] = useRecoilState(HistoryStudyRecordKeyAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
     return async ()=>{
@@ -43,7 +43,7 @@ export const useSettleCurrentStudy = ()=>{
             messageApi.error("请至少选择一个知识点")
             return
         }
-        setStudyTraces([...studyTraces, await settleCurrentStudy()])
+        setLoadedTraces([...loadedTraces, await settleCurrentStudy()])
         setCurrentStudy(undefined)
         setHistoryStudyRecordKey(historyStudyRecordKey + 1)
     }
@@ -69,8 +69,8 @@ export const useCalculateDuration = ()=>{
     const currentStudy = useRecoilValue(CurrentStudyAtom)
     return ()=>{
         if(!currentStudy) return 0
-        const pauseList = currentStudy.trace.pauseList
-        const continueList = currentStudy.trace.continueList
+        const pauseList = currentStudy.pauseList
+        const continueList = currentStudy.continueList
         const endTime = currentStudy.trace.endTime ? dayjs(currentStudy.trace.endTime) : dayjs()
         let millis = endTime.diff(currentStudy.trace.startTime)
         for(let i = 0; i < continueList.length; i ++)
@@ -93,8 +93,8 @@ export const useAddKnodeId = (knodeId:number)=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async ()=>{
         if(!currentStudy) return
-        await addTraceKnodeRel(knodeId)
         setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, knodeId]})
+        await addTraceKnodeRel(knodeId)
     }
 }
 
@@ -102,8 +102,8 @@ export const useAddEnhancerId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async (enhancerId: number)=>{
         if(!currentStudy) return
-        await addTraceEnhancerRel(enhancerId)
         setCurrentStudy({...currentStudy, enhancerIds: [...currentStudy.enhancerIds, enhancerId]})
+        await addTraceEnhancerRel(enhancerId)
     }
 }
 
@@ -111,8 +111,8 @@ export const useRemoveKnodeId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async (knodeId: number)=>{
         if(!currentStudy) return
-        await removeTraceKnodeRel(knodeId)
         setCurrentStudy({...currentStudy, knodeIds: currentStudy.knodeIds.filter(id=>id!==knodeId)})
+        await removeTraceKnodeRel(knodeId)
     }
 }
 
@@ -120,8 +120,8 @@ export const useRemoveEnhancerId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async (enhancerId: number)=>{
         if(!currentStudy) return
-        await removeTraceEnhancerRel(enhancerId)
         setCurrentStudy({...currentStudy, enhancerIds: currentStudy.enhancerIds.filter(id=>id!==enhancerId)})
+        await removeTraceEnhancerRel(enhancerId)
     }
 }
 

@@ -2,3 +2,7 @@
     padding: 2vh 1vh 1vh;
     min-height: 6vh;
 }
+.double_txt{
+    display: flex;
+
+}

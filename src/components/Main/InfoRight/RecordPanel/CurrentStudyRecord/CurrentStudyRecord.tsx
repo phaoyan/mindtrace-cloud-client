@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker, Tooltip} from "antd";
+import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId, useAddEnhancerToCurrentStudy,
@@ -8,8 +8,10 @@ import {
     useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
 } from "./CurrentStudyRecordHooks";
 import {
+    addTraceEnhancerRel,
+    addTraceKnodeRel,
     editCurrentStudyTitle,
-    getCurrentStudy,
+    getCurrentStudy, getTraceEnhancerRels, getTraceKnodeRels,
     updateEndTime,
     updateStartTime
 } from "../../../../../service/api/TracingApi";
@@ -33,7 +35,7 @@ import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer
 import {getEnhancerById, getEnhancersForKnode} from "../../../../../service/api/EnhancerApi";
 import dayjs from "dayjs";
 import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
-import {StudyTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
+import {LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import {useAddResourceDropdownItems} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 const CurrentStudyRecord = () => {
@@ -43,7 +45,7 @@ const CurrentStudyRecord = () => {
     const settleCurrentStudy = useSettleCurrentStudy()
     const pauseCurrentStudy = usePauseCurrentStudy()
     const continueCurrentStudy = useContinueCurrentStudy()
-    const [studyTraces,] = useRecoilState(StudyTracesAtom)
+    const [loadedTraces,] = useRecoilState(LoadedTracesAtom)
     const calculateDuration = useCalculateDuration()
     const setTitle = useSetTitle()
     const [timerKey, setTimerKey] = useState(0)
@@ -91,16 +93,26 @@ const CurrentStudyRecord = () => {
                                     arrow={false}
                                     menu={{
                                         items:
-                                            [...new Set(
-                                                studyTraces
-                                                .filter(trace=>trace.title && trace.title.trim() !== "")
-                                                .map(trace=>trace.title))]
-                                            .map(title=>({
-                                                key: title,
-                                                label: title,
+                                            [...new Set(loadedTraces.filter(trace=>trace.title && trace.title.trim() !== ""))]
+                                            .map(trace=>({
+                                                key: trace.id,
+                                                label: trace.title,
                                                 onClick: async ()=> {
-                                                    setTitle(title)
-                                                    await editCurrentStudyTitle(title)
+                                                    let title = trace.title
+                                                    let knodeIds = await getTraceKnodeRels(trace.id)
+                                                    let enhancerIds = await getTraceEnhancerRels(trace.id)
+                                                    setTitle(trace.title)
+                                                    setCurrentStudy({
+                                                        ...currentStudy,
+                                                        trace: {...currentStudy?.trace, title: title},
+                                                        knodeIds: knodeIds,
+                                                        enhancerIds: enhancerIds
+                                                    })
+                                                    await editCurrentStudyTitle(trace.title)
+                                                    for(let knodeId of knodeIds)
+                                                        await addTraceKnodeRel(knodeId)
+                                                    for (let enhancerId of enhancerIds)
+                                                        await addTraceEnhancerRel(enhancerId)
                                                 }
                                             }))
                                             .splice(0,5)}}>
@@ -197,7 +209,7 @@ const CurrentStudyRecord = () => {
                                     </Col>
                                     <Col span={4}>
                                         <div className={classes.pause_and_continue}>{
-                                            currentStudy.trace.pauseList.length > currentStudy.trace.continueList.length ?
+                                            currentStudy.pauseList.length > currentStudy.continueList.length ?
                                                 <ContinueOutlined
                                                     className={utils.icon_button}
                                                     style={{scale:"250%"}}

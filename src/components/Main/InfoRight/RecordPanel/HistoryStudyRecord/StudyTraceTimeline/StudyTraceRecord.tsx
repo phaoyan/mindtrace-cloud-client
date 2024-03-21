@@ -1,12 +1,12 @@
-import {StudyTrace} from "../../../../../service/data/Tracing";
+import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {ReadonlyModeAtom} from "../../../Main/MainHooks";
-import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
-import {CurrentTabAtom} from "../../InfoRightHooks";
-import {CurrentStudyAtom} from "../CurrentStudyRecord/CurrentStudyRecordHooks";
+import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
+import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
+import {CurrentTabAtom} from "../../../InfoRightHooks";
+import {CurrentStudyAtom} from "../../CurrentStudyRecord/CurrentStudyRecordHooks";
 import {
     SelectedMilestoneIdAtom
-} from "./MilestonePanel/MilestonePanelHooks";
+} from "../MilestonePanel/MilestonePanelHooks";
 import React, {useEffect, useState} from "react";
 import {
     AccumulateDurationAtom,
@@ -14,16 +14,16 @@ import {
     useCalculateTitle,
     useJumpToEnhancer, useRemoveMilestoneTraceRel,
     useRemoveTraceRecord
-} from "./HistoryStudyRecordHooks";
+} from "../HistoryStudyRecordHooks";
 import {
     getTraceEnhancerRels,
     getTraceKnodeRels,
     restartCurrentStudy,
     updateStudyTrace
-} from "../../../../../service/api/TracingApi";
-import {getChainStyleTitle} from "../../../../../service/api/KnodeApi";
-import {getEnhancerById} from "../../../../../service/api/EnhancerApi";
-import PlainLoading from "../../../../utils/general/PlainLoading";
+} from "../../../../../../service/api/TracingApi";
+import {getChainStyleTitle} from "../../../../../../service/api/KnodeApi";
+import {getEnhancerById} from "../../../../../../service/api/EnhancerApi";
+import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {Breadcrumb, Col, Divider, Input, Popconfirm, Row, Tooltip} from "antd";
 import {
     CalendarOutlined,
@@ -33,13 +33,13 @@ import {
     RetweetOutlined,
     SwapOutlined
 } from "@ant-design/icons";
-import utils from "../../../../../utils.module.css";
-import classes from "./HistoryStudyRecord.module.css";
+import utils from "../../../../../../utils.module.css";
+import classes from "../HistoryStudyRecord.module.css";
 import dayjs from "dayjs";
-import {formatMillisecondsToHHMM, formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils";
-import {breadcrumbTitle} from "../../../../../service/data/Knode";
+import {formatMillisecondsToHHMM, formatMillisecondsToHHMMSS} from "../../../../../../service/utils/TimeUtils";
+import {breadcrumbTitle} from "../../../../../../service/data/Knode";
 
-export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number})=>{
+export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
@@ -54,7 +54,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number}
     const calculateTitle = useCalculateTitle()
     const jumpToEnhancer = useJumpToEnhancer()
     const addMilestoneTraceRel = useAddMilestoneTraceRel();
-    const removeMilestoneTraceRel = useRemoveMilestoneTraceRel(props.trace.id, props.milestoneId)
+    const removeMilestoneTraceRel = useRemoveMilestoneTraceRel(props.trace.id, props.trace.milestoneId)
     const [title, setTitle] = useState<string>("")
     useEffect(()=>{
         const effect = async ()=>{
@@ -109,12 +109,12 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number}
                 <Col span={1}>
                     <Tooltip title={"将该学习记录绑定到里程碑上"}>{
                         selectedMilestoneId &&
-                        !props.milestoneId &&
+                        !props.trace.milestoneId &&
                         <CalendarOutlined
                             className={utils.icon_button_normal}
                             onClick={()=>addMilestoneTraceRel(props.trace.id)}/>
                     }</Tooltip>{
-                    props.milestoneId &&
+                    props.trace.milestoneId &&
                     <Tooltip title={"将该学习记录从里程碑上移除"}>
                         <RetweetOutlined
                             className={utils.icon_button_normal}
@@ -125,7 +125,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, milestoneId?: number}
                     <span className={classes.duration}>
                         {formatMillisecondsToHHMMSS(props.trace.seconds * 1000)}
                         &nbsp;&nbsp;/&nbsp;&nbsp;
-                        {formatMillisecondsToHHMM(accumulatedDuration.get(props.trace.id)! * 1000)}
+                        {props.trace.id in accumulatedDuration && formatMillisecondsToHHMM(accumulatedDuration[props.trace.id] * 1000)}
                     </span>
                 </Col>
             </Row>

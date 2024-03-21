@@ -21,5 +21,7 @@ export interface TraceCoverage{
 export interface CurrentStudy{
     trace: StudyTrace,
     knodeIds: number[],
-    enhancerIds: number[]
+    enhancerIds: number[],
+    continueList: string[],
+    pauseList: string[]
 }
