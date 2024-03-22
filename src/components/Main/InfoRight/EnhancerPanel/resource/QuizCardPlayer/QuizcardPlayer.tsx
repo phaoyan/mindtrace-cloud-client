@@ -72,18 +72,10 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                             doublePanel ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
-                                onClick={async ()=>{
-                                    const newValue = {...data, config: {...data.config, frontLatexDisplayMode: false}}
-                                    setData(newValue)
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
-                                }}/>:
+                                onClick={async ()=>{setDoublePanel(false)}}/>:
                             <LatexLightOutlined
                                 className={utils.icon_button}
-                                onClick={async ()=>{
-                                    const newValue = {...data, config: {...data.config, frontLatexDisplayMode: true}}
-                                    setData(newValue)
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
-                                }}/>
+                                onClick={async ()=>{setDoublePanel(true)}}/>
                     }</div> :
                     <div className={classes.back_options}>
                         <SwitcherFilled
@@ -92,20 +84,10 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                             doublePanel ?
                             <LatexDarkOutlined
                                 className={utils.icon_button}
-                                onClick={async ()=>{
-                                    const newValue = {...data, config: {...data.config, backLatexDisplayMode: false}}
-                                    setData(newValue)
-                                    setDoublePanel(false)
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
-                                }}/>:
+                                onClick={async ()=>{setDoublePanel(false)}}/>:
                             <LatexLightOutlined
                                 className={utils.icon_button}
-                                onClick={async ()=>{
-                                    const newValue = {...data, config: {...data.config, backLatexDisplayMode: true}}
-                                    setData(newValue)
-                                    setDoublePanel(true)
-                                    await addDataToResource(props.meta.id!, "data.json", JSON.stringify(data))
-                                }}/>
+                                onClick={async ()=>{setDoublePanel(true)}}/>
                     }</div>
                 }</Col>
                 <Col span={22} offset={1} key={displayKey}>{
