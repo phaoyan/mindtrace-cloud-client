@@ -31,6 +31,14 @@ export const AccumulateDurationAtom = atom<any>({
     default: {}
 })
 
+export const StatisticDisplayAtom = atom<
+    "calendar" | "data" | "history" |
+    "knode distribution" | "enhancer distribution" |
+    "enhancer trace timeline" | "milestone">({
+    key: "StatisticDisplayAtom",
+    default: "history"
+})
+
 export const useRemoveTraceRecord = ()=>{
     const [studyTraces, setStudyTraces] = useRecoilState(LoadedTracesAtom)
     return async (traceId: number)=>{

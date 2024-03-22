@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useRecoilState} from "recoil";
 import {
-    HistoryStudyRecordKeyAtom,
+    HistoryStudyRecordKeyAtom, StatisticDisplayAtom,
 } from "./HistoryStudyRecordHooks";
 import {Col, Row, Tooltip} from "antd";
 import {
@@ -25,12 +25,7 @@ import {useInitStudyTraceData} from "./StudyTraceTimeline/StudyTraceTimelineHook
 
 
 const HistoryStudyRecord = () => {
-    const [statisticDisplay, setStatisticDisplay] = useState<
-        "calendar" | "data" | "history" |
-        "knode distribution" |
-        "enhancer distribution" |
-        "enhancer trace timeline" |
-        "milestone">("history")
+    const [statisticDisplay, setStatisticDisplay] = useRecoilState(StatisticDisplayAtom)
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const [componentKey, ] = useRecoilState(HistoryStudyRecordKeyAtom)
 

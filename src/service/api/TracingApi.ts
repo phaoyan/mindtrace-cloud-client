@@ -1,6 +1,10 @@
 import {BACK_HOST} from "../utils/constants";
 import axios from "axios";
 import {CurrentStudy, StudyTrace} from "../data/Tracing";
+import {Resource} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
+import {
+    Milestone
+} from "../../components/Main/InfoRight/RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
 
 export const TRACING_HOST = `${BACK_HOST}/tracing`
 
@@ -130,12 +134,16 @@ export const removeResourceFromMilestone = async (resourceId: number)=>{
     await axios.delete(`${TRACING_HOST}/milestone/resource/${resourceId}`)
 }
 
-export const getMilestoneById = async (milestoneId: number)=>{
+export const getMilestoneById = async (milestoneId: number): Promise<Milestone>=>{
     return axios.get(`${TRACING_HOST}/milestone/${milestoneId}`).then(({data})=>data)
 }
 
-export const getResourcesFromMilestone = async (milestoneId: number)=>{
+export const getResourcesFromMilestone = async (milestoneId: number): Promise<Resource[]>=>{
     return axios.get(`${TRACING_HOST}/milestone/${milestoneId}/resource`).then(({data})=>data)
+}
+
+export const getMilestoneByResourceId = async (resourceId: number)=>{
+    return axios.get(`${TRACING_HOST}/rel/resource/milestone?resourceId=${resourceId}`).then(({data})=>data)
 }
 
 export const getMilestonesBeneathKnode = async (knodeId: number)=>{
