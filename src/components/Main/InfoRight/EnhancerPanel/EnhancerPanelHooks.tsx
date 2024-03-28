@@ -1,7 +1,14 @@
 import {removeEnhancer} from "../../../../service/api/EnhancerApi";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
+
+
+
+export const EnhancerPanelCurrentPageAtom = atom({
+    key: "EnhancerPanelCurrentPageAtom",
+    default: 1
+})
 
 export const useHandleRemoveEnhancer = ()=>{
     const [enhancersForSelectedKnode, setEnhancersForSelectedKNode] = useRecoilState(EnhancersForSelectedKnodeAtom)

@@ -1,15 +1,20 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
-import {Col, Dropdown, Input, Row, Tooltip} from "antd";
+import {Breadcrumb, Col, Dropdown, Input, Row, Tooltip} from "antd";
 import {
     BookOutlined,
-    DeleteOutlined, DownOutlined, FormOutlined,
+    DeleteOutlined, DownOutlined, FormOutlined, LinkOutlined,
     MinusOutlined,
     PlusOutlined,
     ScissorOutlined, UpOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
-import {getEnhancerById, setEnhancerIsQuiz, setEnhancerTitle} from "../../../../../service/api/EnhancerApi";
+import {
+    getEnhancerById,
+    getKnodesByEnhancerId,
+    setEnhancerIsQuiz,
+    setEnhancerTitle
+} from "../../../../../service/api/EnhancerApi";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {getResourcesFromEnhancer, removeResource} from "../../../../../service/api/ResourceApi";
 import {EnhancerCardIdClipboardAtom} from "../../../../../recoil/home/Enhancer";
@@ -22,11 +27,14 @@ import {
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
 import dayjs from "dayjs";
+import {Knode, useBreadcrumbTitleForJump} from "../../../../../service/data/Knode";
+import {getAncestors} from "../../../../../service/api/KnodeApi";
 
-export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
+export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLocation?: boolean}) => {
 
-    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
     const [enhancer, setEnhancer] = useRecoilState(EnhancerAtomFamily(props.id))
+    const [relatedKnodeTitleDataList, setRelatedKnodeTitleDataList] = useState<Knode[][]>([])
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(props.id))
     const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
@@ -34,11 +42,18 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
     const handleRemove = useHandleRemoveEnhancer()
     const addResource = useAddResource(props.id)
     const shiftEnhancer = useShiftEnhancer()
+    const breadcrumbTitleForJump = useBreadcrumbTitleForJump();
 
     useEffect(()=>{
         const init = async ()=>{
             setEnhancer(await getEnhancerById(props.id))
             setResources(await getResourcesFromEnhancer(props.id))
+            const knodeTitleDataList = []
+            const knodes = await getKnodesByEnhancerId(props.id);
+            for(let knode of knodes){
+                knodeTitleDataList.push(await getAncestors(knode.id))
+            }
+            setRelatedKnodeTitleDataList(knodeTitleDataList)
         };init().then()
         //eslint-disable-next-line
     }, [props.id])
@@ -108,8 +123,21 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean}) => {
                             <PlusOutlined className={utils.icon_button}/>
                         </Dropdown>
                     }</Col>
-                </Row>
-            </div>
+                </Row>{
+                relatedKnodeTitleDataList
+                    .map((data, index)=>(
+                    <Row key={data[0].id}>
+                        <Col span={1}>
+                            <LinkOutlined
+                                className={utils.icon_button_normal}
+                                style={{position:"relative", left: "0.5em"}}/>
+                        </Col>
+                        <Col span={22}>{
+                            <Breadcrumb items={breadcrumbTitleForJump(data)}/>
+                        }</Col>
+                    </Row>
+                ))
+            }</div>
 
             <div className={classes.main_part}>
                 {resources.map(resource => (

@@ -9,6 +9,11 @@ export const EnhancerTimeDistributionAtom = atom<any[]>({
     default: undefined
 })
 
+export const EnhancerRecordPanelCurrentPageAtom = atom<number>({
+    key: "EnhancerRecordPanelCurrentPageAtom",
+    default: 1
+})
+
 export const useInitEnhancerRecordData = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [, setEnhancerTimeDistribution] = useRecoilState(EnhancerTimeDistributionAtom)

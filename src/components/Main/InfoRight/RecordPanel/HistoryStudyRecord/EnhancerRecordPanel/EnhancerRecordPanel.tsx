@@ -1,21 +1,28 @@
 import React from 'react';
-import {Col, Row, Tooltip} from "antd";
+import {Col, Pagination, Row, Tooltip} from "antd";
 import classes from "../HistoryStudyRecord.module.css";
 import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
 import dayjs from "dayjs";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 import {useRecoilState} from "recoil";
-import {EnhancerTimeDistributionAtom, useInitEnhancerRecordData} from "./EnhancerRecordPanelHooks";
+import {
+    EnhancerRecordPanelCurrentPageAtom,
+    EnhancerTimeDistributionAtom,
+    useInitEnhancerRecordData
+} from "./EnhancerRecordPanelHooks";
 
 const EnhancerRecordPanel = () => {
     const [enhancerRecordInfoList, ] = useRecoilState(EnhancerTimeDistributionAtom)
+    const [currentPage, setCurrentPage] = useRecoilState(EnhancerRecordPanelCurrentPageAtom)
+    const pageSize = 10
     useInitEnhancerRecordData()
 
     return (
         <div>{
             enhancerRecordInfoList &&
             enhancerRecordInfoList
+                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 .map(info=>(
                     <div key={info.enhancerId}>
                         <Row>
@@ -57,7 +64,13 @@ const EnhancerRecordPanel = () => {
                         </Row>
                     </div>
                 ))
-        }</div>
+            }<Pagination
+            onChange={(page)=>setCurrentPage(page)}
+            current={currentPage}
+            pageSize={pageSize}
+            hideOnSinglePage={true}
+            total={enhancerRecordInfoList.length}/>
+        </div>
     );
 };
 

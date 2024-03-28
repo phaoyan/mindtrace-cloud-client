@@ -29,6 +29,8 @@ import ReviewPanel from "./ReviewPanel/ReviewPanel";
 import {useAddEnhancer, useAddResourceDropdownItems} from "./EnhancerCard/EnhancerCardHooks";
 import {CopiedMilestoneIdAtom} from "../RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
 import {copyMilestoneAsEnhancerToKnode} from "../../../../service/api/TracingApi";
+import dayjs from "dayjs";
+import {EnhancerPanelCurrentPageAtom} from "./EnhancerPanelHooks";
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
@@ -39,7 +41,7 @@ const EnhancerPanel = () => {
     const [copiedMilestoneId, setCopiedMilestoneId] = useRecoilState(CopiedMilestoneIdAtom)
     const [offspringMode, setOffspringMode] = useState<boolean>(false)
     const [offspringEnhancers, setOffspringEnhancers] = useState<Enhancer[]>([])
-    const [currentPage, setCurrentPage] = useState<number>(1)
+    const [currentPage, setCurrentPage] = useRecoilState(EnhancerPanelCurrentPageAtom)
     const [userSubscribes, setUserSubscribes] = useRecoilState(CurrentUserSubscribesAtom)
     const [knodeSubscribes, setKnodeSubscribes] = useRecoilState(CurrentKnodeSubscribesAtom)
     const [enhancerSubscribes, setEnhancerSubscribes] = useRecoilState(CurrentEnhancerSubscribesAtom)
@@ -61,7 +63,7 @@ const EnhancerPanel = () => {
     useEffect(()=>{
         const effect = async ()=>{
             if(offspringMode)
-                setOffspringEnhancers(await getEnhancersForOffsprings(selectedKnodeId))
+                setOffspringEnhancers((await getEnhancersForOffsprings(selectedKnodeId)).sort((a,b)=>dayjs(b.createTime).diff(a.createTime)))
         }; effect().then()
     }, [offspringMode, selectedKnodeId])
 
@@ -74,7 +76,7 @@ const EnhancerPanel = () => {
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                     .map(enhancer=>(
                         <div key={enhancer.id}>
-                            <EnhancerCard id={enhancer.id} readonly={offspringMode || readonly}/>
+                            <EnhancerCard id={enhancer.id} readonly={offspringMode || readonly} displayLocation={offspringMode}/>
                             <Divider/>
                         </div>
                     ))

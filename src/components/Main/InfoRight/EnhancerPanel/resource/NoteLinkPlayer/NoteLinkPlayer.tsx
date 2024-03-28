@@ -95,7 +95,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                                 await addDataToResource(linkTemp.resourceId, "data.json", {
                                     fromId: linkTemp.placeId,
                                     toId: data.fromId,
-                                    fromResourceId: linkTemp,
+                                    fromResourceId: linkTemp.resourceId,
                                     toResourceId: data.fromResourceId,
                                     fromType: linkTemp.placeType,
                                     toType: data.fromType
@@ -104,7 +104,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                                     fromId: data.fromId,
                                     toId: linkTemp.placeId,
                                     fromResourceId: data.fromResourceId,
-                                    toResourceId: linkTemp,
+                                    toResourceId: linkTemp.resourceId,
                                     fromType: data.fromType,
                                     toType: linkTemp.placeType
                                 })

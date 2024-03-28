@@ -50,6 +50,10 @@ export const getChainStyleTitle = async (knodeId: number): Promise<string[]>=>{
             })
 }
 
+export const getAncestors = async (knodeId: number):Promise <Knode[]>=>{
+    return await axios.get(`${KNODE_HOST}/knode/${knodeId}/ancestor`).then(({data})=>data)
+}
+
 export const getLeaves = async (knodeId: number): Promise<Knode[]>=>{
     return await axios.get(`${KNODE_HOST}/knode/${knodeId}/leaves`).then(({data})=>data)
 }

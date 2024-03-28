@@ -1,6 +1,8 @@
 import {BreadcrumbItemType} from "antd/es/breadcrumb/Breadcrumb";
 import MdPreview from "../../components/utils/markdown/MdPreview";
 import React from "react";
+import {useJumpToKnode} from "../../components/Main/Main/MainHooks";
+import utils from "../../utils.module.css"
 
 
 export interface Knode {
@@ -38,7 +40,7 @@ export const getBrotherBranchIds = (ktree: Ktree, knodeId: number): number[] | u
     }
 }
 
-export const breadcrumbTitle = (chainStyleTitle: string[], include?: boolean):BreadcrumbItemType[] =>{
+export const breadcrumbTitle = (chainStyleTitle: string[], include?: boolean):BreadcrumbItemType[]=>{
     if(chainStyleTitle)
         return chainStyleTitle
             .filter(title=>{
@@ -47,4 +49,22 @@ export const breadcrumbTitle = (chainStyleTitle: string[], include?: boolean):Br
             })
             .map(title=>({title: <MdPreview>{title}</MdPreview>})).reverse()
     return []
+}
+
+export const useBreadcrumbTitleForJump = ()=>{
+    const jumpToKnode = useJumpToKnode()
+
+    return (chainStyleData: Knode[]):BreadcrumbItemType[]=>{
+        if(!chainStyleData)
+            return []
+        return chainStyleData.reverse().map(data=>({
+            title: (
+                <div
+                    className={utils.icon_button_normal}
+                    onClick={()=>jumpToKnode(data.id)}>
+                    <MdPreview>{data.title}</MdPreview>
+                </div>
+            )
+        }))
+    }
 }

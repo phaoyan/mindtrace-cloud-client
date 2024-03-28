@@ -23,6 +23,10 @@ import {KnodeIdBeforeVisitAtom} from "../InfoRight/SharePanel/KnodeShareCard/Kno
 import {subscribeKnode} from "../../../service/api/ShareApi";
 import {getUserPublicInfo} from "../../../service/api/LoginApi";
 import dayjs, {Dayjs} from "dayjs";
+import {EnhancerPanelCurrentPageAtom} from "../InfoRight/EnhancerPanel/EnhancerPanelHooks";
+import {
+    StudyTraceTimelineCurrentPageAtom
+} from "../InfoRight/RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceTimelineHooks";
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",
@@ -324,6 +328,17 @@ export const useHotkeys = ()=>{
             scissorSelectedKnode(selectedKnodeId)
         else if(event.ctrlKey && event.altKey && event.key === "v" && !readonly)
             pasteSelectedKnode().then()
+    }
+}
+
+export const useJumpToKnode = ()=>{
+    const [,setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
+    const [,setEnhancerPanelCurrentPage] = useRecoilState(EnhancerPanelCurrentPageAtom)
+    const [,setStudyTraceTimelineCurrentPage] = useRecoilState(StudyTraceTimelineCurrentPageAtom);
+    return (knodeId: number)=>{
+        setSelectedKnodeId(knodeId)
+        setEnhancerPanelCurrentPage(1)
+        setStudyTraceTimelineCurrentPage(1)
     }
 }
 
