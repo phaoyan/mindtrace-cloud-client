@@ -11,6 +11,7 @@ import {
     EnhancerTimeDistributionAtom,
     useInitEnhancerRecordData
 } from "./EnhancerRecordPanelHooks";
+import {EnhancerCard} from "../../../EnhancerPanel/EnhancerCard/EnhancerCard";
 
 const EnhancerRecordPanel = () => {
     const [enhancerRecordInfoList, ] = useRecoilState(EnhancerTimeDistributionAtom)
@@ -54,6 +55,11 @@ const EnhancerRecordPanel = () => {
                                 <span className={classes.enhancer_distribution_info}>
                                     {dayjs().diff(dayjs(info.traces[0].startTime),'day')}
                                 </span>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={23} offset={1}>
+                                <EnhancerCard id={info.enhancerId} hideName={true} readonly={true}/>
                             </Col>
                         </Row>
                         <br/>

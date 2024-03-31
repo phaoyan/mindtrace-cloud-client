@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
 import {Breadcrumb, Col, Dropdown, Input, Row, Tooltip} from "antd";
 import {
@@ -23,14 +23,14 @@ import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     EnhancerAtomFamily,
     EnhancerResourcesAtomFamily, ResourcePlayer, useAddResource,
-    useAddResourceDropdownItems, useShiftEnhancer
+    useAddResourceDropdownItems, useShiftEnhancer, useShiftResource
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
 import dayjs from "dayjs";
 import {Knode, useBreadcrumbTitleForJump} from "../../../../../service/data/Knode";
 import {getAncestors} from "../../../../../service/api/KnodeApi";
 
-export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLocation?: boolean}) => {
+export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?: boolean}) => {
 
     const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
     const [enhancer, setEnhancer] = useRecoilState(EnhancerAtomFamily(props.id))
@@ -42,7 +42,12 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLo
     const handleRemove = useHandleRemoveEnhancer()
     const addResource = useAddResource(props.id)
     const shiftEnhancer = useShiftEnhancer()
+    const shiftResource = useShiftResource(props.id)
     const breadcrumbTitleForJump = useBreadcrumbTitleForJump();
+    const mainPart = useRef(null)
+    const [mainPartHeight, setMainPartHeight] = useState(0)
+    const [maxHeight, setMaxHeight] = useState<number | undefined>(200)
+
 
     useEffect(()=>{
         const init = async ()=>{
@@ -57,25 +62,39 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLo
         };init().then()
         //eslint-disable-next-line
     }, [props.id])
+    useEffect(() => {
+        // 构建一个ResizeObserver实例，当观察的元素尺寸变化时执行回调
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries)
+                // 在这里更新高度
+                setMainPartHeight(entry.contentRect.height);
+        });
+        // 开始观察一个元素
+        if (mainPart.current)
+            resizeObserver.observe(mainPart.current);
+        // 清理函数
+        return () => resizeObserver.disconnect()
+    }, []);
 
     return (
         <div className={classes.container}>
             <div className={classes.header_part}>
                 <Row>
                     <Col span={10}>{
-                        props.readonly ?
-                        <span
-                            className={classes.title}
-                            style={{padding:"0.5em"}}>
+                        !props.hideName &&
+                        (props.readonly ?
+                            <span
+                                className={classes.title}
+                                style={{padding:"0.5em"}}>
                             {enhancer.title}
                         </span> :
-                        <Input
-                            value={enhancer.title}
-                            onChange={({target: {value}}) => enhancer && setEnhancer({...enhancer, title: value})}
-                            onBlur={() => !props.readonly && setEnhancerTitle(props.id, enhancer.title)}
-                            placeholder={". . ."}
-                            className={classes.title}
-                            bordered={false}/>
+                            <Input
+                                value={enhancer.title}
+                                onChange={({target: {value}}) => enhancer && setEnhancer({...enhancer, title: value})}
+                                onBlur={() => !props.readonly && setEnhancerTitle(props.id, enhancer.title)}
+                                placeholder={". . ."}
+                                className={classes.title}
+                                bordered={false}/>)
                     }</Col>
                     <Col span={7} className={classes.tag_wrapper}>
                         <span className={classes.date}>{dayjs(enhancer.createTime).format("YYYY-MM-DD")}</span>
@@ -83,8 +102,8 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLo
                     <Col span={1}>{
                         !props.readonly &&
                         <div className={classes.move_enhancer_box}>
-                            <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, -1)}/>
-                            <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, 1)}/>
+                            <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, 1)}/>
+                            <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, -1)}/>
                         </div>
                     }</Col>
                     <Col span={1} offset={1}>{
@@ -139,10 +158,16 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLo
                 ))
             }</div>
 
-            <div className={classes.main_part}>
-                {resources.map(resource => (
+            <div className={classes.main_part} ref={mainPart} style={{maxHeight: maxHeight}}>{
+                resources.map(resource => (
                     <Row key={resource.id}>
-                        <Col span={23}>
+                        <Col span={1}>
+                            <div className={classes.move_resource_box}>
+                                <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftResource(resource.id!, -1)}/>
+                                <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftResource(resource.id!, 1)}/>
+                            </div>
+                        </Col>
+                        <Col span={22}>
                             <ResourcePlayer resource={resource} readonly={props.readonly}/>
                         </Col>
                         <Col span={1}>{
@@ -157,9 +182,24 @@ export const EnhancerCard = (props: { id: number, readonly? : boolean, displayLo
                     </Row>
                 ))}
             </div>
-
             <Row>
-                <Col span={1} offset={23}>{
+                <Col span={23}>{
+                    mainPartHeight >= 200 &&
+                    (
+                        maxHeight ?
+                            <div
+                                className={`${classes.extend_prompt} ${utils.icon_button_normal}`}
+                                onClick={()=>setMaxHeight(undefined)}>
+                                点击展开
+                            </div> :
+                            <div
+                                className={`${classes.extend_prompt} ${utils.icon_button_normal}`}
+                                onClick={()=>setMaxHeight(200)}>
+                                点击收回
+                            </div>
+                    )
+                }</Col>
+                <Col span={1}>{
                     !props.readonly &&
                     <DeleteOutlined
                         className={utils.icon_button}

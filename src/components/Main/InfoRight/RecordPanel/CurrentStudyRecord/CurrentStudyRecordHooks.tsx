@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {useAddEnhancer} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 import {CurrentTabAtom} from "../../InfoRightHooks";
+import {getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
 export const CurrentStudyAtom = atom<CurrentStudy | undefined>({
     key: "CurrentStudyAtom",
     default: undefined
@@ -89,10 +90,12 @@ export const useSetTitle = ()=>{
     }
 }
 
-export const useAddKnodeId = (knodeId:number)=>{
+export const useAddKnodeId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    return async ()=>{
+    return async (knodeId:number)=>{
+        console.log("TEST", currentStudy!.knodeIds, knodeId, currentStudy!.knodeIds.includes(knodeId))
         if(!currentStudy) return
+        if(currentStudy.knodeIds.includes(knodeId)) return
         setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, knodeId]})
         await addTraceKnodeRel(knodeId)
     }
@@ -100,9 +103,13 @@ export const useAddKnodeId = (knodeId:number)=>{
 
 export const useAddEnhancerId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    const addKnodeId = useAddKnodeId()
     return async (enhancerId: number)=>{
         if(!currentStudy) return
-        setCurrentStudy({...currentStudy, enhancerIds: [...currentStudy.enhancerIds, enhancerId]})
+        if(enhancerId in currentStudy.enhancerIds) return
+        const knodes = await getKnodesByEnhancerId(enhancerId);
+        knodes.forEach(knode=>addKnodeId(knode.id))
+        setCurrentStudy((cur)=>({...cur!, enhancerIds: [...cur!.enhancerIds, enhancerId]}))
         await addTraceEnhancerRel(enhancerId)
     }
 }

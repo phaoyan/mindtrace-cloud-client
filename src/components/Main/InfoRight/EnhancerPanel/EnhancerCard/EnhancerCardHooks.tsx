@@ -15,11 +15,12 @@ import ClozePlayer from "../resource/ClozePlayer/ClozePlayer";
 import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer/MindtraceHubResourcePlayer";
 import React from "react";
 import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
-import {addResource} from "../../../../../service/api/ResourceApi";
+import {addResource, getResourcesFromEnhancer} from "../../../../../service/api/ResourceApi";
 import {
     addEnhancerToKnode,
     getEnhancersForKnode,
-    setEnhancerIndexInKnode
+    setEnhancerIndexInKnode,
+    setResourceIndexInEnhancer
 } from "../../../../../service/api/EnhancerApi";
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
@@ -101,6 +102,18 @@ export const useShiftEnhancer = ()=>{
         if(index2 < 0 || index2 >= enhancers.length) return
         await setEnhancerIndexInKnode(knodeId, enhancerId, index2)
         setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+    }
+}
+
+export const useShiftResource = (enhancerId: number)=>{
+    const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
+    return async (resourceId: number, shift: number)=>{
+        const index1 = resources.findIndex((resource)=>resource.id === resourceId)
+        const index2 = index1 + shift
+        if(index2 < 0 || index2 > resources.length - 1) return
+        await setResourceIndexInEnhancer(enhancerId, resourceId, index2)
+        console.log(await getResourcesFromEnhancer(enhancerId))
+        setResources(await getResourcesFromEnhancer(enhancerId))
     }
 }
 

@@ -1,5 +1,6 @@
 .container{
-    min-height: 10vh;
+    padding-top: 0.8em;
+    min-height: 6vh;
 }
 .option{
     display: flex;

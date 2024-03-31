@@ -8,8 +8,6 @@ import {
     useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
 } from "./CurrentStudyRecordHooks";
 import {
-    addTraceEnhancerRel,
-    addTraceKnodeRel,
     editCurrentStudyTitle,
     getCurrentStudy, getTraceEnhancerRels, getTraceKnodeRels,
     updateEndTime,
@@ -54,6 +52,8 @@ const CurrentStudyRecord = () => {
     const addResourceDropdownItems = useAddResourceDropdownItems()
     const addEnhancer = useAddEnhancerToCurrentStudy()
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
+    const addKnodeId = useAddKnodeId()
+    const addEnhancerId = useAddEnhancerId()
     useEffect(()=>{
         const effect = async ()=>{
             if(!selectedKnodeId) return
@@ -98,21 +98,14 @@ const CurrentStudyRecord = () => {
                                                 key: trace.id,
                                                 label: trace.title,
                                                 onClick: async ()=> {
-                                                    let title = trace.title
                                                     let knodeIds = await getTraceKnodeRels(trace.id)
                                                     let enhancerIds = await getTraceEnhancerRels(trace.id)
                                                     setTitle(trace.title)
-                                                    setCurrentStudy({
-                                                        ...currentStudy,
-                                                        trace: {...currentStudy?.trace, title: title},
-                                                        knodeIds: knodeIds,
-                                                        enhancerIds: enhancerIds
-                                                    })
                                                     await editCurrentStudyTitle(trace.title)
                                                     for(let knodeId of knodeIds)
-                                                        await addTraceKnodeRel(knodeId)
+                                                        await addKnodeId(knodeId)
                                                     for (let enhancerId of enhancerIds)
-                                                        await addTraceEnhancerRel(enhancerId)
+                                                        await addEnhancerId(enhancerId)
                                                 }
                                             }))
                                             .splice(0,5)}}>
@@ -267,7 +260,7 @@ const PickedKnodeItem = (props: {knodeId: number})=>{
 const ToPickKnodeItem = (props:{knodeId: number})=>{
     const [knode,] = useRecoilState(KnodeSelector(props.knodeId))
     const [chainStyleTitle, setChainStyleTitle] = useState<string[]>([])
-    const addKnodeId = useAddKnodeId(props.knodeId)
+    const addKnodeId = useAddKnodeId()
     const currentStudy = useRecoilValue(CurrentStudyAtom)
 
     useEffect(()=>{
@@ -285,7 +278,7 @@ const ToPickKnodeItem = (props:{knodeId: number})=>{
             <Col span={1} offset={1}>
                 <EditOutlined
                     className={utils.icon_button_normal}
-                    onClick={()=>addKnodeId()}/>
+                    onClick={()=>addKnodeId(props.knodeId)}/>
             </Col>
             <Col span={20}>
                 <div className={classes.selected_knode_title}>

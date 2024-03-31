@@ -6,7 +6,7 @@
 
 .add_card_wrapper{
     margin-top: 0.5em;
-    margin-bottom: 10vh;
+    margin-bottom: 1em;
 }
 .add_card_wrapper > *{
     margin-right: 2em;

@@ -57,7 +57,7 @@ export const useBreadcrumbTitleForJump = ()=>{
     return (chainStyleData: Knode[]):BreadcrumbItemType[]=>{
         if(!chainStyleData)
             return []
-        return chainStyleData.reverse().map(data=>({
+        return chainStyleData.map(data=>({
             title: (
                 <div
                     className={utils.icon_button_normal}

@@ -6,7 +6,7 @@ import {getEnhancerById} from "../../../../../../service/api/EnhancerApi";
 
 export const EnhancerTimeDistributionAtom = atom<any[]>({
     key: "EnhancerTimeDistributionAtom",
-    default: undefined
+    default: []
 })
 
 export const EnhancerRecordPanelCurrentPageAtom = atom<number>({

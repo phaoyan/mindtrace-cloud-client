@@ -47,7 +47,7 @@ const EnhancerPanel = () => {
     const [enhancerSubscribes, setEnhancerSubscribes] = useRecoilState(CurrentEnhancerSubscribesAtom)
     const addResourceDropdownItems = useAddResourceDropdownItems()
     const addEnhancer = useAddEnhancer()
-    const pageSize = 8
+    const pageSize = 16
 
     // selectedKnodeId -> enhancers
     useEffect(() => {
@@ -71,22 +71,6 @@ const EnhancerPanel = () => {
     return (
         <div className={classes.container} key={enhancerPanelKey}>
             <ReviewPanel/>
-            <div className={classes.main}>{
-                (offspringMode ? offspringEnhancers : enhancers)
-                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                    .map(enhancer=>(
-                        <div key={enhancer.id}>
-                            <EnhancerCard id={enhancer.id} readonly={offspringMode || readonly} displayLocation={offspringMode}/>
-                            <Divider/>
-                        </div>
-                    ))
-            }<Pagination
-                pageSize={pageSize}
-                onChange={(page)=>setCurrentPage(page)}
-                current={currentPage}
-                hideOnSinglePage={true}
-                total={(offspringMode ? offspringEnhancers : enhancers).length}/>
-            </div>
 
             <div className={classes.add_card_wrapper}>
                 <Row>
@@ -95,9 +79,7 @@ const EnhancerPanel = () => {
                         <>
                             <Dropdown
                                 menu={{items: addResourceDropdownItems, onClick: addEnhancer}}>
-                                <PlusOutlined
-                                    className={utils.icon_button}
-                                    style={{marginLeft:"2em"}}/>
+                                <PlusOutlined className={utils.icon_button}/>
                             </Dropdown>{
                             enhancerIdClipboard &&
                             <>
@@ -122,18 +104,18 @@ const EnhancerPanel = () => {
                                         }}/>
                                 </Tooltip>
                             </>}{
-                                copiedMilestoneId &&
-                                <Tooltip title={"粘贴笔记"}>
-                                    <CopyOutlined
-                                        className={utils.icon_button}
-                                        style={{marginLeft:"2em"}}
-                                        onClick={ async ()=>{
-                                            await copyMilestoneAsEnhancerToKnode(copiedMilestoneId,selectedKnodeId)
-                                            setEnhancerPanelKey(enhancerPanelKey+1)
-                                            setCopiedMilestoneId(undefined)
-                                        }}/>
-                                </Tooltip>
-                            }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
+                            copiedMilestoneId &&
+                            <Tooltip title={"粘贴笔记"}>
+                                <CopyOutlined
+                                    className={utils.icon_button}
+                                    style={{marginLeft:"2em"}}
+                                    onClick={ async ()=>{
+                                        await copyMilestoneAsEnhancerToKnode(copiedMilestoneId,selectedKnodeId)
+                                        setEnhancerPanelKey(enhancerPanelKey+1)
+                                        setCopiedMilestoneId(undefined)
+                                    }}/>
+                            </Tooltip>
+                        }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
                         </>
                     }</Col>
                     <Col span={5}>
@@ -147,6 +129,24 @@ const EnhancerPanel = () => {
                         <Switch checked={offspringMode} onChange={(checked)=>setOffspringMode(checked)}/>
                     </Col>
                 </Row>
+            </div>
+
+            <div className={classes.main}>{
+                (offspringMode ? offspringEnhancers : enhancers)
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map(enhancer=>(
+                        <div key={enhancer.id}>
+                            <EnhancerCard id={enhancer.id} readonly={offspringMode || readonly}/>
+                            <Divider/>
+                        </div>
+                    ))
+                    .reverse()
+            }<Pagination
+                pageSize={pageSize}
+                onChange={(page)=>setCurrentPage(page)}
+                current={currentPage}
+                hideOnSinglePage={true}
+                total={(offspringMode ? offspringEnhancers : enhancers).length}/>
             </div>
 
 

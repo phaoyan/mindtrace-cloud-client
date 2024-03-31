@@ -1,9 +1,20 @@
 .container{
-    min-height: 20vh;
     padding-right: 0.5vw;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.main_part{
+    overflow-y: hidden;
+    min-height: 20vh;
+}
+.extend_prompt{
+    display: flex;
+    justify-content: center;
+    color: #999999;
+    font-style: oblique;
+    font-weight: lighter;
 }
 
 .date{
@@ -75,5 +86,12 @@
     top: -0.1em;
 }
 .move_enhancer_box > *{
+    display: block;
+}
+.move_resource_box{
+    position: relative;
+    top: 1em;
+}
+.move_resource_box > *{
     display: block;
 }
