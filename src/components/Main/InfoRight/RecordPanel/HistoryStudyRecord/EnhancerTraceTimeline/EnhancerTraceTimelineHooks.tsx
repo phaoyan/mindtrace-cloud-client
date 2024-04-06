@@ -4,12 +4,12 @@ import dayjs from "dayjs";
 import classes from "./EnhancerTraceTimeline.module.css"
 import utils from "../../../../../../utils.module.css"
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
-import {useJumpToEnhancer} from "../HistoryStudyRecordHooks";
 import {Enhancer} from "../../../../../../service/data/Enhancer";
 import {useEffect, useState} from "react";
 import {breadcrumbTitle, Knode} from "../../../../../../service/data/Knode";
 import {getKnodesByEnhancerId} from "../../../../../../service/api/EnhancerApi";
 import {getChainStyleTitle} from "../../../../../../service/api/KnodeApi";
+import {useJumpToEnhancer} from "../StudyTraceTimeline/StudyTraceRecordHooks";
 
 export interface EnhancerTraceTimelineItem{
     start: string

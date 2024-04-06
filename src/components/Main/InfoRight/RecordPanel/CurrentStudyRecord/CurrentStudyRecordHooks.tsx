@@ -1,9 +1,9 @@
 import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {CurrentStudy} from "../../../../../service/data/Tracing";
 import {
-    addTraceEnhancerRel,
+    addTraceEnhancerRelCurrent,
     addTraceKnodeRel, continueCurrentStudy, pauseCurrentStudy,
-    removeCurrentStudy, removeTraceEnhancerRel,
+    removeCurrentStudy, removeTraceEnhancerRelCurrent,
     removeTraceKnodeRel,
     settleCurrentStudy, startCurrentStudy
 } from "../../../../../service/api/TracingApi";
@@ -91,26 +91,26 @@ export const useSetTitle = ()=>{
 }
 
 export const useAddKnodeId = ()=>{
-    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     return async (knodeId:number)=>{
-        console.log("TEST", currentStudy!.knodeIds, knodeId, currentStudy!.knodeIds.includes(knodeId))
-        if(!currentStudy) return
-        if(currentStudy.knodeIds.includes(knodeId)) return
-        setCurrentStudy({...currentStudy, knodeIds: [...currentStudy.knodeIds, knodeId]})
-        await addTraceKnodeRel(knodeId)
+        setCurrentStudy((cur)=>{
+            if(!cur || cur.knodeIds.includes(knodeId)) return cur
+            addTraceKnodeRel(knodeId)
+            return {...cur, knodeIds: [...cur.knodeIds, knodeId]}
+        })
     }
 }
 
 export const useAddEnhancerId = ()=>{
-    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     const addKnodeId = useAddKnodeId()
     return async (enhancerId: number)=>{
-        if(!currentStudy) return
-        if(enhancerId in currentStudy.enhancerIds) return
-        const knodes = await getKnodesByEnhancerId(enhancerId);
-        knodes.forEach(knode=>addKnodeId(knode.id))
-        setCurrentStudy((cur)=>({...cur!, enhancerIds: [...cur!.enhancerIds, enhancerId]}))
-        await addTraceEnhancerRel(enhancerId)
+        setCurrentStudy((cur)=>{
+            if(!cur || enhancerId in cur.enhancerIds) return cur
+            getKnodesByEnhancerId(enhancerId).then((knodes)=>knodes.forEach(knode=>addKnodeId(knode.id)))
+            addTraceEnhancerRelCurrent(enhancerId)
+            return {...cur, enhancerIds: [...cur.enhancerIds, enhancerId]}
+        })
     }
 }
 
@@ -128,7 +128,7 @@ export const useRemoveEnhancerId = ()=>{
     return async (enhancerId: number)=>{
         if(!currentStudy) return
         setCurrentStudy({...currentStudy, enhancerIds: currentStudy.enhancerIds.filter(id=>id!==enhancerId)})
-        await removeTraceEnhancerRel(enhancerId)
+        await removeTraceEnhancerRelCurrent(enhancerId)
     }
 }
 
@@ -137,7 +137,7 @@ export const useAddEnhancerToCurrentStudy = ()=>{
     const addEnhancerId = useAddEnhancerId()
     const [,setCurrentTab] = useRecoilState(CurrentTabAtom)
     return async (data: any)=>{
-        await addEnhancerId(await addEnhancer(data))
+        await addEnhancerId((await addEnhancer(data))!)
         setCurrentTab("note")
     }
 }

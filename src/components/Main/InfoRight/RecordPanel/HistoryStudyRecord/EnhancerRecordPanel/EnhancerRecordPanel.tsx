@@ -7,25 +7,28 @@ import dayjs from "dayjs";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 import {useRecoilState} from "recoil";
 import {
+    EnhancerGroupRecordInfoListAtom,
     EnhancerRecordPanelCurrentPageAtom,
-    EnhancerTimeDistributionAtom,
+    EnhancerRecordInfoListAtom,
     useInitEnhancerRecordData
 } from "./EnhancerRecordPanelHooks";
 import {EnhancerCard} from "../../../EnhancerPanel/EnhancerCard/EnhancerCard";
+import EnhancerGroupCard from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCard";
 
 const EnhancerRecordPanel = () => {
-    const [enhancerRecordInfoList, ] = useRecoilState(EnhancerTimeDistributionAtom)
+    const [enhancerRecordInfoList, ] = useRecoilState(EnhancerRecordInfoListAtom)
+    const [enhancerGroupRecordInfoList, ] = useRecoilState(EnhancerGroupRecordInfoListAtom)
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerRecordPanelCurrentPageAtom)
     const pageSize = 10
     useInitEnhancerRecordData()
 
     return (
         <div>{
-            enhancerRecordInfoList &&
-            enhancerRecordInfoList
+            [...enhancerRecordInfoList, ...enhancerGroupRecordInfoList]
+                .sort((a, b) => b.duration - a.duration)
                 .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 .map(info=>(
-                    <div key={info.enhancerId}>
+                    <div key={info.enhancerId || info.groupId}>
                         <Row>
                             <Col span={8}>
                                 <span className={classes.enhancer_distribution_title}>{info.title}</span>
@@ -59,7 +62,8 @@ const EnhancerRecordPanel = () => {
                         </Row>
                         <Row>
                             <Col span={23} offset={1}>
-                                <EnhancerCard id={info.enhancerId} hideName={true} readonly={true}/>
+                                {info.enhancerId && <EnhancerCard id={info.enhancerId} hideName={true} readonly={true}/>}
+                                {info.groupId && <EnhancerGroupCard id={info.groupId} hideName={true} readonly={true}/>}
                             </Col>
                         </Row>
                         <br/>

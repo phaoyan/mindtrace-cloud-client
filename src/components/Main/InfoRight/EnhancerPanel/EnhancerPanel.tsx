@@ -3,13 +3,13 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
 import {
-    copyEnhancer,
+    copyEnhancer, getEnhancerGroupsByKnodeId,
     getEnhancersForKnode,
     getEnhancersForOffsprings,
     scissorEnhancer
 } from "../../../../service/api/EnhancerApi";
 import {Col, Divider, Dropdown, Pagination, Row, Switch, Tooltip} from "antd";
-import {CopyOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
+import {BlockOutlined, CopyOutlined, PlusOutlined, ScissorOutlined} from "@ant-design/icons";
 import classes from "./EnhancerPanel.module.css";
 import utils from "../../../../utils.module.css"
 import {EnhancerCardIdClipboardAtom, EnhancersForSelectedKnodeAtom} from "../../../../recoil/home/Enhancer";
@@ -26,16 +26,29 @@ import UserSubscribePanel from "../SharePanel/UserSubscribePanel/UserSubscribePa
 import KnodeSubscribePanel from "../SharePanel/KnodeSubscribePanel/KnodeSubscribePanel";
 import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/EnhancerSubscribePanel";
 import ReviewPanel from "./ReviewPanel/ReviewPanel";
-import {useAddEnhancer, useAddResourceDropdownItems} from "./EnhancerCard/EnhancerCardHooks";
+import {
+    ResourceType,
+    useAddEnhancer,
+    useAddEnhancerGroup,
+    useAddResourceDropdownItems
+} from "./EnhancerCard/EnhancerCardHooks";
 import {CopiedMilestoneIdAtom} from "../RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
 import {copyMilestoneAsEnhancerToKnode} from "../../../../service/api/TracingApi";
 import dayjs from "dayjs";
 import {EnhancerPanelCurrentPageAtom} from "./EnhancerPanelHooks";
+import {
+    EnhancerGroup,
+    EnhancerGroupsForSelectedKnodeAtom,
+    SelectedKnodeEnhancerIdsInGroupSelector
+} from "./EnhancerGroupCard/EnhancerGroupCardHooks";
+import EnhancerGroupCard from "./EnhancerGroupCard/EnhancerGroupCard";
 const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
+    const [enhancerGroups, setEnhancerGroups] = useRecoilState<EnhancerGroup[]>(EnhancerGroupsForSelectedKnodeAtom)
+    const enhancerIdsInGroups = useRecoilValue(SelectedKnodeEnhancerIdsInGroupSelector);
     const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
     const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)
     const [copiedMilestoneId, setCopiedMilestoneId] = useRecoilState(CopiedMilestoneIdAtom)
@@ -47,6 +60,7 @@ const EnhancerPanel = () => {
     const [enhancerSubscribes, setEnhancerSubscribes] = useRecoilState(CurrentEnhancerSubscribesAtom)
     const addResourceDropdownItems = useAddResourceDropdownItems()
     const addEnhancer = useAddEnhancer()
+    const addEnhancerGroup = useAddEnhancerGroup();
     const pageSize = 16
 
     // selectedKnodeId -> enhancers
@@ -54,6 +68,7 @@ const EnhancerPanel = () => {
         const effect = async ()=>{
             if(!selectedKnodeId) return
             setEnhancers((await getEnhancersForKnode(selectedKnodeId)))
+            setEnhancerGroups(await getEnhancerGroupsByKnodeId(selectedKnodeId))
             setUserSubscribes(await getUserSubscribes(selectedKnodeId))
             setKnodeSubscribes(await getKnodeSubscribes(selectedKnodeId))
             setEnhancerSubscribes(await getEnhancerSubscribes(selectedKnodeId))
@@ -66,7 +81,9 @@ const EnhancerPanel = () => {
                 setOffspringEnhancers((await getEnhancersForOffsprings(selectedKnodeId)).sort((a,b)=>dayjs(b.createTime).diff(a.createTime)))
         }; effect().then()
     }, [offspringMode, selectedKnodeId])
+    useEffect(()=>{
 
+    }, [])
 
     return (
         <div className={classes.container} key={enhancerPanelKey}>
@@ -78,7 +95,17 @@ const EnhancerPanel = () => {
                         !readonly &&
                         <>
                             <Dropdown
-                                menu={{items: addResourceDropdownItems, onClick: addEnhancer}}>
+                                menu={{
+                                    items: [
+                                        ...addResourceDropdownItems,
+                                        {
+                                            key: ResourceType.ENHANCER_GROUP,
+                                            label: "笔记合集",
+                                            icon: <BlockOutlined className={classes.option}/>,
+                                            onClick: addEnhancerGroup
+                                        }
+                                    ],
+                                    onClick: addEnhancer}}>
                                 <PlusOutlined className={utils.icon_button}/>
                             </Dropdown>{
                             enhancerIdClipboard &&
@@ -131,8 +158,16 @@ const EnhancerPanel = () => {
                 </Row>
             </div>
 
+            <div className={classes.groups}>{
+                enhancerGroups.map(group=>(
+                    <>
+                        <EnhancerGroupCard key={group.id} id={group.id} readonly={readonly}/>
+                        <Divider/>
+                    </>
+                ))
+            }</div>
             <div className={classes.main}>{
-                (offspringMode ? offspringEnhancers : enhancers)
+                (offspringMode ? offspringEnhancers : enhancers.filter(enhancer=>!enhancerIdsInGroups.includes(enhancer.id)))
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                     .map(enhancer=>(
                         <div key={enhancer.id}>
@@ -146,7 +181,7 @@ const EnhancerPanel = () => {
                 onChange={(page)=>setCurrentPage(page)}
                 current={currentPage}
                 hideOnSinglePage={true}
-                total={(offspringMode ? offspringEnhancers : enhancers).length}/>
+                total={(offspringMode ? offspringEnhancers : enhancers.filter(enhancer=>!enhancerIdsInGroups.includes(enhancer.id))).length}/>
             </div>
 
 

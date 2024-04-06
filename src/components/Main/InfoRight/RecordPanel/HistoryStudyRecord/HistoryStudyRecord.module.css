@@ -38,9 +38,6 @@
     margin-right: 1em;
     cursor: pointer;
 }
-.enhancer_title:hover{
-    opacity: 50%;
-}
 .distribution_info{
     color: #666666;
     font-style: oblique;

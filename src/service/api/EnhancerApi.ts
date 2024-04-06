@@ -2,11 +2,17 @@ import {Enhancer} from "../data/Enhancer";
 import axios from "axios";
 import {BACK_HOST} from "../utils/constants";
 import {Knode} from "../data/Knode";
+import {EnhancerGroup} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerGroupCard/EnhancerGroupCardHooks";
+import {Resource} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 export const ENHANCER_HOST = `${BACK_HOST}/enhancer`
 
 export const getEnhancerById = async (enhancerId: number): Promise<Enhancer>=>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}`).then(({data})=>data)
+}
+
+export const getEnhancersByLike = async (userId: number, txt: string):Promise<Enhancer[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/like/user/${userId}/enhancer?txt=${txt}`).then(({data})=>data)
 }
 
 export const getEnhancerByResourceId = async (resourceId: number): Promise<Enhancer>=>{
@@ -24,6 +30,8 @@ export const getEnhancersByDateBeneathKnode = async (knodeId: number, left?: str
 export const getEnhancersForKnode = async (knodeId: number): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/knode/${knodeId}/enhancer`).then(({data})=>data)
 }
+
+
 
 export const getEnhancersForOffsprings = async (knodeId: number): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/knode/${knodeId}/offspring/enhancer`).then(({data})=>data)
@@ -67,4 +75,45 @@ export const setEnhancerIndexInKnode = async (knodeId: number, enhancerId: numbe
 
 export const setResourceIndexInEnhancer = async (enhancerId: number, resourceId: number, index: number) =>{
     return await axios.post(`${ENHANCER_HOST}/rel/enhancer/resource/index?enhancerId=${enhancerId}&resourceId=${resourceId}&index=${index}`)
+}
+
+export const getEnhancerGroupById = async (groupId: number):Promise<EnhancerGroup>=>{
+    return await axios.get(`${ENHANCER_HOST}/enhancer-group/${groupId}`).then(({data})=>data)
+}
+
+export const getRelatedEnhancerIdsByGroupId = async (groupId: number): Promise<number[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/rel/enhancer-group/${groupId}/enhancer/id`).then(({data})=>data)
+}
+
+export const getEnhancersByGroupId = async (groupId: number): Promise<Enhancer[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/rel/enhancer-group/${groupId}/enhancer`).then(({data})=>data)
+
+}
+
+export const getResourcesByGroupId = async (groupId: number): Promise<Resource[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/rel/enhancer-group/${groupId}/resource`).then(({data})=>data)
+}
+
+export const addEnhancerGroupToKnode = async (userId: number, knodeId: number)=>{
+    return await axios.put(`${ENHANCER_HOST}/user/${userId}/knode/${knodeId}/enhancer-group`)
+}
+
+export const addEnhancerGroupRel = async (enhancerId: number, groupId: number)=>{
+    return await axios.put(`${ENHANCER_HOST}/rel/enhancer-group/enhancer?enhancerId=${enhancerId}&groupId=${groupId}`)
+}
+
+export const setEnhancerGroupTitle = async (groupId: number, title: string)=>{
+    await axios.put(`${ENHANCER_HOST}/enhancer-group/${groupId}/title?title=${title}`)
+}
+
+export const addResourceToEnhancerGroup = async (groupId: number, userId: number, type: string)=>{
+    return await axios.put(`${ENHANCER_HOST}/enhancer-group/${groupId}/resource?userId=${userId}&type=${type}`).then(({data})=>data)
+}
+
+export const removeEnhancerGroup = async (groupId: number)=>{
+    await axios.delete(`${ENHANCER_HOST}/enhancer-group/${groupId}`)
+}
+
+export const getEnhancerGroupsByKnodeId = async (knodeId: number): Promise<EnhancerGroup[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/rel/knode/${knodeId}/enhancer-group`).then(({data})=>data)
 }

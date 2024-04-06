@@ -14,7 +14,6 @@ import {
 import classes from "./EnhancerTraceTimeline.module.css"
 import utils from "../../../../../../utils.module.css"
 import {CrownOutlined, EnvironmentOutlined} from "@ant-design/icons";
-import {useJumpToEnhancer} from "../HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {getKnodesByEnhancerId} from "../../../../../../service/api/EnhancerApi";
 import {getChainStyleTitle} from "../../../../../../service/api/KnodeApi";
@@ -22,6 +21,7 @@ import {breadcrumbTitle} from "../../../../../../service/data/Knode";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
 import {MilestonesAtom} from "../MilestonePanel/MilestonePanelHooks";
 import {Resource, ResourcePlayer} from "../../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
+import {useJumpToEnhancer} from "../StudyTraceTimeline/StudyTraceRecordHooks";
 
 
 const EnhancerTraceTimeline = () => {

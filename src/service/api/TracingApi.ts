@@ -65,14 +65,21 @@ export const removeTraceKnodeRel = async (knodeId: number) =>{
     await axios.delete(`${TRACING_HOST}/study/current/knode/${knodeId}`)
 }
 
-export const addTraceEnhancerRel = async (enhancerId: number): Promise<number[]>=>{
+export const addTraceEnhancerRelCurrent = async (enhancerId: number): Promise<number[]>=>{
     return await axios.post(`${TRACING_HOST}/study/current/enhancer/${enhancerId}`).then(({data})=>data)
 }
 
-export const removeTraceEnhancerRel = async (enhancerId: number) =>{
+export const addTraceEnhancerRel = async (traceId: number, enhancerId: number)=>{
+    await axios.put(`${TRACING_HOST}/rel/trace/enhancer?traceId=${traceId}&enhancerId=${enhancerId}`)
+}
+
+export const removeTraceEnhancerRelCurrent = async (enhancerId: number) =>{
     await axios.delete(`${TRACING_HOST}/study/current/enhancer/${enhancerId}`)
 }
 
+export const removeTraceEnhancerRel = async (traceId: number, enhancerId: number)=>{
+    await axios.delete(`${TRACING_HOST}/rel/trace/enhancer?traceId=${traceId}&enhancerId=${enhancerId}`)
+}
 
 export const settleCurrentStudy = async (): Promise<StudyTrace>=>{
     return await axios.post(`${TRACING_HOST}/study/current/settle`).then(({data})=>data)
@@ -100,6 +107,10 @@ export const getTraceEnhancerRels = async (traceId: number): Promise<number[]>=>
 
 export const getStudyTraceKnodeInfo = async (knodeId: number): Promise<any[]>=>{
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}`).then(({data})=>data)
+}
+
+export const getStudyTraceEnhancerInfo = async (enhancerId: number): Promise<any[]>=>{
+    return await axios.get(`${TRACING_HOST}/study/enhancer/${enhancerId}`).then(({data})=>data)
 }
 
 export const getStudyTraceEnhancerInfoUnderKnode = async (knodeId: number): Promise<any[]> => {
@@ -192,4 +203,8 @@ export const getCalendarDay = async (knodeId: number)=>{
 
 export const getCalendarMonth = async (knodeId: number)=>{
     return await axios.get(`${TRACING_HOST}/study/knode/${knodeId}/info/calendar-month`).then(({data})=>data)
+}
+
+export const getStudyTraceEnhancerGroupInfo = async (groupId: number)=>{
+    return await axios.get(`${TRACING_HOST}/study/enhancer-group/${groupId}`).then(({data})=>data)
 }

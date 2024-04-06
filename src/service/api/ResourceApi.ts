@@ -29,3 +29,7 @@ export const getDataFromResource = async (resourceId:number, dataName: string): 
 export const removeResource = async (resourceId: number): Promise<any>=>{
     return await axios.delete(`${ENHANCER_HOST}/resource/${resourceId}`)
 }
+
+export const removeResourceFromEnhancerGroup = async (groupId: number, resourceId: number)=>{
+    await axios.delete(`${ENHANCER_HOST}/enhancer-group/${groupId}/resource/${resourceId}`)
+}

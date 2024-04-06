@@ -1,11 +1,21 @@
 import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {useEffect,} from "react";
-import {getStudyTraceEnhancerInfoUnderKnode} from "../../../../../../service/api/TracingApi";
-import {getEnhancerById} from "../../../../../../service/api/EnhancerApi";
+import {
+    getStudyTraceEnhancerGroupInfo,
+    getStudyTraceEnhancerInfoUnderKnode
+} from "../../../../../../service/api/TracingApi";
+import {
+    EnhancerGroupsForSelectedKnodeAtom,
+} from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCardHooks";
 
-export const EnhancerTimeDistributionAtom = atom<any[]>({
+export const EnhancerRecordInfoListAtom = atom<any[]>({
     key: "EnhancerTimeDistributionAtom",
+    default: []
+})
+
+export const EnhancerGroupRecordInfoListAtom = atom<any[]>({
+    key: "EnhancerGroupRecordInfoListAtom",
     default: []
 })
 
@@ -16,18 +26,21 @@ export const EnhancerRecordPanelCurrentPageAtom = atom<number>({
 
 export const useInitEnhancerRecordData = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [, setEnhancerTimeDistribution] = useRecoilState(EnhancerTimeDistributionAtom)
+    const [enhancerGroups, ] = useRecoilState(EnhancerGroupsForSelectedKnodeAtom);
+    const [, setEnhancerInfoList] = useRecoilState(EnhancerRecordInfoListAtom)
+    const [, setEnhancerGroupInfoList] = useRecoilState(EnhancerGroupRecordInfoListAtom)
     useEffect(()=>{
         const effect = async ()=>{
             const resp = await getStudyTraceEnhancerInfoUnderKnode(selectedKnodeId)
-            const data = []
+            const enhancerInfoList = []
+            const enhancerGroupInfoList = []
             for(let info of resp)
-                data.push({
-                    ...info,
-                    title: (await getEnhancerById(info.enhancerId)).title,
-                    traces: info.traces.reverse()
-                })
-            setEnhancerTimeDistribution(data.sort((a,b)=>b.duration - a.duration))
+                enhancerInfoList.push(info)
+            setEnhancerInfoList(enhancerInfoList.sort((a,b)=>b.duration - a.duration))
+            for(let group of enhancerGroups)
+                enhancerGroupInfoList.push(await getStudyTraceEnhancerGroupInfo(group.id))
+            setEnhancerGroupInfoList(enhancerGroupInfoList)
         }; effect().then()
-    }, [selectedKnodeId, setEnhancerTimeDistribution])
+        //eslint-disable-next-line
+    }, [selectedKnodeId])
 }

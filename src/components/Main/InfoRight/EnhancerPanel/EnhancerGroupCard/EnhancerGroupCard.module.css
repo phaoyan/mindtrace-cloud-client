@@ -1,0 +1,31 @@
+.tag_wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.title{
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666666;
+}
+.resource_delete{
+    display: flex;
+    justify-content: center;
+
+    position: relative;
+    top: 2em;
+}
+.delete{
+    display: flex;
+    justify-content: center;
+}
+.main_part{
+    overflow: hidden;
+}
+.extend_prompt{
+    display: flex;
+    justify-content: center;
+    color: #999999;
+    font-style: oblique;
+    font-weight: lighter;
+}

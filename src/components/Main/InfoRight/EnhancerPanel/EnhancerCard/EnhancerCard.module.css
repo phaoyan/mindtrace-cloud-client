@@ -7,7 +7,7 @@
 
 .main_part{
     overflow-y: hidden;
-    min-height: 20vh;
+    min-height: 12vh;
 }
 .extend_prompt{
     display: flex;

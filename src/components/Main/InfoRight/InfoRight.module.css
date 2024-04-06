@@ -37,7 +37,8 @@
 .container{
     padding-left: 3%;
     width: 96%;
-    height: 95%;
+    height: 98%;
+    overflow-x: hidden;
 }
 .left_info{
     display: flex;

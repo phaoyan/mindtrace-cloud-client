@@ -10,10 +10,6 @@ import {
 import React, {useEffect, useState} from "react";
 import {
     AccumulateDurationAtom,
-    useAddMilestoneTraceRel,
-    useCalculateTitle,
-    useJumpToEnhancer, useRemoveMilestoneTraceRel,
-    useRemoveTraceRecord
 } from "../HistoryStudyRecordHooks";
 import {
     getTraceEnhancerRels,
@@ -24,12 +20,11 @@ import {
 import {getChainStyleTitle} from "../../../../../../service/api/KnodeApi";
 import {getEnhancerById} from "../../../../../../service/api/EnhancerApi";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
-import {Breadcrumb, Col, Divider, Input, Popconfirm, Row, Tooltip} from "antd";
+import {Breadcrumb, Col, Divider, Input, Popconfirm, Popover, Row, Tooltip} from "antd";
 import {
     CalendarOutlined,
     DeleteOutlined,
     EditOutlined,
-    FieldTimeOutlined,
     RetweetOutlined,
     SwapOutlined
 } from "@ant-design/icons";
@@ -38,6 +33,18 @@ import classes from "../HistoryStudyRecord.module.css";
 import dayjs from "dayjs";
 import {formatMillisecondsToHHMM, formatMillisecondsToHHMMSS} from "../../../../../../service/utils/TimeUtils";
 import {breadcrumbTitle} from "../../../../../../service/data/Knode";
+import {
+    RelEnhancerTitlesFamily,
+    RelKnodeChainTitlesFamily,
+    TraceEnhancerRelAtomFamily,
+    TraceKnodeRelAtomFamily,
+    useAddMilestoneTraceRel,
+    useCalculateTitle,
+    useJumpToEnhancer,
+    useRemoveMilestoneTraceRel,
+    useRemoveTraceRecord
+} from "./StudyTraceRecordHooks";
+import EnhancerSearch from "./EnhancerSearch";
 
 export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const readonly = useRecoilValue(ReadonlyModeAtom)
@@ -46,10 +53,10 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     const [selectedMilestoneId,] = useRecoilState(SelectedMilestoneIdAtom)
     const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
-    const [knodeRels, setKnodeRels] = useState<number[]>([])
-    const [enhancerRels, setEnhancerRels] = useState<number[]>([])
-    const [relKnodeChainTitles, setRelKnodeChainTitles] = useState<{knodeId: number, title: string[]}[]>([])
-    const [relEnhancerTitles, setRelEnhancerTitles] = useState<{enhancerId: number, title: string}[]>([])
+    const [knodeRels, setKnodeRels] = useRecoilState(TraceKnodeRelAtomFamily(props.trace.id))
+    const [enhancerRels, setEnhancerRels] = useRecoilState(TraceEnhancerRelAtomFamily(props.trace.id))
+    const [relKnodeChainTitles, setRelKnodeChainTitles] = useRecoilState(RelKnodeChainTitlesFamily(props.trace.id))
+    const [relEnhancerTitles, setRelEnhancerTitles] = useRecoilState(RelEnhancerTitlesFamily(props.trace.id))
     const removeTraceRecord = useRemoveTraceRecord()
     const calculateTitle = useCalculateTitle()
     const jumpToEnhancer = useJumpToEnhancer()
@@ -71,6 +78,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 temp.push({knodeId: coverage, title: await getChainStyleTitle(coverage)})
             setRelKnodeChainTitles(temp)
         }; effect().then()
+        //eslint-disable-next-line
     }, [knodeRels])
     useEffect(()=>{
         const effect = async ()=>{
@@ -79,6 +87,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 temp.push({enhancerId: id, title: (await getEnhancerById(id)).title})
             setRelEnhancerTitles(temp)
         }; effect().then()
+        //eslint-disable-next-line
     }, [enhancerRels])
 
     if(!props.trace || !relKnodeChainTitles) return <PlainLoading/>
@@ -141,7 +150,12 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 </Col>
                 <Col span={1}>{
                     relEnhancerTitles.length !== 0 &&
-                    <FieldTimeOutlined style={{scale:"120%"}}/>
+                    <Popover
+                        placement={"left"}
+                        arrow={false}
+                        content={<EnhancerSearch trace={props.trace}/>}>
+                        <EditOutlined className={utils.icon_button_normal} style={{scale:"120%"}}/>
+                    </Popover>
                 }</Col>
                 <Col span={11}>{
                     relEnhancerTitles.map(data=>

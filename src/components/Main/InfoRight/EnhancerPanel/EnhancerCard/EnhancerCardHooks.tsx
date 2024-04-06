@@ -17,6 +17,8 @@ import React from "react";
 import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
 import {addResource, getResourcesFromEnhancer} from "../../../../../service/api/ResourceApi";
 import {
+    addEnhancerGroupRel,
+    addEnhancerGroupToKnode,
     addEnhancerToKnode,
     getEnhancersForKnode,
     setEnhancerIndexInKnode,
@@ -25,6 +27,8 @@ import {
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import NoteLinkPlayer from "../resource/NoteLinkPlayer/NoteLinkPlayer";
+import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
+import {EnhancerPanelKeyAtom} from "../../../../../recoil/utils/DocumentData";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -35,6 +39,8 @@ export const EnhancerResourcesAtomFamily = atomFamily<Resource[], number>({
     default: []
 })
 
+
+
 export const useAddResource = (enhancerId: number)=>{
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
     return async (type: string)=>{
@@ -42,8 +48,9 @@ export const useAddResource = (enhancerId: number)=>{
     }
 }
 
-export const useAddResourceDropdownItems = ()=>{
-    return [
+export const useAddResourceDropdownItems = (disableNoteLink?: boolean)=>{
+
+    const res = [
         {
             key: ResourceType.QUIZCARD,
             label: "知识卡片",
@@ -73,23 +80,38 @@ export const useAddResourceDropdownItems = ()=>{
             key: ResourceType.AUDIO,
             label: "音频资源",
             icon: <SoundOutlined className={classes.option}/>,
-        },
-        {
+        }
+    ]
+
+    if(!disableNoteLink)
+        res.push({
             key: ResourceType.NOTE_LINK,
             label: "笔记链接",
             icon: <SnippetsOutlined className={classes.option}/>,
-        }
-    ]
+        })
+
+    return res
 }
 
 export const useAddEnhancer = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [enhancers, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
     return async (data: any)=>{
+        if(data.key === ResourceType.ENHANCER_GROUP) return
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
         await addResource(enhancer.id, {type: data.key})
         setEnhancers([...enhancers, enhancer])
         return enhancer.id
+    }
+}
+
+export const useAddEnhancerGroup = ()=>{
+    const userId = useRecoilValue(LoginUserIdSelector);
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const [, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom);
+    return async ()=>{
+        await addEnhancerGroupToKnode(userId, selectedKnodeId)
+        setEnhancerPanelKey((key)=>key + 1)
     }
 }
 
@@ -112,8 +134,15 @@ export const useShiftResource = (enhancerId: number)=>{
         const index2 = index1 + shift
         if(index2 < 0 || index2 > resources.length - 1) return
         await setResourceIndexInEnhancer(enhancerId, resourceId, index2)
-        console.log(await getResourcesFromEnhancer(enhancerId))
         setResources(await getResourcesFromEnhancer(enhancerId))
+    }
+}
+
+export const useAddEnhancerToGroup = (enhancerId: number)=>{
+    const [, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom);
+    return async (groupId: any)=>{
+        await addEnhancerGroupRel(enhancerId, groupId)
+        setEnhancerPanelKey((key)=>key + 1)
     }
 }
 
@@ -142,7 +171,8 @@ export const ResourceType = {
     HIDDEN_KNODE_SET: "hidden knode set",
     STROKE: "stroke",
     UNFOLDING: "unfolding",
-    MINDTRACE_HUB_RESOURCE: "mindtrace hub resource"
+    MINDTRACE_HUB_RESOURCE: "mindtrace hub resource",
+    ENHANCER_GROUP: "enhancer group"
 }
 
 /**

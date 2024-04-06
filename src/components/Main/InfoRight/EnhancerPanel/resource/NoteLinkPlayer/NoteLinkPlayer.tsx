@@ -8,32 +8,26 @@ import {
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {useRecoilState} from "recoil";
-import {NoteLinkAtom, useJumpToMilestone} from "./NoteLinkPlayerHooks";
+import {NoteLinkAtom, NoteLinkDataAtomFamily, useJumpToMilestone, useLinkNote} from "./NoteLinkPlayerHooks";
 import classes from "./NoteLinkPlayer.module.css"
 import utils from "../../../../../../utils.module.css"
 import {LinkOutlined, SendOutlined} from "@ant-design/icons";
 import {Col, Row} from "antd";
 import {getEnhancerByResourceId} from "../../../../../../service/api/EnhancerApi";
-import {useJumpToEnhancer} from "../../../RecordPanel/HistoryStudyRecord/HistoryStudyRecordHooks";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {getMilestoneByResourceId, getResourcesFromMilestone} from "../../../../../../service/api/TracingApi";
+import {useJumpToEnhancer} from "../../../RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceRecordHooks";
 
 const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
 
-    const [data, setData ] = useState<{
-        fromId: number,
-        toId?: number,
-        fromResourceId: number,
-        toResourceId?: number,
-        fromType: "enhancer" | "milestone",
-        toType: "enhancer" | "milestone"
-    } | undefined>()
+    const [data, setData ] = useRecoilState(NoteLinkDataAtomFamily(props.meta.id!))
     const [loading, setLoading] = useState(true)
     const [displayingResources, setDisplayingResources] = useState<Resource[]>()
-    const [link, setLink] = useRecoilState(NoteLinkAtom)
+    const [link, ] = useRecoilState(NoteLinkAtom)
     const [currentTab, ] = useRecoilState(CurrentTabAtom);
     const jumpToEnhancer = useJumpToEnhancer()
     const jumpToMilestone = useJumpToMilestone()
+    const linkNote = useLinkNote(props.meta.id!)
 
     useEffect(()=>{
         const init = async ()=>{
@@ -83,32 +77,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                     <LinkOutlined
                         style={{color: link?.resourceId === data.fromResourceId ? "#44D7C1" : "#666"}}
                         className={utils.icon_button}
-                        onClick={async ()=>{
-                            if(!link)
-                                setLink({resourceId: data.fromResourceId, placeId: data.fromId, placeType: data.fromType})
-                            else if(link.resourceId === data.fromResourceId)
-                                setLink(undefined)
-                            else{
-                                const linkTemp = link
-                                setLink(undefined)
-                                setData({...data, toId: linkTemp.placeId, toResourceId: linkTemp.resourceId, toType: linkTemp.placeType})
-                                await addDataToResource(linkTemp.resourceId, "data.json", {
-                                    fromId: linkTemp.placeId,
-                                    toId: data.fromId,
-                                    fromResourceId: linkTemp.resourceId,
-                                    toResourceId: data.fromResourceId,
-                                    fromType: linkTemp.placeType,
-                                    toType: data.fromType
-                                })
-                                await addDataToResource(props.meta.id!, "data.json", {
-                                    fromId: data.fromId,
-                                    toId: linkTemp.placeId,
-                                    fromResourceId: data.fromResourceId,
-                                    toResourceId: linkTemp.resourceId,
-                                    fromType: data.fromType,
-                                    toType: linkTemp.placeType
-                                })
-                            }}}/>
+                        onClick={()=>linkNote()}/>
                 }</Col>
                 <Col span={22}>{
                     data.toId ?

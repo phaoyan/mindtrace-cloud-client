@@ -1,0 +1,17 @@
+.container{
+    padding: 0.5em;
+    min-width: 20em;
+}
+.container > *{
+    padding-bottom: 0.3em;
+}
+.enhancer_title{
+    color: #666666;
+    font-weight: bold;
+    font-style: oblique;
+    margin-right: 1em;
+    cursor: pointer;
+}
+.enhancer_title:hover{
+    opacity: 50%;
+}
