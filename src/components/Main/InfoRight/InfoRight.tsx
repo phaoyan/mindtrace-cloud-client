@@ -7,10 +7,10 @@ import {
     KnodeSelector, SelectedKnodeIdAtom,
 } from "../../../recoil/home/Knode";
 import MdPreview from "../../utils/markdown/MdPreview";
-import {Breadcrumb, Col, Row, Tabs, Tooltip} from "antd";
+import {Breadcrumb, Col, Dropdown, Row, Tabs, Tooltip} from "antd";
 import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
 import {
-    BarChartOutlined, BookOutlined,
+    BarChartOutlined, BarsOutlined, BookOutlined,
     ClockCircleOutlined, DownloadOutlined,
     EditOutlined,
     ShareAltOutlined
@@ -22,10 +22,15 @@ import AnalysisPanel from "./AnalysisPanel/AnalysisPanel";
 import SharePanel from "./SharePanel/SharePanel";
 import {MainPageHeightAtom, MainPageWidthAtom} from "../../../recoil/utils/DocumentData";
 import {breadcrumbTitle} from "../../../service/data/Knode";
-import {CurrentTabAtom} from "./InfoRightHooks";
+import {
+    CurrentTabAtom,
+    KnodeSelectionHistoryItemsSelector,
+    useUpdateKnodeSelectionHistory
+} from "./InfoRightHooks";
 import {getEnhancerCount} from "../../../service/api/EnhancerApi";
 import LocalPanel from "./LocalPanel/LocalPanel";
 import {finishMonitor, isKnodeMonitored, startMonitor} from "../../../service/api/MasteryApi";
+import {useJumpToKnode} from "../Main/MainHooks";
 
 const InfoRight = () => {
 
@@ -33,13 +38,15 @@ const InfoRight = () => {
     const mainPageWidth = useRecoilValue(MainPageWidthAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
+    const knodeSelectionHistoryItems = useRecoilValue(KnodeSelectionHistoryItemsSelector);
     const [chainStyleTitle, setChainStyleTitle] = useRecoilState(CurrentChainStyleTitleAtom)
     const [leaveCount, setLeaveCount] = useState<number>()
     const [enhancerCount, setEnhancerCount] = useState<number | undefined>(undefined)
     const [currentTab, setCurrentTab] = useRecoilState(CurrentTabAtom)
     const [isMonitored, setIsMonitored] = useState(false)
+    const jumpToKnode = useJumpToKnode();
 
-
+    useUpdateKnodeSelectionHistory()
     useEffect(()=>{
         const effect = async ()=>{
             if(!selectedKnodeId || selectedKnodeId === 0) return
@@ -47,10 +54,11 @@ const InfoRight = () => {
             setLeaveCount(await getLeaveCount(selectedKnodeId))
             setEnhancerCount(await getEnhancerCount(selectedKnodeId))
             setIsMonitored(await isKnodeMonitored(selectedKnodeId))
-        }; effect()
+        }; effect().then()
         // eslint-disable-next-line
     }, [selectedKnodeId])
 
+    // @ts-ignore
     return (
         <ResizableBox
             className={classes.resize_box}
@@ -63,7 +71,20 @@ const InfoRight = () => {
             {selectedKnodeId ?
                 <div className={`${classes.container} ${utils.custom_scrollbar}`} >
                     <div className={classes.title}>
-                        <Breadcrumb items={breadcrumbTitle(chainStyleTitle)}/>
+                        <Row>
+                            <Col span={1}>
+
+                                <Dropdown menu={{
+                                    items:knodeSelectionHistoryItems,
+                                    //@ts-ignore
+                                    onClick: (data)=>jumpToKnode(data.key)}}>
+                                    <BarsOutlined className={`${utils.icon_button} ${classes.selected_knode_history_button}`}/>
+                                </Dropdown>
+                            </Col>
+                            <Col span={23}>
+                                <Breadcrumb items={breadcrumbTitle(chainStyleTitle)}/>
+                            </Col>
+                        </Row>
                         <Row>
                             <Col span={5} className={classes.left_info}>
                                 <Tooltip title={"知识点数目"}>

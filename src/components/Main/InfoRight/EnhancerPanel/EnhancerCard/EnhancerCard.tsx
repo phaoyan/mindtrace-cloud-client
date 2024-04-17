@@ -3,8 +3,8 @@ import classes from "./EnhancerCard.module.css";
 import {Breadcrumb, Col, Dropdown, Input, Row, Tooltip} from "antd";
 import {
     BlockOutlined,
-    BookOutlined,
-    DeleteOutlined, DownOutlined, FieldTimeOutlined, FormOutlined, LinkOutlined,
+    BookOutlined, CopyFilled, CopyOutlined,
+    DeleteOutlined, DisconnectOutlined, DownOutlined, FieldTimeOutlined, FormOutlined, LinkOutlined,
     MinusOutlined,
     PlusOutlined,
     ScissorOutlined, UpOutlined
@@ -22,12 +22,13 @@ import {EnhancerCardIdClipboardAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
+    CopiedResourceIdsAtom,
     EnhancerAtomFamily,
     EnhancerResourcesAtomFamily,
     ResourcePlayer, useAddEnhancerToGroup,
     useAddResource,
-    useAddResourceDropdownItems,
-    useShiftEnhancer,
+    useAddResourceDropdownItems, usePasteResources,
+    useShiftEnhancer, useShiftEnhancerInGroup,
     useShiftResource
 } from "./EnhancerCardHooks";
 import {useHandleRemoveEnhancer} from "../EnhancerPanelHooks";
@@ -38,16 +39,22 @@ import {getStudyTraceEnhancerInfo} from "../../../../../service/api/TracingApi";
 import {formatMillisecondsToHHMM} from "../../../../../service/utils/TimeUtils";
 import {
     SelectedKnodeAncestorEnhancerGroupsAtom,
-    useInitSelectedKnodeAncestorEnhancerGroups
+    useInitSelectedKnodeAncestorEnhancerGroups, useRemoveEnhancerGroupRel
 } from "../EnhancerGroupCard/EnhancerGroupCardHooks";
 
-export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?: boolean}) => {
+export const EnhancerCard = (props: {
+    id: number,
+    readonly? : boolean,
+    hideName?: boolean,
+    fromGroup?: number
+}) => {
 
     const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
     const [enhancer, setEnhancer] = useRecoilState(EnhancerAtomFamily(props.id))
-    const [enhancerGroups, ] = useRecoilState(SelectedKnodeAncestorEnhancerGroupsAtom)
+    const [ancestorEnhancerGroups, ] = useRecoilState(SelectedKnodeAncestorEnhancerGroupsAtom)
     const [relatedKnodeTitleDataList, setRelatedKnodeTitleDataList] = useState<Knode[][]>([])
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(props.id))
+    const [copiedResourceIds, setCopiedResourceIds] = useRecoilState(CopiedResourceIdsAtom)
     const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
     const messageApi = useRecoilValue(MessageApiAtom)
     const [traceInfo, setTraceInfo] = useState<any>()
@@ -55,9 +62,12 @@ export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?:
     const handleRemove = useHandleRemoveEnhancer()
     const addResource = useAddResource(props.id)
     const shiftEnhancer = useShiftEnhancer()
+    const shiftEnhancerInGroup = useShiftEnhancerInGroup()
     const shiftResource = useShiftResource(props.id)
+    const pasteResources = usePasteResources(props.id)
     const breadcrumbTitleForJump = useBreadcrumbTitleForJump()
     const addEnhancerToGroup = useAddEnhancerToGroup(props.id)
+    const removeEnhancerGroupRel = useRemoveEnhancerGroupRel()
     const mainPart = useRef(null)
     const [mainPartHeight, setMainPartHeight] = useState(0)
     const [maxHeight, setMaxHeight] = useState<number | undefined>(200)
@@ -96,7 +106,7 @@ export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?:
         <div className={classes.container}>
             <div className={classes.header_part}>
                 <Row>
-                    <Col span={10}>{
+                    <Col span={9}>{
                         !props.hideName &&
                         (props.readonly ?
                             <span
@@ -124,10 +134,29 @@ export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?:
                         </Tooltip>
                     }</Col>
                     <Col span={1}>{
+                        copiedResourceIds.length !== 0 &&
+                        <Tooltip title={"粘贴笔记资源"}>
+                            <CopyFilled
+                                className={utils.icon_button}
+                                onClick={()=>pasteResources()}/>
+                        </Tooltip>
+                    }</Col>
+                    <Col span={1}>{
                         !props.readonly &&
+                        !props.fromGroup &&
                         <div className={classes.move_enhancer_box}>
-                            <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, 1)}/>
-                            <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, -1)}/>
+                            <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, -1)}/>
+                            <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftEnhancer(selectedKnodeId, enhancer.id, 1)}/>
+                        </div>}{
+                        !props.readonly &&
+                        props.fromGroup &&
+                        <div className={classes.move_enhancer_box}>
+                            <UpOutlined
+                                className={utils.icon_button_normal}
+                                onClick={()=>shiftEnhancerInGroup(props.fromGroup!, enhancer.id, -1)}/>
+                            <DownOutlined
+                                className={utils.icon_button_normal}
+                                onClick={()=>shiftEnhancerInGroup(props.fromGroup!, enhancer.id, 1)}/>
                         </div>
                     }</Col>
                     <Col span={1} offset={1}>{
@@ -190,6 +219,11 @@ export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?:
                                 <UpOutlined className={utils.icon_button_normal} onClick={()=>shiftResource(resource.id!, -1)}/>
                                 <DownOutlined className={utils.icon_button_normal} onClick={()=>shiftResource(resource.id!, 1)}/>
                             </div>
+                            <div className={classes.move_resource_box}>
+                                <CopyOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>setCopiedResourceIds(resourceIds=>[...new Set([...resourceIds, resource.id!])])}/>
+                            </div>
                         </Col>
                         <Col span={22}>
                             <ResourcePlayer resource={resource} readonly={props.readonly}/>
@@ -209,17 +243,30 @@ export const EnhancerCard = (props: {id: number, readonly? : boolean, hideName?:
             <Row style={{paddingTop:"0.5em"}}>
                 <Col span={1}>{
                     !props.readonly &&
-                    enhancerGroups &&
+                    !props.fromGroup &&
+                    ancestorEnhancerGroups &&
                     <Dropdown
-                        menu={{items: enhancerGroups.map((group)=>({
-                                key: group.id,
-                                label: group.title
+                        menu={{
+                                items: ancestorEnhancerGroups
+                                    .filter(group=>!!group)
+                                    .map((group)=>({
+                                        key: group.id,
+                                        label: group.title
                             })), onClick: async (data)=>addEnhancerToGroup(data.key)}}
                         placement={"bottomLeft"}>
                         <Tooltip title={"加入合集"}>
                             <BlockOutlined className={utils.icon_button} style={{position: "relative", left:"1em"}}/>
                         </Tooltip>
-                    </Dropdown>
+                    </Dropdown>}{
+                    !props.readonly &&
+                    props.fromGroup &&
+                    <Tooltip title={"从合集中移除"}>
+                        <DisconnectOutlined
+                            className={utils.icon_button}
+                            style={{position: "relative", left:"1em"}}
+                            onClick={()=>removeEnhancerGroupRel(props.id, props.fromGroup!)}
+                        />
+                    </Tooltip>
                 }</Col>
                 <Col span={22}>{
                     mainPartHeight >= 200 &&

@@ -159,11 +159,13 @@ const EnhancerPanel = () => {
             </div>
 
             <div className={classes.groups}>{
-                enhancerGroups.map(group=>(
-                    <>
-                        <EnhancerGroupCard key={group.id} id={group.id} readonly={readonly}/>
+                enhancerGroups
+                    .filter(group=>!!group)
+                    .map(group=>(
+                    <div key={group.id}>
+                        <EnhancerGroupCard id={group.id} readonly={readonly}/>
                         <Divider/>
-                    </>
+                    </div>
                 ))
             }</div>
             <div className={classes.main}>{
@@ -175,7 +177,6 @@ const EnhancerPanel = () => {
                             <Divider/>
                         </div>
                     ))
-                    .reverse()
             }<Pagination
                 pageSize={pageSize}
                 onChange={(page)=>setCurrentPage(page)}

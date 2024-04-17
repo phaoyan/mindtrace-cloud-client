@@ -97,7 +97,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                         <span></span>
                         {data.front === "" && <span className={classes.placeholder}>卡片正面 . . . </span>}
                         <div className={milkdown.markdown} key={frontEditorKey}>{
-                            data.config.frontLatexDisplayMode ?
+                            doublePanel ?
                             <Row className={classes.double_txt}>
                                 <Col span={12}>
                                     <TextArea

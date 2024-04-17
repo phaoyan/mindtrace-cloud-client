@@ -149,7 +149,6 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                         disabled={readonly}/>
                 </Col>
                 <Col span={1}>{
-                    relEnhancerTitles.length !== 0 &&
                     <Popover
                         placement={"left"}
                         arrow={false}
@@ -173,7 +172,9 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                     <Divider type={"vertical"} style={{height:"100%"}}/>
                 </Col>
                 <Col span={22}>{
-                    relKnodeChainTitles.map(data=>(
+                    relKnodeChainTitles
+                        .filter(({title})=>title.length !== 0)
+                        .map(data=>(
                         <div className={classes.knode_info} key={data.knodeId}>
                             <Breadcrumb items={breadcrumbTitle(data.title, true)}/>
                             <Tooltip title={"点击跳转"}>

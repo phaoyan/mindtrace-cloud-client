@@ -5,26 +5,28 @@ import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/ico
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
 import dayjs from "dayjs";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    EnhancerGroupRecordInfoListAtom,
     EnhancerRecordPanelCurrentPageAtom,
     EnhancerRecordInfoListAtom,
     useInitEnhancerRecordData
 } from "./EnhancerRecordPanelHooks";
 import {EnhancerCard} from "../../../EnhancerPanel/EnhancerCard/EnhancerCard";
 import EnhancerGroupCard from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCard";
+import {AccumulateDurationAtom} from "../HistoryStudyRecordHooks";
+import {useInitStudyTraceData} from "../StudyTraceTimeline/StudyTraceTimelineHooks";
 
 const EnhancerRecordPanel = () => {
     const [enhancerRecordInfoList, ] = useRecoilState(EnhancerRecordInfoListAtom)
-    const [enhancerGroupRecordInfoList, ] = useRecoilState(EnhancerGroupRecordInfoListAtom)
+    const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerRecordPanelCurrentPageAtom)
     const pageSize = 10
     useInitEnhancerRecordData()
+    useInitStudyTraceData()
 
     return (
         <div>{
-            [...enhancerRecordInfoList, ...enhancerGroupRecordInfoList]
+            [...enhancerRecordInfoList]
                 .sort((a, b) => b.duration - a.duration)
                 .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 .map(info=>(
@@ -59,6 +61,14 @@ const EnhancerRecordPanel = () => {
                                     {dayjs().diff(dayjs(info.traces[0].startTime),'day')}
                                 </span>
                             </Col>
+                            <Col span={6}>{
+                                info.traces.length !==0 &&
+                                <span className={classes.enhancer_distribution_info}>
+                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traces[info.traces.length-1].id] * 1000)}
+                                    &nbsp;~&nbsp;
+                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traces[0].id] * 1000)}
+                                </span>
+                            }</Col>
                         </Row>
                         <Row>
                             <Col span={23} offset={1}>

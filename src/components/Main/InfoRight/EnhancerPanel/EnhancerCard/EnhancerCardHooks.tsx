@@ -1,4 +1,4 @@
-import {atomFamily, useRecoilState, useRecoilValue} from "recoil";
+import {atom, atomFamily, useRecoilState, useRecoilValue} from "recoil";
 import {defaultEnhancer, Enhancer} from "../../../../../service/data/Enhancer";
 import {
     FileSearchOutlined,
@@ -15,12 +15,12 @@ import ClozePlayer from "../resource/ClozePlayer/ClozePlayer";
 import MindtraceHubResourcePlayer from "../resource/MindtraceHubResourcePlayer/MindtraceHubResourcePlayer";
 import React from "react";
 import AudioPlayer from "../resource/AudioPlayer/AudioPlayer";
-import {addResource, getResourcesFromEnhancer} from "../../../../../service/api/ResourceApi";
+import {addEnhancerResourceRel, addResource, getResourcesFromEnhancer} from "../../../../../service/api/ResourceApi";
 import {
     addEnhancerGroupRel,
     addEnhancerGroupToKnode,
-    addEnhancerToKnode,
-    getEnhancersForKnode,
+    addEnhancerToKnode, getEnhancersByGroupId,
+    getEnhancersForKnode, setEnhancerIndexInEnhancerGroup,
     setEnhancerIndexInKnode,
     setResourceIndexInEnhancer
 } from "../../../../../service/api/EnhancerApi";
@@ -39,7 +39,21 @@ export const EnhancerResourcesAtomFamily = atomFamily<Resource[], number>({
     default: []
 })
 
+export const CopiedResourceIdsAtom = atom<number[]>({
+    key: "CopiedResourceIdAtom",
+    default: []
+})
 
+export const usePasteResources = (enhancerId: number)=>{
+    const [copiedResourceIds, setCopiedResourceIds] = useRecoilState(CopiedResourceIdsAtom)
+    const [, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
+    return async ()=>{
+        for (let resourceId of copiedResourceIds)
+            await addEnhancerResourceRel(enhancerId, resourceId)
+        setResources(await getResourcesFromEnhancer(enhancerId))
+        setCopiedResourceIds([])
+    }
+}
 
 export const useAddResource = (enhancerId: number)=>{
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(enhancerId))
@@ -95,12 +109,13 @@ export const useAddResourceDropdownItems = (disableNoteLink?: boolean)=>{
 
 export const useAddEnhancer = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [enhancers, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
+    const [, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
     return async (data: any)=>{
         if(data.key === ResourceType.ENHANCER_GROUP) return
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
+        await setEnhancerIndexInKnode(selectedKnodeId, enhancer.id, 0)
         await addResource(enhancer.id, {type: data.key})
-        setEnhancers([...enhancers, enhancer])
+        setEnhancers(await getEnhancersForKnode(selectedKnodeId))
         return enhancer.id
     }
 }
@@ -119,11 +134,17 @@ export const useShiftEnhancer = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [enhancers, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom);
     return async (knodeId: number, enhancerId: number, shift: number)=>{
-        const index1 = enhancers.findIndex((enhancer)=>enhancer.id === enhancerId)
-        const index2 = index1 + shift
-        if(index2 < 0 || index2 >= enhancers.length) return
-        await setEnhancerIndexInKnode(knodeId, enhancerId, index2)
+        await setEnhancerIndexInKnode(knodeId, enhancerId, enhancers.findIndex((enhancer)=>enhancer.id === enhancerId) + shift)
         setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+    }
+}
+
+export const useShiftEnhancerInGroup = ()=>{
+    const [, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
+    return async (groupId: number, enhancerId: number, shift: number)=>{
+        const enhancers = await getEnhancersByGroupId(groupId);
+        await setEnhancerIndexInEnhancerGroup(groupId, enhancerId, enhancers.findIndex(enhancer=>enhancer.id===enhancerId) + shift)
+        setEnhancerPanelKey((key)=>key + 1)
     }
 }
 

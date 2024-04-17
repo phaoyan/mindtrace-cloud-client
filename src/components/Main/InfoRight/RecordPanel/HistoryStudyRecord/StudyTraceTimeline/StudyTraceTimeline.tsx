@@ -2,16 +2,13 @@ import React from 'react';
 import {Col, Pagination, Row, Timeline} from "antd";
 import classes from "../HistoryStudyRecord.module.css";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {LoadedTracesAtom} from "../HistoryStudyRecordHooks";
 import {
     StudyTimePerDayCurrentMonthAtom,
-    StudyTraceCountAtom,
     StudyTraceTimelineCurrentPageAtom,
-    StudyTraceTimelinePageSizeAtom,
+    StudyTraceTimelinePageSizeAtom, TracesAndMilestonesAtom,
     useInitStudyTraceData
 } from "./StudyTraceTimelineHooks";
-import {StudyTraceRecord} from "./StudyTraceRecord";
-import {MilestoneCardsSelector, useAddMilestone, useInitMilestoneData} from "../MilestonePanel/MilestonePanelHooks";
+import {useAddMilestone, useInitMilestoneData} from "../MilestonePanel/MilestonePanelHooks";
 import dayjs from "dayjs";
 import {PlusOutlined} from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
@@ -20,11 +17,9 @@ import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
 const StudyTraceTimeline = () => {
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const [studyTimePerDayCurrentMonth,] = useRecoilState(StudyTimePerDayCurrentMonthAtom)
-    const [loadedTraces,] = useRecoilState(LoadedTracesAtom)
-    const milestoneCards = useRecoilValue(MilestoneCardsSelector)
+    const [tracesAndMilestones,] = useRecoilState(TracesAndMilestonesAtom)
     const [currentPage, setCurrentPage] = useRecoilState(StudyTraceTimelineCurrentPageAtom)
     const [pageSize, ] = useRecoilState(StudyTraceTimelinePageSizeAtom)
-    const [traceCount, ] = useRecoilState(StudyTraceCountAtom)
     const addMilestone = useAddMilestone()
     useInitStudyTraceData()
     useInitMilestoneData()
@@ -55,23 +50,14 @@ const StudyTraceTimeline = () => {
             </Row>
             }<br/>
             <Timeline items={
-                [
-                ...loadedTraces
-                    .filter(trace=>!trace.milestoneId)
-                    .map((trace)=>({
-                        children: <StudyTraceRecord key={trace.id} trace={trace}/>,
-                        time: trace.startTime})),
-                ...milestoneCards
-                ]
-                    .sort((a, b)=>-dayjs(a.time).diff(dayjs(b.time)))
-                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                tracesAndMilestones.slice((currentPage - 1) * pageSize, currentPage * pageSize)
             }/>
             <Pagination
                 onChange={(page)=>setCurrentPage(page)}
                 current={currentPage}
                 pageSize={pageSize}
                 hideOnSinglePage={true}
-                total={traceCount}/>
+                total={tracesAndMilestones.length}/>
         </div>
     );
 };

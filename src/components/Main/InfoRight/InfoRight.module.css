@@ -82,3 +82,8 @@
 .subtitle > *{
     font-size: 0.5em;
 }
+
+.selected_knode_history_button{
+    position: relative;
+    top: 0.18em;
+}

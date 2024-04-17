@@ -90,7 +90,7 @@
 }
 .move_resource_box{
     position: relative;
-    top: 1em;
+    margin-top: 1em;
 }
 .move_resource_box > *{
     display: block;

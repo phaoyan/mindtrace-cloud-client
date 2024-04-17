@@ -5,10 +5,11 @@ import {getAncestors} from "../../../../../service/api/KnodeApi";
 import {
     addResourceToEnhancerGroup,
     getEnhancerGroupsByKnodeId,
-    removeEnhancerGroup
+    removeEnhancerGroup, removeEnhancerGroupRel
 } from "../../../../../service/api/EnhancerApi";
 import {Resource} from "../EnhancerCard/EnhancerCardHooks";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
+import {EnhancerPanelKeyAtom} from "../../../../../recoil/utils/DocumentData";
 
 export interface EnhancerGroup{
     id: number,
@@ -25,6 +26,11 @@ export const EnhancerGroupAtomFamily = atomFamily<EnhancerGroup, number>({
 export const GroupRelatedEnhancerIdsAtomFamily = atomFamily<number[], number>({
     key: "GroupRelatedEnhancerIdsAtomFamily",
     default: []
+})
+
+export const GroupTraceInfoAtomFamily = atomFamily<any, number>({
+    key: "GroupTraceInfoAtomFamily",
+    default: undefined
 })
 
 export const EnhancerGroupResourcesAtomFamily = atomFamily<Resource[], number>({
@@ -47,6 +53,11 @@ export const SelectedKnodeEnhancerIdsInGroupSelector = selector<number[]>({
 
 export const SelectedKnodeAncestorEnhancerGroupsAtom = atom<EnhancerGroup[]>({
     key: "SelectedKnodeAncestorEnhancerGroupsSelector",
+    default: []
+})
+
+export const EnhancerRelGroupIdsAtomFamily = atomFamily<number[], number>({
+    key: "EnhancerRelGroupIdAtomFamily",
     default: []
 })
 
@@ -89,5 +100,13 @@ export const useRemoveEnhancerGroup = (groupId: number)=>{
         await removeEnhancerGroup(groupId)
         setEnhancerGroups(groups=>groups.filter(group=>group.id!==groupId))
         setAncestorEnhancerGroups(await getAncestorEnhancerGroups())
+    }
+}
+
+export const useRemoveEnhancerGroupRel = ()=>{
+    const [, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom);
+    return async (enhancerId: number, groupId: number)=>{
+        await removeEnhancerGroupRel(enhancerId, groupId)
+        setEnhancerPanelKey((key)=>key + 1)
     }
 }

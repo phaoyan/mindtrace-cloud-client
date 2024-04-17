@@ -81,6 +81,10 @@ export const getEnhancerGroupById = async (groupId: number):Promise<EnhancerGrou
     return await axios.get(`${ENHANCER_HOST}/enhancer-group/${groupId}`).then(({data})=>data)
 }
 
+export const getEnhancerGroupsByEnhancerId = async (enhancerId: number): Promise<number[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/rel/enhancer/${enhancerId}/enhancer-group/id`).then(({data})=>data)
+}
+
 export const getRelatedEnhancerIdsByGroupId = async (groupId: number): Promise<number[]>=>{
     return await axios.get(`${ENHANCER_HOST}/rel/enhancer-group/${groupId}/enhancer/id`).then(({data})=>data)
 }
@@ -106,12 +110,20 @@ export const setEnhancerGroupTitle = async (groupId: number, title: string)=>{
     await axios.put(`${ENHANCER_HOST}/enhancer-group/${groupId}/title?title=${title}`)
 }
 
+export const setEnhancerIndexInEnhancerGroup = async (groupId: number, enhancerId: number, index: number)=>{
+    await axios.put(`${ENHANCER_HOST}/enhancer-group/${groupId}/enhancer/${enhancerId}/index?index=${index}`)
+}
+
 export const addResourceToEnhancerGroup = async (groupId: number, userId: number, type: string)=>{
     return await axios.put(`${ENHANCER_HOST}/enhancer-group/${groupId}/resource?userId=${userId}&type=${type}`).then(({data})=>data)
 }
 
 export const removeEnhancerGroup = async (groupId: number)=>{
     await axios.delete(`${ENHANCER_HOST}/enhancer-group/${groupId}`)
+}
+
+export const removeEnhancerGroupRel = async (enhancerId: number, groupId: number)=>{
+    await axios.delete(`${ENHANCER_HOST}/rel/enhancer-group/${groupId}/enhancer/${enhancerId}`)
 }
 
 export const getEnhancerGroupsByKnodeId = async (knodeId: number): Promise<EnhancerGroup[]>=>{

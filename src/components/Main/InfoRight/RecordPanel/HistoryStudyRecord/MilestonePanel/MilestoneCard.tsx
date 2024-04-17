@@ -77,7 +77,7 @@ export const MilestoneCard = (props:{milestoneId: number})=>{
                         showCancel={false}
                         onConfirm={async ()=>{
                             await removeMilestone(milestone?.id)
-                            setMilestones(milestones.filter(milestone=>milestone.id !== props.milestoneId))
+                            setMilestones(milestones.filter(milestone=>milestone?.id !== props.milestoneId))
                         }}>
                         <DeleteOutlined className={utils.icon_button_normal}/>
                     </Popconfirm>
