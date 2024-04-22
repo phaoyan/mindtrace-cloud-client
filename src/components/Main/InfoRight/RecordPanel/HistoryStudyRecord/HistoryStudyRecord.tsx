@@ -3,7 +3,7 @@ import {useRecoilState} from "recoil";
 import {
     HistoryStudyRecordKeyAtom, StatisticDisplayAtom,
 } from "./HistoryStudyRecordHooks";
-import {Col, Row, Tooltip} from "antd";
+import {Col, Dropdown, Row, Tooltip} from "antd";
 import {
     BookOutlined,
     CalendarOutlined,
@@ -19,7 +19,10 @@ import CalendarPanel from "./CalendarPanel/CalendarPanel";
 import KnodeDistributionPanel from "./KnodeDistributionPanel/KnodeDistributionPanel";
 import EnhancerRecordPanel from "./EnhancerRecordPanel/EnhancerRecordPanel";
 import {useInitCalendarData} from "./CalendarPanel/CalendarPanelHooks";
-import {useInitEnhancerRecordData} from "./EnhancerRecordPanel/EnhancerRecordPanelHooks";
+import {
+    useEnhancerRecordPanelOrderItems,
+    useInitEnhancerRecordData
+} from "./EnhancerRecordPanel/EnhancerRecordPanelHooks";
 import {useInitKnodeDistributionData} from "./KnodeDistributionPanel/KnodeDistributionPanelHooks";
 import {useInitStudyTraceData} from "./StudyTraceTimeline/StudyTraceTimelineHooks";
 
@@ -28,6 +31,7 @@ const HistoryStudyRecord = () => {
     const [statisticDisplay, setStatisticDisplay] = useRecoilState(StatisticDisplayAtom)
     const [statisticDisplayKey, setStatisticDisplayKey] = useState<number>(0)
     const [componentKey, ] = useRecoilState(HistoryStudyRecordKeyAtom)
+    const enhancerRecordPanelOrderItems = useEnhancerRecordPanelOrderItems()
 
     useEffect(()=>{
         setStatisticDisplayKey(statisticDisplayKey + 1)
@@ -72,9 +76,12 @@ const HistoryStudyRecord = () => {
                 </Col>
                 <Col span={2}>
                     <Tooltip title={"学习任务时间分布（时：分）"}>
-                        <BookOutlined
-                            className={utils.icon_button}
-                            onClick={()=>setStatisticDisplay("enhancer distribution")}/>
+                        <Dropdown
+                            menu={{items:enhancerRecordPanelOrderItems}}>
+                            <BookOutlined
+                                className={utils.icon_button}
+                                onClick={()=>setStatisticDisplay("enhancer distribution")}/>
+                        </Dropdown>
                     </Tooltip>
                 </Col>
                 <Col span={2}>

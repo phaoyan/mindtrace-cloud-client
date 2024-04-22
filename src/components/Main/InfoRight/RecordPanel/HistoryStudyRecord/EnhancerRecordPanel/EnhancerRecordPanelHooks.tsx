@@ -8,6 +8,8 @@ import {
 import {
     EnhancerGroupsForSelectedKnodeAtom,
 } from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCardHooks";
+import {AccumulateDurationAtom} from "../HistoryStudyRecordHooks";
+import {ItemType} from "antd/es/menu/hooks/useItems";
 
 export const EnhancerRecordInfoListAtom = atom<any[]>({
     key: "EnhancerTimeDistributionAtom",
@@ -23,6 +25,44 @@ export const EnhancerRecordPanelCurrentPageAtom = atom<number>({
     key: "EnhancerRecordPanelCurrentPageAtom",
     default: 1
 })
+
+export const EnhancerRecordMinDurationAtom = atom<number>({
+    key: "EnhancerRecordMinDurationAtom",
+    default: 0
+})
+
+export const EnhancerRecordPanelOrderAtom = atom<string>({
+    key: "EnhancerRecordPanelOrderAtom",
+    default: "duration"
+})
+
+export const useEnhancerRecordPanelOrderItems = (): ItemType[]=>{
+    const [, setOrder] = useRecoilState(EnhancerRecordPanelOrderAtom)
+    return [
+        {
+            key: "duration",
+            label: "按时长排序",
+            onClick: (data)=> setOrder(data.key),
+        },
+        {
+            key: "start",
+            label: "按开始时间排序",
+            onClick: (data)=> setOrder(data.key),
+        }
+    ]
+}
+
+export const useSortRecords = ()=>{
+    const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
+
+    return (infoList: any[], order: string): any[]=>{
+        if(order==="duration")
+            return infoList.sort((a,b)=>b.duration - a.duration)
+        else if(order==="start")
+            return infoList.sort((a,b)=>accumulatedDuration[a.traces[a.traces.length-1].id] - accumulatedDuration[b.traces[b.traces.length-1].id])
+        else return []
+    }
+}
 
 export const useInitEnhancerRecordData = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)

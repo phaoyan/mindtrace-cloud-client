@@ -111,3 +111,17 @@
     font-weight: lighter;
     font-style: oblique;
 }
+.min_duration_selection{
+    display: flex;
+}
+.min_duration_selection > *{
+    margin-right: 3em;
+    color: #999999;
+    font-size: 1.2em;
+    font-weight: lighter;
+    font-style: oblique;
+    cursor: pointer;
+}
+.min_duration_selection > *:hover{
+    color: #666666;
+}

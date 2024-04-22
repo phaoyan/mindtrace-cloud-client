@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Col, Pagination, Row, Tooltip} from "antd";
 import classes from "../HistoryStudyRecord.module.css";
 import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
@@ -9,7 +9,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {
     EnhancerRecordPanelCurrentPageAtom,
     EnhancerRecordInfoListAtom,
-    useInitEnhancerRecordData
+    useInitEnhancerRecordData, EnhancerRecordPanelOrderAtom, useSortRecords, EnhancerRecordMinDurationAtom
 } from "./EnhancerRecordPanelHooks";
 import {EnhancerCard} from "../../../EnhancerPanel/EnhancerCard/EnhancerCard";
 import EnhancerGroupCard from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCard";
@@ -20,14 +20,31 @@ const EnhancerRecordPanel = () => {
     const [enhancerRecordInfoList, ] = useRecoilState(EnhancerRecordInfoListAtom)
     const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerRecordPanelCurrentPageAtom)
+    const [order, ] = useRecoilState(EnhancerRecordPanelOrderAtom)
+    const [minDuration, setMinDuration] = useRecoilState(EnhancerRecordMinDurationAtom)
+    const [filteredEnhancerRecordInfoList, setFilteredEnhancerRecordInfoList] = useState<any[]>([])
     const pageSize = 10
+    const sortRecords = useSortRecords()
     useInitEnhancerRecordData()
     useInitStudyTraceData()
+    useEffect(()=>{
+        setFilteredEnhancerRecordInfoList(enhancerRecordInfoList.filter((info)=>info.duration >= minDuration))
+    }, [enhancerRecordInfoList, minDuration])
 
     return (
-        <div>{
-            [...enhancerRecordInfoList]
-                .sort((a, b) => b.duration - a.duration)
+        <div>
+            <div className={classes.min_duration_selection}>
+                <span>最小时长：</span>
+                <span onClick={()=>setMinDuration(0)}>0h</span>
+                <span onClick={()=>setMinDuration(3600)}>1h</span>
+                <span onClick={()=>setMinDuration(3600 * 3)}>3h</span>
+                <span onClick={()=>setMinDuration(3600 * 10)}>10h</span>
+                <span onClick={()=>setMinDuration(3600 * 30)}>30h</span>
+                <span onClick={()=>setMinDuration(3600 * 50)}>50h</span>
+                <span onClick={()=>setMinDuration(3600 * 100)}>100h</span>
+                <span onClick={()=>setMinDuration(3600 * 500)}>500h</span>
+            </div>{
+            sortRecords([...filteredEnhancerRecordInfoList], order)
                 .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 .map(info=>(
                     <div key={info.enhancerId || info.groupId}>
@@ -89,7 +106,7 @@ const EnhancerRecordPanel = () => {
             current={currentPage}
             pageSize={pageSize}
             hideOnSinglePage={true}
-            total={enhancerRecordInfoList.length}/>
+            total={filteredEnhancerRecordInfoList.length}/>
         </div>
     );
 };

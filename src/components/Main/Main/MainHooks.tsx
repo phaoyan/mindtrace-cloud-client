@@ -27,6 +27,7 @@ import {EnhancerPanelCurrentPageAtom} from "../InfoRight/EnhancerPanel/EnhancerP
 import {
     StudyTraceTimelineCurrentPageAtom
 } from "../InfoRight/RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceTimelineHooks";
+import {useRemoveKnodeId} from "../InfoRight/RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",
@@ -168,6 +169,7 @@ export const useHandleRemove = ()=>{
     const [ktreeFlat, setKtreeFlat] = useRecoilState(KtreeFlatAtom)
     const focusedKnodeStem = useRecoilValue(FocusedKnodeStemSelector)
     const shiftUp = useShiftUp()
+    const removeKnodeIdInCurrentStudy = useRemoveKnodeId()
     return async () => {
         if(focusedKnode?.branchIds.length !== 0 || !focusedKnodeStem){
             messageApi.info("请先删除这个知识点的所有子节点")
@@ -176,6 +178,8 @@ export const useHandleRemove = ()=>{
 
         const stemId = focusedKnodeStem.id
         await removeKnode(focusedKnodeId)
+        // 维护CurrentStudy的KnodeId的正确性
+        await removeKnodeIdInCurrentStudy(focusedKnodeId)
         setKtreeFlat(
             ktreeFlat
             .filter(knode=>knode.id !== focusedKnodeId)

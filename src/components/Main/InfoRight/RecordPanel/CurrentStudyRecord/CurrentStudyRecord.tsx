@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    CurrentStudyAtom, useAddEnhancerId, useAddEnhancerToCurrentStudy,
+    CurrentStudyAtom, useAddEnhancerId,
     useAddKnodeId, useCalculateDuration, useContinueCurrentStudy, usePauseCurrentStudy,
     useRemoveCurrentStudy, useRemoveEnhancerId,
     useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
@@ -22,7 +22,6 @@ import {
     DeleteOutlined,
     EditOutlined,
     MinusOutlined,
-    PlusOutlined,
     SettingOutlined
 } from "@ant-design/icons";
 import {KnodeSelector, SelectedKnodeIdAtom, SelectedKnodeSelector} from "../../../../../recoil/home/Knode";
@@ -34,7 +33,6 @@ import {getEnhancerById, getEnhancersForKnode} from "../../../../../service/api/
 import dayjs from "dayjs";
 import {DEFAULT_DATE_TIME_PATTERN} from "../../../../../service/utils/constants";
 import {LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
-import {useAddResourceDropdownItems} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 const CurrentStudyRecord = () => {
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
@@ -49,8 +47,6 @@ const CurrentStudyRecord = () => {
     const [timerKey, setTimerKey] = useState(0)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(SelectedKnodeSelector)
-    const addResourceDropdownItems = useAddResourceDropdownItems()
-    const addEnhancer = useAddEnhancerToCurrentStudy()
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
     const addKnodeId = useAddKnodeId()
     const addEnhancerId = useAddEnhancerId()
@@ -135,19 +131,6 @@ const CurrentStudyRecord = () => {
                                 {enhancers
                                     .filter(enhancer=>currentStudy.enhancerIds.indexOf(enhancer.id) === -1)
                                     .map(enhancer=><ToPickEnhancerItem key={enhancer.id} enhancer={enhancer}/>)}
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={1}>
-                                <Dropdown
-                                    menu={{items: addResourceDropdownItems, onClick: addEnhancer}}>
-                                    <PlusOutlined
-                                        className={utils.icon_button}
-                                        style={{marginLeft:"2em"}}/>
-                                </Dropdown>
-                            </Col>
-                            <Col span={10} offset={1}>
-                                <span style={{color:"#999", fontStyle:"oblique"}}>添加新笔记 . . .</span>
                             </Col>
                         </Row>
                         <Row>

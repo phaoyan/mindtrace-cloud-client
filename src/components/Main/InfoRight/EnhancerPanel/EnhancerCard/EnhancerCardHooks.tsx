@@ -29,6 +29,11 @@ import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import NoteLinkPlayer from "../resource/NoteLinkPlayer/NoteLinkPlayer";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
 import {EnhancerPanelKeyAtom} from "../../../../../recoil/utils/DocumentData";
+import {
+    CurrentStudyAtom,
+    useAddEnhancerId,
+    useAddKnodeId
+} from "../../RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -110,12 +115,19 @@ export const useAddResourceDropdownItems = (disableNoteLink?: boolean)=>{
 export const useAddEnhancer = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
+    const [currentStudy, ] = useRecoilState(CurrentStudyAtom)
+    const addEnhancerIdToCurrentStudy = useAddEnhancerId()
+    const addKnodeIdToCurrentStudy = useAddKnodeId()
     return async (data: any)=>{
         if(data.key === ResourceType.ENHANCER_GROUP) return
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
         await setEnhancerIndexInKnode(selectedKnodeId, enhancer.id, 0)
         await addResource(enhancer.id, {type: data.key})
         setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+        if(!!currentStudy){
+            await addEnhancerIdToCurrentStudy(enhancer.id)
+            await addKnodeIdToCurrentStudy(selectedKnodeId)
+        }
         return enhancer.id
     }
 }
