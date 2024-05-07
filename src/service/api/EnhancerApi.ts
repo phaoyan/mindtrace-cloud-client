@@ -15,7 +15,7 @@ export const getEnhancersByLike = async (userId: number, txt: string):Promise<En
     return await axios.get(`${ENHANCER_HOST}/like/user/${userId}/enhancer?txt=${txt}`).then(({data})=>data)
 }
 
-export const getEnhancerByResourceId = async (resourceId: number): Promise<Enhancer>=>{
+export const getEnhancersByResourceId = async (resourceId: number): Promise<Enhancer[]>=>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/resource/${resourceId}`).then(({data})=>data)
 }
 
@@ -53,6 +53,7 @@ export const removeEnhancer = async (enhancerId: number, knodeId: number)=>{
 }
 
 export const scissorEnhancer = async (enhancerId:number, oriKnodeId: number, tarKnodeId: number)=>{
+    if(oriKnodeId===tarKnodeId) return
     await axios.post(`${ENHANCER_HOST}/knode/${tarKnodeId}/enhancer/${enhancerId}`)
     await axios.delete(`${ENHANCER_HOST}/knode/${oriKnodeId}/enhancer/${enhancerId}`)
 }

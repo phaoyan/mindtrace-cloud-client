@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Col, Pagination, Row, Tooltip} from "antd";
 import classes from "../HistoryStudyRecord.module.css";
-import {CalendarOutlined, EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
+import {EditOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
-import dayjs from "dayjs";
 import EnhancerStudyRecord from "./EnhancerStudyRecord";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
@@ -25,7 +24,6 @@ const EnhancerRecordPanel = () => {
     const [filteredEnhancerRecordInfoList, setFilteredEnhancerRecordInfoList] = useState<any[]>([])
     const pageSize = 10
     const sortRecords = useSortRecords()
-    useInitEnhancerRecordData()
     useInitStudyTraceData()
     useEffect(()=>{
         setFilteredEnhancerRecordInfoList(enhancerRecordInfoList.filter((info)=>info.duration >= minDuration))
@@ -69,21 +67,15 @@ const EnhancerRecordPanel = () => {
                                 <span className={classes.enhancer_distribution_info}>{info.review}</span>
                             </Col>
                             <Col span={1}>
-                                <Tooltip title={"距上次学习间隔天数"}>
-                                    <CalendarOutlined className={classes.enhancer_distribution_icon}/>
-                                </Tooltip>
                             </Col>
                             <Col span={2}>
-                                <span className={classes.enhancer_distribution_info}>
-                                    {dayjs().diff(dayjs(info.traces[0].startTime),'day')}
-                                </span>
                             </Col>
                             <Col span={6}>{
-                                info.traces.length !==0 &&
+                                info.traceIds.length !==0 &&
                                 <span className={classes.enhancer_distribution_info}>
-                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traces[info.traces.length-1].id] * 1000)}
+                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traceIds[info.traceIds.length-1]] * 1000)}
                                     &nbsp;~&nbsp;
-                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traces[0].id] * 1000)}
+                                    {formatMillisecondsToHHMM(accumulatedDuration[info.traceIds[0]] * 1000)}
                                 </span>
                             }</Col>
                         </Row>

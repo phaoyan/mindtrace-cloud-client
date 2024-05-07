@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from "recoil";
 import {CurrentUserSubscribesAtom} from "../SharePanelHooks";
-import {useRemoveUserSubscribe, useSubscribeUser, useVisit} from "../KnodeShareCard/KnodeShareCardHooks";
+import {useRemoveUserSubscribe, useSubscribeUser} from "../KnodeShareCard/KnodeShareCardHooks";
 import {User} from "../../../../../service/data/Gateway";
 import {getUserPublicInfo} from "../../../../../service/api/LoginApi";
 import {Avatar, Col, Divider, Pagination, Row} from "antd";
@@ -15,7 +15,7 @@ import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import {statisticDisplayAbbr} from "../../../../../service/utils/JsUtils";
 import {CurrentTabAtom} from "../../InfoRightHooks";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
-import {CurrentUserIdSelector, ReadonlyModeAtom} from "../../../Main/MainHooks";
+import {CurrentUserIdSelector, ReadonlyModeAtom, useVisit} from "../../../Main/MainHooks";
 import {getEnhancersByDate} from "../../../../../service/api/EnhancerApi";
 import {EnhancerCard} from "../../EnhancerPanel/EnhancerCard/EnhancerCard";
 import {Enhancer} from "../../../../../service/data/Enhancer";

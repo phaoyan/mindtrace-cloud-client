@@ -9,7 +9,6 @@ import {
     useInitStudyTraceData
 } from "./StudyTraceTimelineHooks";
 import {useAddMilestone, useInitMilestoneData} from "../MilestonePanel/MilestonePanelHooks";
-import dayjs from "dayjs";
 import {PlusOutlined} from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
 import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
@@ -49,9 +48,7 @@ const StudyTraceTimeline = () => {
                 </Col>
             </Row>
             }<br/>
-            <Timeline items={
-                tracesAndMilestones.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-            }/>
+            <Timeline items={tracesAndMilestones.slice((currentPage - 1) * pageSize, currentPage * pageSize)}/>
             <Pagination
                 onChange={(page)=>setCurrentPage(page)}
                 current={currentPage}

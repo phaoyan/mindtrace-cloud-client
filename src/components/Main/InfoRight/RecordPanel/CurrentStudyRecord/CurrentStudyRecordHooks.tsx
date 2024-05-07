@@ -2,7 +2,7 @@ import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {CurrentStudy} from "../../../../../service/data/Tracing";
 import {
     addTraceEnhancerRelCurrent,
-    addTraceKnodeRel, continueCurrentStudy, pauseCurrentStudy,
+    addTraceKnodeRel, continueCurrentStudy, editCurrentStudyTitle, pauseCurrentStudy,
     removeCurrentStudy, removeTraceEnhancerRelCurrent,
     removeTraceKnodeRel,
     settleCurrentStudy, startCurrentStudy
@@ -37,9 +37,14 @@ export const useSettleCurrentStudy = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     const [loadedTraces, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     const [historyStudyRecordKey,setHistoryStudyRecordKey] = useRecoilState(HistoryStudyRecordKeyAtom)
+    const calculateDuration = useCalculateDuration()
     const messageApi = useRecoilValue(MessageApiAtom)
     return async ()=>{
         if(!currentStudy) return
+        if(calculateDuration() <= 0){
+            messageApi.error("时间不能为负")
+            return
+        }
         if(currentStudy.knodeIds.length === 0){
             messageApi.error("请至少选择一个知识点")
             return
@@ -78,15 +83,16 @@ export const useCalculateDuration = ()=>{
             millis -= dayjs(continueList[i]).diff(pauseList[i])
         if(pauseList.length > continueList.length)
             millis -= endTime.diff(pauseList[pauseList.length-1])
-        return millis
+        return millis + currentStudy.durationOffset * 1000
     }
 }
 
 export const useSetTitle = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    return (title: string)=>{
+    return async (title: string)=>{
         if(!currentStudy) return
         setCurrentStudy({...currentStudy, trace: {...currentStudy.trace, title: title}})
+        await editCurrentStudyTitle(title)
     }
 }
 
@@ -107,7 +113,7 @@ export const useAddEnhancerId = ()=>{
     return async (enhancerId: number)=>{
         setCurrentStudy((cur)=>{
             if(!cur || enhancerId in cur.enhancerIds) return cur
-            getKnodesByEnhancerId(enhancerId).then((knodes)=>knodes.forEach(knode=>addKnodeId(knode.id)))
+            getKnodesByEnhancerId(enhancerId).then((knodes)=> knodes.forEach(knode=>addKnodeId(knode.id)))
             addTraceEnhancerRelCurrent(enhancerId)
             return {...cur, enhancerIds: [...cur.enhancerIds, enhancerId]}
         })

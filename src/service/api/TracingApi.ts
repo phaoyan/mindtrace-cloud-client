@@ -45,6 +45,10 @@ export const restartCurrentStudy = async (traceId: number): Promise<CurrentStudy
     return await axios.post(`${TRACING_HOST}/study/current?traceId=${traceId}`).then(({data})=>data)
 }
 
+export const updateDurationOffset = async (offset: number): Promise<CurrentStudy>=>{
+    return await axios.post(`${TRACING_HOST}/study/current/duration-offset?offset=${offset}`).then(({data})=>data)
+}
+
 export const updateStartTime = async (startTime: string): Promise<CurrentStudy>=>{
     return await axios.post(`${TRACING_HOST}/study/current/start?startTime=${startTime}`).then(({data})=>data)
 }

@@ -5,7 +5,7 @@ import {Avatar, Breadcrumb, Col, Pagination, Row} from "antd";
 import {MinusOutlined} from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
 import {VisitOutlined} from "../../../../utils/antd/icons/Icons";
-import {useRemoveKnodeSubscribe, useVisit} from "../KnodeShareCard/KnodeShareCardHooks";
+import {useRemoveKnodeSubscribe} from "../KnodeShareCard/KnodeShareCardHooks";
 import {getChainStyleTitle, getKnodeById} from "../../../../../service/api/KnodeApi";
 import {breadcrumbTitle, Knode} from "../../../../../service/data/Knode";
 import {getUserPublicInfo} from "../../../../../service/api/LoginApi";
@@ -16,7 +16,7 @@ import {getEnhancersByDateBeneathKnode} from "../../../../../service/api/Enhance
 import {EnhancerCard} from "../../EnhancerPanel/EnhancerCard/EnhancerCard";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
 import PlainLoading from "../../../../utils/general/PlainLoading";
-import {ReadonlyModeAtom} from "../../../Main/MainHooks";
+import {ReadonlyModeAtom, useVisit} from "../../../Main/MainHooks";
 
 const KnodeSubscribePanel = () => {
     const readonly = useRecoilValue(ReadonlyModeAtom)

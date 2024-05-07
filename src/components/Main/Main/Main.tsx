@@ -37,7 +37,6 @@ const Main = () => {
     const [currentUser,] = useRecoilState(CurrentUserAtom)
     // 指定Main页面的宽高：本组件和InfoRight的ResizableBox需要用到
     const mainPageRef = useRef<HTMLDivElement>(null)
-    const [mainPageHeight, setMainPageHeight] = useRecoilState(MainPageHeightAtom)
     const setMainPageWidth = useSetRecoilState(MainPageWidthAtom)
     const userId = useRecoilValue(CurrentUserIdSelector)
     const loginId = useRecoilValue(LoginUserIdSelector)
@@ -58,7 +57,6 @@ const Main = () => {
         const effect = async ()=>{
             setKtreeFlat(await getKnodes(userId))
             if(mainPageRef.current){
-                setMainPageHeight(mainPageRef.current.scrollHeight)
                 setMainPageWidth(mainPageRef.current.scrollWidth)
             }
             setLoading(false)
@@ -97,7 +95,7 @@ const Main = () => {
                 className={classes.main}
                 ref={divRef}
                 tabIndex={0}
-                style={{height: mainPageHeight * 0.85 }}
+                style={{height: document.body.scrollHeight * 0.85 }}
                 onKeyDown={hotKeys}>
                 <div className={classes.main_toolbar}>{
                     currentUser.id !== loginId &&

@@ -1,0 +1,12 @@
+.container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.options > *{
+    color: #999999;
+    font-weight: lighter;
+    font-style: oblique;
+}

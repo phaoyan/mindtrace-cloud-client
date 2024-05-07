@@ -13,7 +13,7 @@ import classes from "./NoteLinkPlayer.module.css"
 import utils from "../../../../../../utils.module.css"
 import {LinkOutlined, SendOutlined} from "@ant-design/icons";
 import {Col, Row} from "antd";
-import {getEnhancerByResourceId} from "../../../../../../service/api/EnhancerApi";
+import {getEnhancersByResourceId} from "../../../../../../service/api/EnhancerApi";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {getMilestoneByResourceId, getResourcesFromMilestone} from "../../../../../../service/api/TracingApi";
 import {useJumpToEnhancer} from "../../../RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceRecordHooks";
@@ -40,7 +40,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                     "data.json",
                     JSON.stringify({
                         fromId: currentTab === "note" ?
-                            (await getEnhancerByResourceId(props.meta.id!)).id :
+                            (await getEnhancersByResourceId(props.meta.id!))[0].id :
                             (await getMilestoneByResourceId(props.meta.id!)).id,
                         toId: undefined,
                         fromResourceId: props.meta.id,

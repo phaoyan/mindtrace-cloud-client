@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker} from "antd";
+import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker, Tooltip} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId,
@@ -9,8 +9,7 @@ import {
 } from "./CurrentStudyRecordHooks";
 import {
     editCurrentStudyTitle,
-    getCurrentStudy, getTraceEnhancerRels, getTraceKnodeRels,
-    updateEndTime,
+    getCurrentStudy, getTraceEnhancerRels, getTraceKnodeRels, updateDurationOffset,
     updateStartTime
 } from "../../../../../service/api/TracingApi";
 import classes from "./CurrentStudyRecord.module.css"
@@ -19,10 +18,10 @@ import {formatMillisecondsToHHMMSS} from "../../../../../service/utils/TimeUtils
 import {ContinueOutlined, FinishedOutlined, PauseOutlined} from "../../../../utils/antd/icons/Icons";
 import {
     CalendarOutlined,
-    DeleteOutlined,
+    DeleteOutlined, DownOutlined,
     EditOutlined,
     MinusOutlined,
-    SettingOutlined
+    SettingOutlined, UpOutlined
 } from "@ant-design/icons";
 import {KnodeSelector, SelectedKnodeIdAtom, SelectedKnodeSelector} from "../../../../../recoil/home/Knode";
 import {breadcrumbTitle} from "../../../../../service/data/Knode";
@@ -71,6 +70,12 @@ const CurrentStudyRecord = () => {
             document.title = "Mindtrace Cloud 学习中..."
         else document.title = "Mindtrace Cloud"
     }, [currentStudy])
+    useEffect(()=>{
+        const effect= async ()=>{
+            currentStudy && await updateDurationOffset(currentStudy!.durationOffset)
+        }; effect().then()
+        //eslint-disable-next-line
+    }, [currentStudy?.durationOffset])
     return (
         <div>
             <Row>
@@ -134,7 +139,7 @@ const CurrentStudyRecord = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={8}>
+                            <Col span={4} offset={2}>
                             <span
                                 className={classes.time_bar}
                                 key={timerKey}>{
@@ -144,15 +149,51 @@ const CurrentStudyRecord = () => {
                             </Col>
                             <Col span={16}>
                                 <Row className={classes.options}>
-                                    <Col span={4}>
+                                    <Col span={2}>
+                                        <Tooltip title={"时(×1)"}>
+                                            <div className={classes.offset_option}>
+                                                <UpOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset + 60 * 60}))}/>
+                                                <DownOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset - 60 * 60}))}/>
+                                            </div>
+                                        </Tooltip>
+                                    </Col>
+                                    <Col span={2}>
+                                        <Tooltip title={"分(×5)"}>
+                                            <div className={classes.offset_option}>
+                                                <UpOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset + 5 * 60}))}/>
+                                                <DownOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset - 5 * 60}))}/>
+                                            </div>
+                                        </Tooltip>
+                                    </Col>
+                                    <Col span={2}>
+                                        <Tooltip title={"秒(×10)"}>
+                                            <div className={classes.offset_option}>
+                                                <UpOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset + 10}))}/>
+                                                <DownOutlined
+                                                    className={utils.icon_button_normal}
+                                                    onClick={()=>setCurrentStudy(cur=>({...cur!, durationOffset: cur!.durationOffset - 10}))}/>
+                                            </div>
+                                        </Tooltip>
+                                    </Col>
+                                    <Col span={3}>
                                         <Popover
                                             content={(
-                                            <div style={{width: "24em"}}>
+                                            <div style={{width: "18em"}}>
                                                 <Row>
-                                                    <Col span={6}>
-                                                        <span className={classes.edit_time}>设置起始时间</span>
+                                                    <Col span={7}>
+                                                        <span className={classes.edit_time}>    起始时间</span>
                                                     </Col>
-                                                    <Col span={16} offset={2}>
+                                                    <Col span={16} offset={1}>
                                                         <TimePicker
                                                             size={"small"} defaultValue={dayjs(currentStudy.trace.startTime)}
                                                             onChange={async (time)=>{
@@ -163,27 +204,11 @@ const CurrentStudyRecord = () => {
                                                             }}/>
                                                     </Col>
                                                 </Row>
-                                                <Divider/>
-                                                <Row>
-                                                    <Col span={6}>
-                                                        <span className={classes.edit_time}>设置结束时间</span>
-                                                    </Col>
-                                                    <Col span={16} offset={2}>
-                                                        <TimePicker
-                                                            size={"small"} defaultValue={dayjs()}
-                                                            onChange={async (time)=>{
-                                                                if(!time) return
-                                                                const endTime = time.format(DEFAULT_DATE_TIME_PATTERN);
-                                                                setCurrentStudy({...currentStudy, trace: {...currentStudy?.trace, endTime: endTime}})
-                                                                await updateEndTime(endTime)
-                                                            }}/>
-                                                    </Col>
-                                                </Row>
                                             </div>)}>
                                             <SettingOutlined className={utils.icon_button}/>
                                         </Popover>
                                     </Col>
-                                    <Col span={4}>
+                                    <Col span={3}>
                                         <div className={classes.pause_and_continue}>{
                                             currentStudy.pauseList.length > currentStudy.continueList.length ?
                                                 <ContinueOutlined
@@ -196,12 +221,12 @@ const CurrentStudyRecord = () => {
                                                     onClick={()=>pauseCurrentStudy()}/>
                                         }</div>
                                     </Col>
-                                    <Col span={4}>
+                                    <Col span={3}>
                                         <DeleteOutlined
                                             className={utils.icon_button}
                                             onClick={()=>removeCurrentStudy()}/>
                                     </Col>
-                                    <Col span={4}>
+                                    <Col span={3}>
                                         <FinishedOutlined
                                             className={utils.icon_button}
                                             style={{color:"#000000", scale:"200%"}}

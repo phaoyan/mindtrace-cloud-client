@@ -3,7 +3,7 @@ import {MessageInstance} from "antd/es/message/interface";
 
 export const MainPageHeightAtom = atom({
     key:"MainPageHeightAtom",
-    default: 720
+    default: document.body.scrollHeight
 })
 
 export const MainPageWidthAtom = atom({

@@ -70,12 +70,11 @@ const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boo
                         bordered={false}/>
                 )}</Col>
                 <Col span={3} className={classes.tag_wrapper}>{
-                    traceInfo &&
-                    traceInfo.duration &&
-                    traceInfo.duration !== 0 &&
                     <Tooltip title={"学习时长（时：分）"}>
                         <FieldTimeOutlined style={{position:"relative", left:"-1em"}}/>
-                        <span className={classes.date}>{formatMillisecondsToHHMM(traceInfo.duration * 1000)}</span>
+                        <span className={classes.date}>
+                            {formatMillisecondsToHHMM(traceInfo.duration * 1000 | 0)}
+                        </span>
                     </Tooltip>
                 }</Col>
                 <Col span={2} offset={9} className={classes.tag_wrapper}>{

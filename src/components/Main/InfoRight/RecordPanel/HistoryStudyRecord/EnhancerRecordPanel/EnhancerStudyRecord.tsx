@@ -5,14 +5,18 @@ import {CalendarOutlined, FieldTimeOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {formatMillisecondsToHHMM} from "../../../../../../service/utils/TimeUtils";
 import {StudyTrace} from "../../../../../../service/data/Tracing";
+import {useRecoilState} from "recoil";
+import {LoadedTracesAtom} from "../HistoryStudyRecordHooks";
 
 const EnhancerStudyRecord = (props: {info: any}) => {
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 8
+    const [traces, ] = useRecoilState(LoadedTracesAtom)
+
     return (
         <div>
             <Timeline items={
-                props.info.traces
+                traces.filter(trace=>props.info.traceIds.includes(trace.id))
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                     .map((trace: StudyTrace)=>({children:
                             <div>
@@ -42,9 +46,10 @@ const EnhancerStudyRecord = (props: {info: any}) => {
                 defaultCurrent={currentPage}
                 pageSize={pageSize}
                 hideOnSinglePage={true}
-                total={props.info.traces.length}/>
+                total={props.info.traceIds.length}/>
         </div>
     );
 };
+
 
 export default EnhancerStudyRecord;

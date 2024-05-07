@@ -12,7 +12,7 @@ import {getChainStyleTitle, getLeaveCount} from "../../../service/api/KnodeApi";
 import {
     BarChartOutlined, BarsOutlined, BookOutlined,
     ClockCircleOutlined, DownloadOutlined,
-    EditOutlined,
+    EditOutlined, SearchOutlined,
     ShareAltOutlined
 } from "@ant-design/icons";
 import EnhancerPanel from "./EnhancerPanel/EnhancerPanel";
@@ -31,10 +31,10 @@ import {getEnhancerCount} from "../../../service/api/EnhancerApi";
 import LocalPanel from "./LocalPanel/LocalPanel";
 import {finishMonitor, isKnodeMonitored, startMonitor} from "../../../service/api/MasteryApi";
 import {useJumpToKnode} from "../Main/MainHooks";
+import SearchPanel from "./SearchPanel/SearchPanel";
 
 const InfoRight = () => {
 
-    const mainPageHeight = useRecoilValue(MainPageHeightAtom)
     const mainPageWidth = useRecoilValue(MainPageWidthAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(KnodeSelector(selectedKnodeId))
@@ -62,10 +62,10 @@ const InfoRight = () => {
     return (
         <ResizableBox
             className={classes.resize_box}
-            width={mainPageWidth / 2} height={mainPageHeight * 0.98}
+            width={mainPageWidth / 2} height={document.body.scrollHeight * 0.95}
             handle={<div className={classes.resize_handle}/>}
-            minConstraints={[mainPageWidth / 4, mainPageHeight * 0.98]}
-            maxConstraints={[mainPageWidth * 31 / 32, mainPageHeight * 0.98]}
+            minConstraints={[mainPageWidth / 4, document.body.scrollWidth * 0.98]}
+            maxConstraints={[mainPageWidth * 31 / 32, document.body.scrollWidth * 0.98]}
             resizeHandles={["w"]}
             axis={"x"}>
             {selectedKnodeId ?
@@ -137,6 +137,13 @@ const InfoRight = () => {
                                 </div>),
                                 key: "record",
                                 children: <RecordPanel/>
+                            },                            {
+                                label: (<div>
+                                    <SearchOutlined/>
+                                    <span>搜索</span>
+                                </div>),
+                                key:"search",
+                                children: <SearchPanel/>
                             },{
                                 label: (<div>
                                     <BarChartOutlined/>

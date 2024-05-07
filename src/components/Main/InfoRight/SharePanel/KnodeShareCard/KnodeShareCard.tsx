@@ -18,7 +18,6 @@ import {
     useRemoveKnodeSubscribe, useRemoveUserSubscribe,
     useSubscribeKnode,
     useSubscribeUser,
-    useVisit
 } from "./KnodeShareCardHooks";
 
 import {getUserPublicInfo} from "../../../../../service/api/LoginApi";
@@ -27,6 +26,7 @@ import {CurrentKnodeSubscribesAtom, CurrentUserSubscribesAtom} from "../SharePan
 import {statisticDisplayAbbr} from "../../../../../service/utils/JsUtils";
 import {UserShare} from "../../../../../service/data/share/UserShare";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import {useVisit} from "../../../Main/MainHooks";
 
 const KnodeShareCard = (props:{knodeId: number}) => {
 

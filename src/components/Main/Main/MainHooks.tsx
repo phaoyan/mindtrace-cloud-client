@@ -16,9 +16,9 @@ import {
     swapBranchIndex
 } from "../../../service/api/KnodeApi";
 import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom} from "../KnodeTitle/KnodeTitleHooks";
-import {MessageApiAtom} from "../../../recoil/utils/DocumentData";
+import {CurrentPageAtom, MessageApiAtom} from "../../../recoil/utils/DocumentData";
 import {User} from "../../../service/data/Gateway";
-import {LoginUserAtom} from "../../Login/LoginHooks";
+import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
 import {KnodeIdBeforeVisitAtom} from "../InfoRight/SharePanel/KnodeShareCard/KnodeShareCardHooks";
 import {subscribeKnode} from "../../../service/api/ShareApi";
 import {getUserPublicInfo} from "../../../service/api/LoginApi";
@@ -28,6 +28,7 @@ import {
     StudyTraceTimelineCurrentPageAtom
 } from "../InfoRight/RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceTimelineHooks";
 import {useRemoveKnodeId} from "../InfoRight/RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
+import {CurrentTabAtom} from "../InfoRight/InfoRightHooks";
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",
@@ -335,11 +336,39 @@ export const useHotkeys = ()=>{
     }
 }
 
+export const useVisit = ()=>{
+    const setCurrentPage = useSetRecoilState(CurrentPageAtom)
+    const setCurrentUser = useSetRecoilState(CurrentUserAtom)
+    const setCurrentTab = useSetRecoilState(CurrentTabAtom)
+    const [knodeIdBeforeVisit, setKnodeIdBeforeVisit] = useRecoilState(KnodeIdBeforeVisitAtom)
+    const [selectedKnodeId, setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
+    const [, setFocusedKnodeId] = useRecoilState(FocusedKnodeIdAtom)
+    return async (owner: User, knodeId?: number)=>{
+        setKnodeIdBeforeVisit([...knodeIdBeforeVisit, selectedKnodeId])
+        setCurrentUser(owner)
+        setSelectedKnodeId(knodeId || -1)
+        setFocusedKnodeId(knodeId || -1)
+        setCurrentTab("note")
+        setCurrentPage("main")
+    }
+}
+
 export const useJumpToKnode = ()=>{
+    const userId = useRecoilValue(LoginUserIdSelector)
     const [,setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
     const [,setEnhancerPanelCurrentPage] = useRecoilState(EnhancerPanelCurrentPageAtom)
     const [,setStudyTraceTimelineCurrentPage] = useRecoilState(StudyTraceTimelineCurrentPageAtom);
-    return (knodeId: number)=>{
+    const setCurrentPage = useSetRecoilState(CurrentPageAtom)
+    const setCurrentUser = useSetRecoilState(CurrentUserAtom)
+    const setCurrentTab = useSetRecoilState(CurrentTabAtom)
+    const visit = useVisit();
+    return async (knodeId: number)=>{
+        const knode = await getKnodeById(knodeId)
+        if(knode.createBy !== userId)
+            await visit(await getUserPublicInfo(knode.createBy), knodeId)
+        setCurrentPage("main")
+        setCurrentUser(await getUserPublicInfo(knode.createBy))
+        setCurrentTab("note")
         setSelectedKnodeId(knodeId)
         setEnhancerPanelCurrentPage(1)
         setStudyTraceTimelineCurrentPage(1)

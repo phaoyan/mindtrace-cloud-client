@@ -11,7 +11,7 @@ import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 
 const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
 
-    const [data, setData ] = useState<any>({url: "https://www.bing.com", remark:""})
+    const [data, setData ] = useState<any>({url: "https://www.bing.com", remark:"", labels: []})
     const [loading, setLoading] = useState(true)
     useEffect(()=>{
         const effect = async ()=>{
@@ -27,6 +27,12 @@ const LinkoutPlayer = (props:{meta: Resource, readonly?: boolean}) => {
         }; effect().then()
         //eslint-disable-next-line
     }, [])
+
+    //兼容性代码
+    useEffect(()=>{
+        if(!data.labels)
+            setData({...data, labels: []})
+    }, [data])
 
     if(loading) return <PlainLoading/>
     return (

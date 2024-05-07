@@ -18,9 +18,10 @@ export const KnodeSelectionHistoryItemsSelector = selector<ItemType[]>({
     key: "KnodeSelectionHistoryItemsSelector",
     get: ({get})=>{
         const history = get(KnodeSelectionHistoryAtom)
+        const selectedKnodeId = get(SelectedKnodeIdAtom)
         return history
             .map((knodeId)=>get(KnodeSelector(knodeId)))
-            .filter(knode=>!!knode)
+            .filter(knode=>!!knode && knode.id !== selectedKnodeId)
             .map(knode=>({
                 key: knode!.id,
                 label: knode!.title

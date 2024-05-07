@@ -23,5 +23,6 @@ export interface CurrentStudy{
     knodeIds: number[],
     enhancerIds: number[],
     continueList: string[],
-    pauseList: string[]
+    pauseList: string[],
+    durationOffset: number
 }

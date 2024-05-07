@@ -37,10 +37,9 @@ export const useInitStudyTraceData = ()=>{
     const [selectedKnodeId,] = useRecoilState(SelectedKnodeIdAtom)
     const [, setStudyTimePerDayCurrentMonth] = useRecoilState(StudyTimePerDayCurrentMonthAtom)
     const currentStudy = useRecoilValue(CurrentStudyAtom)
-    const [loadedTraces,] = useRecoilState(LoadedTracesAtom)
+    const [loadedTraces, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     const milestoneCards = useRecoilValue(MilestoneCardsSelector)
     const [, setAccumulatedDuration] = useRecoilState(AccumulateDurationAtom)
-    const [, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
     const [, setTracesAndMilestones] = useRecoilState(TracesAndMilestonesAtom)
 
     useEffect(()=>{

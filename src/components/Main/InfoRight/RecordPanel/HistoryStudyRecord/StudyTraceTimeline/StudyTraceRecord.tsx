@@ -3,7 +3,12 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
-import {CurrentStudyAtom} from "../../CurrentStudyRecord/CurrentStudyRecordHooks";
+import {
+    CurrentStudyAtom,
+    useAddEnhancerId,
+    useAddKnodeId,
+    useSetTitle
+} from "../../CurrentStudyRecord/CurrentStudyRecordHooks";
 import {
     SelectedMilestoneIdAtom
 } from "../MilestonePanel/MilestonePanelHooks";
@@ -25,7 +30,7 @@ import {
     CalendarOutlined,
     DeleteOutlined,
     EditOutlined,
-    RetweetOutlined,
+    RetweetOutlined, SearchOutlined,
     SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
@@ -50,7 +55,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
-    const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
+    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
     const [selectedMilestoneId,] = useRecoilState(SelectedMilestoneIdAtom)
     const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
     const [knodeRels, setKnodeRels] = useRecoilState(TraceKnodeRelAtomFamily(props.trace.id))
@@ -63,6 +68,9 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
     const addMilestoneTraceRel = useAddMilestoneTraceRel();
     const removeMilestoneTraceRel = useRemoveMilestoneTraceRel(props.trace.id, props.trace.milestoneId)
     const [title, setTitle] = useState<string>("")
+    const addEnhancerIdToCurrentStudy = useAddEnhancerId()
+    const addKnodeIdToCurrentStudy = useAddKnodeId()
+    const setCurrentStudyTitle = useSetTitle()
     useEffect(()=>{
         const effect = async ()=>{
             setKnodeRels(await getTraceKnodeRels(props.trace.id))
@@ -139,7 +147,14 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                 </Col>
             </Row>
             <Row>
-                <Col span={12}>
+                <Col span={1}>{
+                    currentStudy &&
+                    <EditOutlined
+                        className={utils.icon_button_normal}
+                        style={{position: "relative", top:"0.6em"}}
+                        onClick={()=>setCurrentStudyTitle(props.trace.title)}/>
+                }</Col>
+                <Col span={11}>
                     <Input
                         value={title}
                         onChange={({target:{value}})=>setTitle(value)}
@@ -153,18 +168,25 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                         placement={"left"}
                         arrow={false}
                         content={<EnhancerSearch trace={props.trace}/>}>
-                        <EditOutlined className={utils.icon_button_normal} style={{scale:"120%"}}/>
+                        <SearchOutlined className={utils.icon_button_normal} style={{scale:"120%"}}/>
                     </Popover>
                 }</Col>
                 <Col span={11}>{
-                    relEnhancerTitles.map(data=>
+                    relEnhancerTitles.map(data=> <span key={data.enhancerId} style={{marginRight:"1em"}}>
                         <Tooltip key={data.enhancerId} title={"点击跳转"}>
                             <span
                                 className={classes.enhancer_title}
                                 onClick={()=>jumpToEnhancer(data.enhancerId)}>
                                 {data.title}
                             </span>
-                        </Tooltip>)
+                        </Tooltip>{
+                        currentStudy &&
+                        <Tooltip title={"添加到学习记录"}>
+                            <EditOutlined
+                                className={utils.icon_button_normal}
+                                onClick={()=>addEnhancerIdToCurrentStudy(data.enhancerId)}/>
+                        </Tooltip>
+                    }</span>)
                 }</Col>
             </Row>
             <Row>
@@ -181,8 +203,14 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                                 <SwapOutlined
                                     className={utils.icon_button_normal}
                                     onClick={()=>{setSelectedKnodeId(data.knodeId); setCurrentTab("note")}}/>
+                            </Tooltip>{
+                            currentStudy &&
+                            <Tooltip title={"添加到学习记录"}>
+                                <EditOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>addKnodeIdToCurrentStudy(data.knodeId)}/>
                             </Tooltip>
-                        </div>))
+                        }</div>))
                 }</Col>
             </Row>
         </div>

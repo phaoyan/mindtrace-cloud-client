@@ -18,6 +18,14 @@ export const getResourceById = async (resourceId: number): Promise<Resource>=>{
     return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/meta`).then(({data})=>data)
 }
 
+export const searchSimilarResource = async (txt: string, threshold: number): Promise<{id: number, score: number}[]>=>{
+    return await axios.get(`${ENHANCER_HOST}/resource/similar?txt=${txt}&threshold=${threshold}`).then(({data})=>data)
+}
+
+export const getResourceBatch = async (resourceIds: number[]): Promise<Resource[]>=>{
+    return await axios.post(`${ENHANCER_HOST}/batch/resource/meta`, resourceIds).then(({data})=>data)
+}
+
 export const addDataToResource = async (resourceId: number, dataName: string, data: any, contentType?: string)=>{
     await axios.post(`${ENHANCER_HOST}/resource/${resourceId}/data/${dataName}`, data || " ", {headers:{"Content-Type": contentType || "text/plain"}})
 }

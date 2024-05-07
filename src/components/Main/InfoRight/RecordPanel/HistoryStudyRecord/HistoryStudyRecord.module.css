@@ -30,6 +30,8 @@
     color: #666666;
     font-weight: bold;
     font-size: 1.3em;
+    position: relative;
+    left: -0.8em;
 }
 .enhancer_title{
     color: #666666;
