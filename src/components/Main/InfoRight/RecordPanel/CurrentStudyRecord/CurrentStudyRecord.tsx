@@ -3,13 +3,13 @@ import {Breadcrumb, Col, Divider, Dropdown, Input, Popover, Row, TimePicker, Too
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId,
-    useAddKnodeId, useCalculateDuration, useContinueCurrentStudy, usePauseCurrentStudy,
+    useAddKnodeId, useCalculateDuration, useContinueCurrentStudy, useLastStudyInfo, usePauseCurrentStudy,
     useRemoveCurrentStudy, useRemoveEnhancerId,
     useRemoveKnodeId, useSetTitle, useSettleCurrentStudy, useStartStudy
 } from "./CurrentStudyRecordHooks";
 import {
     editCurrentStudyTitle,
-    getCurrentStudy, getTraceEnhancerRels, getTraceKnodeRels, updateDurationOffset,
+    getCurrentStudy, updateDurationOffset,
     updateStartTime
 } from "../../../../../service/api/TracingApi";
 import classes from "./CurrentStudyRecord.module.css"
@@ -47,8 +47,7 @@ const CurrentStudyRecord = () => {
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const selectedKnode = useRecoilValue(SelectedKnodeSelector)
     const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
-    const addKnodeId = useAddKnodeId()
-    const addEnhancerId = useAddEnhancerId()
+    const lastStudyInfo = useLastStudyInfo()
     useEffect(()=>{
         const effect = async ()=>{
             if(!selectedKnodeId) return
@@ -98,16 +97,7 @@ const CurrentStudyRecord = () => {
                                             .map(trace=>({
                                                 key: trace.id,
                                                 label: trace.title,
-                                                onClick: async ()=> {
-                                                    let knodeIds = await getTraceKnodeRels(trace.id)
-                                                    let enhancerIds = await getTraceEnhancerRels(trace.id)
-                                                    setTitle(trace.title)
-                                                    await editCurrentStudyTitle(trace.title)
-                                                    for(let knodeId of knodeIds)
-                                                        await addKnodeId(knodeId)
-                                                    for (let enhancerId of enhancerIds)
-                                                        await addEnhancerId(enhancerId)
-                                                }
+                                                onClick: ()=>lastStudyInfo(trace)
                                             }))
                                             .splice(0,5)}}>
                                     <CalendarOutlined className={`${utils.icon_button} ${classes.current_left_option}`}/>

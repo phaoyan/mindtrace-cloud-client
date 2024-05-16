@@ -11,6 +11,14 @@ import {
 import {AccumulateDurationAtom} from "../HistoryStudyRecordHooks";
 import {ItemType} from "antd/es/menu/hooks/useItems";
 
+export interface StudyTraceEnhancerInfo {
+    enhancerId: number,
+    title: string,
+    duration: number,
+    review: number,
+    traceIds: number[]
+}
+
 export const EnhancerRecordInfoListAtom = atom<any[]>({
     key: "EnhancerTimeDistributionAtom",
     default: []
@@ -55,11 +63,11 @@ export const useEnhancerRecordPanelOrderItems = (): ItemType[]=>{
 export const useSortRecords = ()=>{
     const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
 
-    return (infoList: any[], order: string): any[]=>{
+    return (infoList: StudyTraceEnhancerInfo[], order: string): any[]=>{
         if(order==="duration")
             return infoList.sort((a,b)=>b.duration - a.duration)
         else if(order==="start")
-            return infoList.sort((a,b)=>accumulatedDuration[a.traces[a.traces.length-1].id] - accumulatedDuration[b.traces[b.traces.length-1].id])
+            return infoList.sort((a,b)=>accumulatedDuration[a.traceIds[a.traceIds.length-1]] - accumulatedDuration[b.traceIds[b.traceIds.length-1]])
         else return []
     }
 }

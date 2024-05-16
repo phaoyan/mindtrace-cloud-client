@@ -7,13 +7,10 @@ import {Col, Dropdown, Row, Tooltip} from "antd";
 import {
     BookOutlined,
     CalendarOutlined,
-    HistoryOutlined, MonitorOutlined,
-    PieChartOutlined, RiseOutlined
+    HistoryOutlined,
+    PieChartOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../utils.module.css"
-import EnhancerTraceTimeline from "./EnhancerTraceTimeline/EnhancerTraceTimeline";
-import MilestonePanel from "./MilestonePanel/MilestonePanel";
-import {useInitMilestoneData} from "./MilestonePanel/MilestonePanelHooks";
 import StudyTraceTimeline from "./StudyTraceTimeline/StudyTraceTimeline";
 import CalendarPanel from "./CalendarPanel/CalendarPanel";
 import KnodeDistributionPanel from "./KnodeDistributionPanel/KnodeDistributionPanel";
@@ -24,7 +21,6 @@ import {
     useInitEnhancerRecordData
 } from "./EnhancerRecordPanel/EnhancerRecordPanelHooks";
 import {useInitKnodeDistributionData} from "./KnodeDistributionPanel/KnodeDistributionPanelHooks";
-import {useInitStudyTraceData} from "./StudyTraceTimeline/StudyTraceTimelineHooks";
 
 
 const HistoryStudyRecord = () => {
@@ -40,8 +36,6 @@ const HistoryStudyRecord = () => {
     useInitCalendarData()
     useInitEnhancerRecordData()
     useInitKnodeDistributionData()
-    useInitMilestoneData()
-    useInitStudyTraceData()
 
     return (
         <div key={componentKey}>
@@ -51,13 +45,6 @@ const HistoryStudyRecord = () => {
                         <HistoryOutlined
                             className={utils.icon_button}
                             onClick={()=>setStatisticDisplay("history")}/>
-                    </Tooltip>
-                </Col>
-                <Col span={2}>
-                    <Tooltip title={"学习里程碑"}>
-                        <RiseOutlined
-                            className={utils.icon_button}
-                            onClick={()=>setStatisticDisplay("milestone")}/>
                     </Tooltip>
                 </Col>
                 <Col span={2}>
@@ -84,13 +71,6 @@ const HistoryStudyRecord = () => {
                         </Dropdown>
                     </Tooltip>
                 </Col>
-                <Col span={2}>
-                    <Tooltip title={"学习时间线（按笔记）"}>
-                        <MonitorOutlined
-                            className={utils.icon_button}
-                            onClick={()=>setStatisticDisplay("enhancer trace timeline")}/>
-                    </Tooltip>
-                </Col>
 
             </Row>
             <br/>{
@@ -109,16 +89,8 @@ const HistoryStudyRecord = () => {
                 statisticDisplay === "enhancer distribution" &&
                 <div key={statisticDisplayKey + 3}>
                     <EnhancerRecordPanel/>
-                </div>}{
-                statisticDisplay === "enhancer trace timeline" &&
-                <div key={statisticDisplayKey + 4}>
-                    <EnhancerTraceTimeline/>
-                </div>}{
-                statisticDisplay === "milestone" &&
-                <div key={statisticDisplayKey + 5}>
-                    <MilestonePanel/>
-                </div>
-            }<br/>
+                </div>}
+            <br/>
         </div>
     );
 };

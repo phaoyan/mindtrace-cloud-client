@@ -53,7 +53,6 @@ export const breadcrumbTitle = (chainStyleTitle: string[], include?: boolean):Br
 
 export const useBreadcrumbTitleForJump = ()=>{
     const jumpToKnode = useJumpToKnode()
-
     return (chainStyleData: Knode[]):BreadcrumbItemType[]=>{
         if(!chainStyleData)
             return []

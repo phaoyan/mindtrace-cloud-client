@@ -8,7 +8,10 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {
     EnhancerRecordPanelCurrentPageAtom,
     EnhancerRecordInfoListAtom,
-    useInitEnhancerRecordData, EnhancerRecordPanelOrderAtom, useSortRecords, EnhancerRecordMinDurationAtom
+    EnhancerRecordPanelOrderAtom,
+    useSortRecords,
+    EnhancerRecordMinDurationAtom,
+    StudyTraceEnhancerInfo, useInitEnhancerRecordData
 } from "./EnhancerRecordPanelHooks";
 import {EnhancerCard} from "../../../EnhancerPanel/EnhancerCard/EnhancerCard";
 import EnhancerGroupCard from "../../../EnhancerPanel/EnhancerGroupCard/EnhancerGroupCard";
@@ -21,10 +24,11 @@ const EnhancerRecordPanel = () => {
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerRecordPanelCurrentPageAtom)
     const [order, ] = useRecoilState(EnhancerRecordPanelOrderAtom)
     const [minDuration, setMinDuration] = useRecoilState(EnhancerRecordMinDurationAtom)
-    const [filteredEnhancerRecordInfoList, setFilteredEnhancerRecordInfoList] = useState<any[]>([])
+    const [filteredEnhancerRecordInfoList, setFilteredEnhancerRecordInfoList] = useState<StudyTraceEnhancerInfo[]>([])
     const pageSize = 10
     const sortRecords = useSortRecords()
     useInitStudyTraceData()
+    useInitEnhancerRecordData()
     useEffect(()=>{
         setFilteredEnhancerRecordInfoList(enhancerRecordInfoList.filter((info)=>info.duration >= minDuration))
     }, [enhancerRecordInfoList, minDuration])

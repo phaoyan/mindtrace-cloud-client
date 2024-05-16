@@ -1,0 +1,14 @@
+.option{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.option > *{
+    color: #666666;
+}
+.search_item{
+    display: flex;
+}
+.search_item > *{
+    margin-right: 1em;
+}

@@ -12,6 +12,13 @@ export interface StudyTrace{
     milestoneId?: number
 }
 
+export interface TraceGroup{
+    id: number,
+    userId: number,
+    title: string,
+    createTime: string
+}
+
 export interface TraceCoverage{
     id: number,
     traceId: number,

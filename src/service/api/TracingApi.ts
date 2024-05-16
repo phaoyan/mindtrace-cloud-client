@@ -1,6 +1,6 @@
 import {BACK_HOST} from "../utils/constants";
 import axios from "axios";
-import {CurrentStudy, StudyTrace} from "../data/Tracing";
+import {CurrentStudy, StudyTrace, TraceGroup} from "../data/Tracing";
 import {Resource} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 import {
     Milestone
@@ -211,4 +211,32 @@ export const getCalendarMonth = async (knodeId: number)=>{
 
 export const getStudyTraceEnhancerGroupInfo = async (groupId: number)=>{
     return await axios.get(`${TRACING_HOST}/study/enhancer-group/${groupId}`).then(({data})=>data)
+}
+
+export const getGroupMappingByTraceIds = async (traceIds: number[]): Promise<{[key: number]:number}>=>{
+    return await axios.post(`${TRACING_HOST}/trace-group/mapping`, traceIds).then(({data})=>data)
+}
+
+export const getGroupByIdBatch = async (groupIds: number[]): Promise<TraceGroup[]>=>{
+    return await axios.post(`${TRACING_HOST}/trace-group`, groupIds).then(({data})=>data)
+}
+
+export const unionTraces = async (traceIds: number[]): Promise<TraceGroup>=>{
+    return await axios.put(`${TRACING_HOST}/trace-group?traceIds=${traceIds}`).then(({data})=>data)
+}
+
+export const unionTracesToGroup = async (traceIds: number[], groupId: number)=>{
+    return await axios.put(`${TRACING_HOST}/trace-group?traceIds=${traceIds}&groupId=${groupId}`).then(({data})=>data)
+}
+
+export const setTraceGroupTitle = async (groupId: number, title: string)=>{
+    await axios.put(`${TRACING_HOST}/trace-group/${groupId}/title?title=${title}`)
+}
+
+export const removeTraceGroup = async (groupId: number)=>{
+    await axios.delete(`${TRACING_HOST}/trace-group/${groupId}`)
+}
+
+export const removeTraceGroupRel = async (traceId: number, groupId: number)=>{
+    await axios.delete(`${TRACING_HOST}/trace/${traceId}/trace-group/${groupId}`)
 }

@@ -58,7 +58,8 @@ export const scissorEnhancer = async (enhancerId:number, oriKnodeId: number, tar
     await axios.delete(`${ENHANCER_HOST}/knode/${oriKnodeId}/enhancer/${enhancerId}`)
 }
 
-export const copyEnhancer = async (enhancerId:number, tarKnodeId: number)=>{
+export const copyEnhancer = async (enhancerId:number, oriKnodeId: number, tarKnodeId: number)=>{
+    if(oriKnodeId===tarKnodeId) return
     await axios.post(`${ENHANCER_HOST}/knode/${tarKnodeId}/enhancer/${enhancerId}`)
 }
 

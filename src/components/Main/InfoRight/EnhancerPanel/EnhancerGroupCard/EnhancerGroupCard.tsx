@@ -14,12 +14,13 @@ import {
 import {useRecoilState} from "recoil";
 import {EnhancerCard} from "../EnhancerCard/EnhancerCard";
 import {ResourcePlayer, useAddResourceDropdownItems} from "../EnhancerCard/EnhancerCardHooks";
-import {DeleteOutlined, FieldTimeOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, DownloadOutlined, FieldTimeOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import classes from "./EnhancerGroupCard.module.css"
 import utils from "../../../../../utils.module.css"
 import {removeResourceFromEnhancerGroup} from "../../../../../service/api/ResourceApi";
 import {getStudyTraceEnhancerGroupInfo} from "../../../../../service/api/TracingApi";
 import {formatMillisecondsToHHMM} from "../../../../../service/utils/TimeUtils";
+import {LOCAL_HOST} from "../../../../../service/api/LocalApi";
 
 const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boolean}) => {
 
@@ -49,7 +50,7 @@ const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boo
     }, [group])
 
 
-    if(!group) return <></>
+    if(!group || ! traceInfo) return <></>
     return (
         <div>
             <Row>
@@ -77,7 +78,16 @@ const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boo
                         </span>
                     </Tooltip>
                 }</Col>
-                <Col span={2} offset={9} className={classes.tag_wrapper}>{
+                <Col span={1}  offset={8} className={classes.tag_wrapper}>
+                    <a
+                        href={`${LOCAL_HOST}/enhancer-group/${props.id}/content`}
+                        style={{color:"#999"}}
+                        target={"_blank"}
+                        rel={"noreferrer"}>
+                        <DownloadOutlined className={utils.icon_button}/>
+                    </a>
+                </Col>
+                <Col span={2} className={classes.tag_wrapper}>{
                     !props.readonly &&
                     <Dropdown menu={{items: addResourceDropdownItems, onClick: (data)=>addResource(data.key)}}>
                         <PlusOutlined className={utils.icon_button}/>
@@ -117,7 +127,8 @@ const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boo
                     }</Col>
                 </Row>
                 <Row>
-                    <Col span={23} offset={1}>
+                    <Col span={23} offset={1}>{
+                        extend &&
                         <Pagination
                             style={{marginTop:"1em"}}
                             onChange={(page)=>setCurrentPage(page)}
@@ -125,7 +136,7 @@ const EnhancerGroupCard = (props:{id: number, hideName?: boolean, readonly?: boo
                             pageSize={pageSize}
                             hideOnSinglePage={true}
                             total={enhancerIds.length}/>
-                    </Col>
+                    }</Col>
                 </Row>
             </div>
             <Row style={{paddingTop:"0.5em"}}>

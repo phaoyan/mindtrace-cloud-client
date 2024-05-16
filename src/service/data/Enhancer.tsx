@@ -6,8 +6,6 @@ export const defaultEnhancer: Enhancer = {
     length:-1,
     createTime:"",
     createBy:-1,
-    resources:[],
-    labels:[],
     isQuiz: false
 }
 export interface Enhancer{
@@ -18,23 +16,4 @@ export interface Enhancer{
     createTime:string,
     createBy:number,
     isQuiz: boolean
-    resources:Array<{
-        id:number,
-        title:string,
-        type:string,
-        createTime:string,
-        createBy:number,
-        privacy:string
-    }>,
-    labels:Array<{
-        name:string,
-        createTime:string,
-        createBy:string
-    }>
-}
-
-export interface Label{
-    name: string,
-    createTime: string,
-    createBy: string
 }

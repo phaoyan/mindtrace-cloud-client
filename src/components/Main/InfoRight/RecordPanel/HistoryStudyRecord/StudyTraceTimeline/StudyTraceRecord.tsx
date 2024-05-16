@@ -1,17 +1,14 @@
 import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {ReadonlyModeAtom} from "../../../../Main/MainHooks";
+import {useReadonly} from "../../../../Main/MainHooks";
 import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {
     CurrentStudyAtom,
     useAddEnhancerId,
-    useAddKnodeId,
+    useAddKnodeId, useLastStudyInfo,
     useSetTitle
 } from "../../CurrentStudyRecord/CurrentStudyRecordHooks";
-import {
-    SelectedMilestoneIdAtom
-} from "../MilestonePanel/MilestonePanelHooks";
 import React, {useEffect, useState} from "react";
 import {
     AccumulateDurationAtom,
@@ -27,10 +24,10 @@ import {getEnhancerById} from "../../../../../../service/api/EnhancerApi";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {Breadcrumb, Col, Divider, Input, Popconfirm, Popover, Row, Tooltip} from "antd";
 import {
-    CalendarOutlined,
+    CopyOutlined,
     DeleteOutlined,
-    EditOutlined,
-    RetweetOutlined, SearchOutlined,
+    EditOutlined, FolderFilled, FolderOutlined, RetweetOutlined,
+    SearchOutlined,
     SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css";
@@ -43,34 +40,33 @@ import {
     RelKnodeChainTitlesFamily,
     TraceEnhancerRelAtomFamily,
     TraceKnodeRelAtomFamily,
-    useAddMilestoneTraceRel,
     useCalculateTitle,
     useJumpToEnhancer,
-    useRemoveMilestoneTraceRel,
     useRemoveTraceRecord
 } from "./StudyTraceRecordHooks";
 import EnhancerSearch from "./EnhancerSearch";
+import {StudyTraceGroupingAtom, useRemoveTraceGroupRel} from "./StudyTraceTimelineHooks";
 
-export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
-    const readonly = useRecoilValue(ReadonlyModeAtom)
+export const StudyTraceRecord = (props:{trace: StudyTrace, groupId?: number})=>{
+    const readonly = useReadonly(props.trace.userId)
     const setSelectedKnodeId = useSetRecoilState(SelectedKnodeIdAtom)
     const setCurrentTab = useSetRecoilState(CurrentTabAtom)
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    const [selectedMilestoneId,] = useRecoilState(SelectedMilestoneIdAtom)
     const accumulatedDuration = useRecoilValue(AccumulateDurationAtom)
     const [knodeRels, setKnodeRels] = useRecoilState(TraceKnodeRelAtomFamily(props.trace.id))
     const [enhancerRels, setEnhancerRels] = useRecoilState(TraceEnhancerRelAtomFamily(props.trace.id))
     const [relKnodeChainTitles, setRelKnodeChainTitles] = useRecoilState(RelKnodeChainTitlesFamily(props.trace.id))
     const [relEnhancerTitles, setRelEnhancerTitles] = useRecoilState(RelEnhancerTitlesFamily(props.trace.id))
+    const [grouping, setGrouping] = useRecoilState(StudyTraceGroupingAtom)
     const removeTraceRecord = useRemoveTraceRecord()
     const calculateTitle = useCalculateTitle()
     const jumpToEnhancer = useJumpToEnhancer()
-    const addMilestoneTraceRel = useAddMilestoneTraceRel();
-    const removeMilestoneTraceRel = useRemoveMilestoneTraceRel(props.trace.id, props.trace.milestoneId)
     const [title, setTitle] = useState<string>("")
     const addEnhancerIdToCurrentStudy = useAddEnhancerId()
     const addKnodeIdToCurrentStudy = useAddKnodeId()
     const setCurrentStudyTitle = useSetTitle()
+    const lastStudyInfo = useLastStudyInfo()
+    const removeTraceGroupRel = useRemoveTraceGroupRel()
     useEffect(()=>{
         const effect = async ()=>{
             setKnodeRels(await getTraceKnodeRels(props.trace.id))
@@ -115,6 +111,22 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                     <span className={classes.time_bar}>{dayjs(props.trace.startTime).format("YYYY-MM-DD HH:mm")}</span>
                 </Col>
                 <Col span={1}>{
+                    !props.groupId && grouping &&
+                    (!grouping.includes(props.trace.id) ?
+                    <FolderOutlined
+                        className={utils.icon_button_normal}
+                        onClick={()=>setGrouping([...grouping, props.trace.id])}/>:
+                    <FolderFilled
+                        className={utils.icon_button_normal}
+                        onClick={()=>setGrouping(grouping!.filter((traceId)=>traceId !== props.trace.id))}/>)}{
+                    props.groupId &&
+                    <Tooltip title={"将其从分组中移除"}>
+                        <RetweetOutlined
+                            className={utils.icon_button_normal}
+                            onClick={()=>removeTraceGroupRel(props.trace.id, props.groupId!)}/>
+                    </Tooltip>
+                }</Col>
+                <Col span={1}>{
                     dayjs().diff(dayjs(props.trace.endTime), "second") <= 3600 &&
                     <Tooltip title={"继续该次学习"}>
                         <EditOutlined
@@ -123,22 +135,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
                             onClick={async ()=>setCurrentStudy(await restartCurrentStudy(props.trace.id))}/>
                     </Tooltip>
                 }</Col>
-                <Col span={1}>
-                    <Tooltip title={"将该学习记录绑定到里程碑上"}>{
-                        selectedMilestoneId &&
-                        !props.trace.milestoneId &&
-                        <CalendarOutlined
-                            className={utils.icon_button_normal}
-                            onClick={()=>addMilestoneTraceRel(props.trace.id)}/>
-                    }</Tooltip>{
-                    props.trace.milestoneId &&
-                    <Tooltip title={"将该学习记录从里程碑上移除"}>
-                        <RetweetOutlined
-                            className={utils.icon_button_normal}
-                            onClick={()=>removeMilestoneTraceRel()}/>
-                    </Tooltip>
-                }</Col>
-                <Col span={9} offset={3}>
+                <Col span={9} offset={2}>
                     <span className={classes.duration}>
                         {formatMillisecondsToHHMMSS(props.trace.seconds * 1000)}
                         &nbsp;&nbsp;/&nbsp;&nbsp;
@@ -149,10 +146,18 @@ export const StudyTraceRecord = (props:{trace: StudyTrace})=>{
             <Row>
                 <Col span={1}>{
                     currentStudy &&
-                    <EditOutlined
-                        className={utils.icon_button_normal}
-                        style={{position: "relative", top:"0.6em"}}
-                        onClick={()=>setCurrentStudyTitle(props.trace.title)}/>
+                    <Tooltip
+                        placement={"left"}
+                        title={(
+                        <CopyOutlined
+                            className={utils.icon_button_normal}
+                            onClick={()=>lastStudyInfo(props.trace)}/>
+                    )}>
+                        <EditOutlined
+                            className={utils.icon_button_normal}
+                            style={{position: "relative", top:"0.6em"}}
+                            onClick={()=>setCurrentStudyTitle(props.trace.title)}/>
+                    </Tooltip>
                 }</Col>
                 <Col span={11}>
                     <Input

@@ -1,11 +1,18 @@
 import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {CurrentStudy} from "../../../../../service/data/Tracing";
+import {CurrentStudy, StudyTrace} from "../../../../../service/data/Tracing";
 import {
     addTraceEnhancerRelCurrent,
-    addTraceKnodeRel, continueCurrentStudy, editCurrentStudyTitle, pauseCurrentStudy,
-    removeCurrentStudy, removeTraceEnhancerRelCurrent,
+    addTraceKnodeRel,
+    continueCurrentStudy,
+    editCurrentStudyTitle,
+    getTraceEnhancerRels,
+    getTraceKnodeRels,
+    pauseCurrentStudy,
+    removeCurrentStudy,
+    removeTraceEnhancerRelCurrent,
     removeTraceKnodeRel,
-    settleCurrentStudy, startCurrentStudy
+    settleCurrentStudy,
+    startCurrentStudy
 } from "../../../../../service/api/TracingApi";
 import {HistoryStudyRecordKeyAtom, LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
@@ -117,6 +124,23 @@ export const useAddEnhancerId = ()=>{
             addTraceEnhancerRelCurrent(enhancerId)
             return {...cur, enhancerIds: [...cur.enhancerIds, enhancerId]}
         })
+    }
+}
+
+export const useLastStudyInfo = ()=>{
+    const addKnodeId = useAddKnodeId()
+    const addEnhancerId = useAddEnhancerId()
+    const setTitle = useSetTitle()
+    return async (trace: StudyTrace)=> {
+
+        let knodeIds = await getTraceKnodeRels(trace.id)
+        let enhancerIds = await getTraceEnhancerRels(trace.id)
+        await setTitle(trace.title)
+        await editCurrentStudyTitle(trace.title)
+        for(let knodeId of knodeIds)
+            await addKnodeId(knodeId)
+        for (let enhancerId of enhancerIds)
+            await addEnhancerId(enhancerId)
     }
 }
 

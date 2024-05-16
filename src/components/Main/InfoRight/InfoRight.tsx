@@ -13,14 +13,12 @@ import {
     BarChartOutlined, BarsOutlined, BookOutlined,
     ClockCircleOutlined, DownloadOutlined,
     EditOutlined, SearchOutlined,
-    ShareAltOutlined
 } from "@ant-design/icons";
 import EnhancerPanel from "./EnhancerPanel/EnhancerPanel";
 import utils from "../../../utils.module.css"
 import RecordPanel from "./RecordPanel/RecordPanel";
 import AnalysisPanel from "./AnalysisPanel/AnalysisPanel";
-import SharePanel from "./SharePanel/SharePanel";
-import {MainPageHeightAtom, MainPageWidthAtom} from "../../../recoil/utils/DocumentData";
+import {MainPageWidthAtom} from "../../../recoil/utils/DocumentData";
 import {breadcrumbTitle} from "../../../service/data/Knode";
 import {
     CurrentTabAtom,
@@ -151,13 +149,6 @@ const InfoRight = () => {
                                 </div>),
                                 key: "analysis",
                                 children: <AnalysisPanel/>
-                            },{
-                                label: (<div>
-                                    <ShareAltOutlined />
-                                    <span>共享</span>
-                                </div>),
-                                key: "share",
-                                children: <SharePanel/>
                             },{
                                 label: (<div>
                                     <DownloadOutlined/>,

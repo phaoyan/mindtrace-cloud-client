@@ -1,6 +1,7 @@
 import {atom, atomFamily, useRecoilState, useRecoilValue} from "recoil";
 import {defaultEnhancer, Enhancer} from "../../../../../service/data/Enhancer";
 import {
+    ApiOutlined,
     FileSearchOutlined,
     FileTextOutlined,
     LinkOutlined,
@@ -34,6 +35,7 @@ import {
     useAddEnhancerId,
     useAddKnodeId
 } from "../../RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
+import KnodeLinkPlayer from "../resource/KnodeLinkPlayer/KnodeLinkPlayer";
 
 export const EnhancerAtomFamily = atomFamily<Enhancer, number>({
     key: "EnhancerAtomFamily",
@@ -102,12 +104,19 @@ export const useAddResourceDropdownItems = (disableNoteLink?: boolean)=>{
         }
     ]
 
-    if(!disableNoteLink)
+    if(!disableNoteLink){
         res.push({
             key: ResourceType.NOTE_LINK,
             label: "笔记链接",
             icon: <SnippetsOutlined className={classes.option}/>,
         })
+        res.push({
+            key: ResourceType.KNODE_LINK,
+            label: "知识链接",
+            icon: <ApiOutlined />
+        })
+    }
+
 
     return res
 }
@@ -194,6 +203,7 @@ export const ResourceType = {
     MARKDOWN: "markdown",
     LINKOUT: "linkout",
     NOTE_LINK: "note link",
+    KNODE_LINK: "knode link",
     CLOZE: "cloze",
     GPT_PROMPTS: "gpt prompts",
     AUDIO: "audio",
@@ -218,7 +228,8 @@ export const resourceTypePlayerMapper = {
     [ResourceType.CLOZE]: (meta: Resource, readonly:boolean) => <ClozePlayer    meta={meta} readonly={readonly}/>,
     [ResourceType.MINDTRACE_HUB_RESOURCE]: (meta: Resource, readonly:boolean)=> <MindtraceHubResourcePlayer meta={meta} readonly={readonly}/>,
     [ResourceType.AUDIO]: (meta: Resource, readonly:boolean)=> <AudioPlayer meta={meta} readonly={readonly}/>,
-    [ResourceType.NOTE_LINK]: (meta: Resource, readonly:boolean)=> <NoteLinkPlayer meta={meta} readonly={readonly}/>
+    [ResourceType.NOTE_LINK]: (meta: Resource, readonly:boolean)=> <NoteLinkPlayer meta={meta} readonly={readonly}/>,
+    [ResourceType.KNODE_LINK]: (meta: Resource, readonly:boolean)=> <KnodeLinkPlayer meta={meta} readonly={readonly}/>
 }
 
 export const ResourcePlayer = (props:{resource: Resource, readonly? : boolean })=>{

@@ -28,8 +28,15 @@
 }
 .trace_title{
     color: #666666;
+    font-weight: normal;
+    font-size: 1.2em;
+    position: relative;
+    left: -0.8em;
+}
+.trace_group_title{
+    color: #666666;
     font-weight: bold;
-    font-size: 1.3em;
+    font-size: 1.5em;
     position: relative;
     left: -0.8em;
 }
@@ -126,4 +133,8 @@
 }
 .min_duration_selection > *:hover{
     color: #666666;
+}
+.extend_prompt{
+    color: #999999;
+    margin-left: 1em;
 }

@@ -125,7 +125,7 @@ const EnhancerPanel = () => {
                                         className={utils.icon_button}
                                         style={{marginLeft:"2em"}}
                                         onClick={ async ()=>{
-                                            await copyEnhancer(enhancerIdClipboard[0],selectedKnodeId)
+                                            await copyEnhancer(enhancerIdClipboard[0],enhancerIdClipboard[1],selectedKnodeId)
                                             setEnhancerPanelKey(enhancerPanelKey+1)
                                             setEnhancerIdClipboard(undefined)
                                         }}/>

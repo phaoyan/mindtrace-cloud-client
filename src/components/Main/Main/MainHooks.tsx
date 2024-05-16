@@ -390,3 +390,8 @@ export const useHotkeysHelp = (): string=>{
 `
     )
 }
+
+export const useReadonly = (userId: number)=>{
+    const loginUserId = useRecoilValue(LoginUserIdSelector)
+    return loginUserId !== userId
+}
