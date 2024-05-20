@@ -39,7 +39,7 @@ const StudyTraceGroup = (props: {group: TraceGroup, time: string}) => {
         lastTraceId in accumulateDuration &&
         setAccDuration(accumulateDuration[lastTraceId])
         //eslint-disable-next-line
-    }, [mapping, accumulateDuration])
+    }, [mapping, accumulateDuration, currentPage])
     useEffect(()=>{
         setTitle(props.group.title)
     }, [props.group])

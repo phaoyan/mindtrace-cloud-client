@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
-import {Breadcrumb, Col, Dropdown, Input, Row, Tooltip} from "antd";
+import {Breadcrumb, Col, Dropdown, Input, Popconfirm, Row, Tooltip} from "antd";
 import {
     BlockOutlined,
     BookOutlined, CopyFilled, CopyOutlined,
-    DeleteOutlined, DisconnectOutlined, DownOutlined, FieldTimeOutlined, FormOutlined, LinkOutlined,
+    DeleteOutlined, DisconnectOutlined, DownloadOutlined, DownOutlined, FieldTimeOutlined, FormOutlined, LinkOutlined,
     MinusOutlined,
     PlusOutlined,
     ScissorOutlined, UpOutlined
@@ -43,6 +43,7 @@ import {
     useInitSelectedKnodeAncestorEnhancerGroups, useRemoveEnhancerGroupRel
 } from "../EnhancerGroupCard/EnhancerGroupCardHooks";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
+import {LOCAL_HOST} from "../../../../../service/api/LocalApi";
 
 export const EnhancerCard = (props: {
     id: number,
@@ -165,26 +166,35 @@ export const EnhancerCard = (props: {
                                 onClick={()=>shiftEnhancerInGroup(props.fromGroup!, enhancer.id, 1)}/>
                         </div>
                     }</Col>
-                    <Col span={1} offset={1}>{
-                        !readonly && !enhancer.isQuiz &&
-                        <Tooltip title={"将笔记加入测试题库"}>
-                            <BookOutlined
-                                className={utils.icon_button}
-                                onClick={()=>{
-                                    setEnhancer({...enhancer, isQuiz: true})
-                                    setEnhancerIsQuiz(props.id, true).then()
-                                }}/>
-                        </Tooltip>}{
-                        !readonly && enhancer.isQuiz &&
-                        <Tooltip title={"将笔记移出测试题库"}>
-                            <FormOutlined
-                                className={utils.icon_button}
-                                onClick={()=>{
-                                    setEnhancer({...enhancer, isQuiz: false})
-                                    setEnhancerIsQuiz(props.id, false).then()
-                                }}/>
-                        </Tooltip>
-                    }</Col>
+                    {/*<Col span={1} offset={1}>{*/}
+                    {/*    !readonly && !enhancer.isQuiz &&*/}
+                    {/*    <Tooltip title={"将笔记加入测试题库"}>*/}
+                    {/*        <BookOutlined*/}
+                    {/*            className={utils.icon_button}*/}
+                    {/*            onClick={()=>{*/}
+                    {/*                setEnhancer({...enhancer, isQuiz: true})*/}
+                    {/*                setEnhancerIsQuiz(props.id, true).then()*/}
+                    {/*            }}/>*/}
+                    {/*    </Tooltip>}{*/}
+                    {/*    !readonly && enhancer.isQuiz &&*/}
+                    {/*    <Tooltip title={"将笔记移出测试题库"}>*/}
+                    {/*        <FormOutlined*/}
+                    {/*            className={utils.icon_button}*/}
+                    {/*            onClick={()=>{*/}
+                    {/*                setEnhancer({...enhancer, isQuiz: false})*/}
+                    {/*                setEnhancerIsQuiz(props.id, false).then()*/}
+                    {/*            }}/>*/}
+                    {/*    </Tooltip>*/}
+                    {/*}</Col>*/}
+                    <Col span={1} offset={1}>
+                        <a
+                            href={`${LOCAL_HOST}/enhancer/${enhancer.id}/content`}
+                            style={{color:"#111"}}
+                            target={"_blank"}
+                            rel={"noreferrer"}>
+                            <DownloadOutlined className={utils.icon_button}/>
+                        </a>
+                    </Col>
                     <Col span={1} offset={1}>{
                         !readonly &&
                         <ScissorOutlined
@@ -293,12 +303,14 @@ export const EnhancerCard = (props: {
                 }</Col>
                 <Col span={1}>{
                     !readonly &&
-                    <DeleteOutlined
-                        className={utils.icon_button}
-                        onClick={()=>handleRemove(enhancer.id)}/>
+                    <Popconfirm
+                        title={"确定要删除该学习笔记？"}
+                        showCancel={false}
+                        onConfirm={()=>handleRemove(enhancer.id)}>
+                        <DeleteOutlined className={utils.icon_button}/>
+                    </Popconfirm>
                 }</Col>
             </Row>
-
         </div>
     )
 }

@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useRecoilState, useRecoilValue} from "recoil";
 import classes from "./KnodeTitle.module.css"
 import {KnodeSelector, ScissoredKnodeIdsAtom, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
-import {Input, InputRef, Tooltip} from "antd";
+import {Input, InputRef, Popconfirm, Tooltip} from "antd";
 import MdPreview from "../../utils/markdown/MdPreview";
 import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom, useHandleSubmit} from "./KnodeTitleHooks";
 import {
@@ -12,7 +12,6 @@ import {
     LinkOutlined,
     MinusOutlined,
     PlusOutlined, ScissorOutlined,
-    StarOutlined,
     SwapOutlined
 } from "@ant-design/icons";
 import utils from "../../../utils.module.css"
@@ -21,7 +20,7 @@ import {
     useHandleBranch,
     useHandleConnect, useHandleDisconnect,
     useHandleRemove,
-    useHandleSubscribe, usePasteSelectedKnode, useScissorKnode,
+    usePasteSelectedKnode, useScissorKnode,
 } from "../Main/MainHooks";
 import {LoginUserIdSelector} from "../../Login/LoginHooks";
 
@@ -40,7 +39,6 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
     const handleSubmit = useHandleSubmit()
     const handleBranch = useHandleBranch()
     const handleRemove = useHandleRemove()
-    const handleSubscribe = useHandleSubscribe()
     const handleConnect = useHandleConnect(props.id)
     const handleDisconnect = useHandleDisconnect(props.id)
     const scissorKnode = useScissorKnode();
@@ -62,8 +60,7 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
         <div
             className={classes.container}
             style={{backgroundColor: scissoredKnodeIds.includes(props.id) ? "#eee":"transparent"}}>
-            <div tabIndex={0} ref={divRef}>
-                {
+            <div tabIndex={0} ref={divRef}>{
                     titleEditKnodeId === knode.id?
                     <Input
                         className={classes.title}
@@ -123,23 +120,15 @@ const KnodeTitle = (props: {id: number, hideOptions?: boolean}) => {
                                 className={utils.icon_button_normal}
                                 onClick={handleBranch}/>{
                             knode.branchIds.length === 0 &&
-                            <MinusOutlined
-                                className={utils.icon_button_normal}
-                                onClick={handleRemove}/>}
-                        </div>}{
-                        loginUserId !== currentUserId &&
-                        selectedKnodeId === knode.id &&
-                        !props.hideOptions &&
-                        <div  className={classes.other_user_options}>
-                            <Tooltip title={"订阅该知识点"}>
-                                <StarOutlined
-                                    className={utils.icon_button_normal}
-                                    onClick={()=>handleSubscribe(props.id)}/>
-                            </Tooltip>
+                                <Popconfirm
+                                    title={"确定要删除该知识点？"}
+                                    showCancel={false}
+                                    onConfirm={handleRemove}>
+                                    <MinusOutlined className={utils.icon_button_normal}/>
+                                </Popconfirm>}
                         </div>
                     }</div>
-                }
-            </div>
+            }</div>
         </div>
     );
 };

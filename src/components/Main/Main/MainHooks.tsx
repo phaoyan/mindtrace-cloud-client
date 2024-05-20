@@ -19,7 +19,6 @@ import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom} from "../KnodeTitle/Kno
 import {CurrentPageAtom, MessageApiAtom} from "../../../recoil/utils/DocumentData";
 import {User} from "../../../service/data/Gateway";
 import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
-import {KnodeIdBeforeVisitAtom} from "../InfoRight/SharePanel/KnodeShareCard/KnodeShareCardHooks";
 import {subscribeKnode} from "../../../service/api/ShareApi";
 import {getUserPublicInfo} from "../../../service/api/LoginApi";
 import dayjs, {Dayjs} from "dayjs";
@@ -29,6 +28,12 @@ import {
 } from "../InfoRight/RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceTimelineHooks";
 import {useRemoveKnodeId} from "../InfoRight/RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
 import {CurrentTabAtom} from "../InfoRight/InfoRightHooks";
+
+export const KnodeIdBeforeVisitAtom = atom<number[]>({
+    key: "KnodeIdBeforeVisitAtom",
+    default: []
+})
+
 
 export const ReadonlyModeAtom = atom<boolean>({
     key: "ReadonlyModeAtom",

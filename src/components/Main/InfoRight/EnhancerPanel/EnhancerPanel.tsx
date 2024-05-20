@@ -16,15 +16,6 @@ import {EnhancerCardIdClipboardAtom, EnhancersForSelectedKnodeAtom} from "../../
 import {EnhancerPanelKeyAtom} from "../../../../recoil/utils/DocumentData";
 import {EnhancerCard} from "./EnhancerCard/EnhancerCard";
 import {ReadonlyModeAtom} from "../../Main/MainHooks";
-import {getEnhancerSubscribes, getKnodeSubscribes, getUserSubscribes} from "../../../../service/api/ShareApi";
-import {
-    CurrentEnhancerSubscribesAtom,
-    CurrentKnodeSubscribesAtom,
-    CurrentUserSubscribesAtom
-} from "../SharePanel/SharePanelHooks";
-import UserSubscribePanel from "../SharePanel/UserSubscribePanel/UserSubscribePanel";
-import KnodeSubscribePanel from "../SharePanel/KnodeSubscribePanel/KnodeSubscribePanel";
-import EnhancerSubscribePanel from "../SharePanel/EnhancerSubscribePanel/EnhancerSubscribePanel";
 import ReviewPanel from "./ReviewPanel/ReviewPanel";
 import {
     ResourceType,
@@ -55,9 +46,6 @@ const EnhancerPanel = () => {
     const [offspringMode, setOffspringMode] = useState<boolean>(false)
     const [offspringEnhancers, setOffspringEnhancers] = useState<Enhancer[]>([])
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerPanelCurrentPageAtom)
-    const [userSubscribes, setUserSubscribes] = useRecoilState(CurrentUserSubscribesAtom)
-    const [knodeSubscribes, setKnodeSubscribes] = useRecoilState(CurrentKnodeSubscribesAtom)
-    const [enhancerSubscribes, setEnhancerSubscribes] = useRecoilState(CurrentEnhancerSubscribesAtom)
     const addResourceDropdownItems = useAddResourceDropdownItems()
     const addEnhancer = useAddEnhancer()
     const addEnhancerGroup = useAddEnhancerGroup();
@@ -69,9 +57,6 @@ const EnhancerPanel = () => {
             if(!selectedKnodeId) return
             setEnhancers((await getEnhancersForKnode(selectedKnodeId)))
             setEnhancerGroups(await getEnhancerGroupsByKnodeId(selectedKnodeId))
-            setUserSubscribes(await getUserSubscribes(selectedKnodeId))
-            setKnodeSubscribes(await getKnodeSubscribes(selectedKnodeId))
-            setEnhancerSubscribes(await getEnhancerSubscribes(selectedKnodeId))
         }; effect().then()
         // eslint-disable-next-line
     }, [selectedKnodeId, enhancerPanelKey])
@@ -184,24 +169,6 @@ const EnhancerPanel = () => {
                 hideOnSinglePage={true}
                 total={(offspringMode ? offspringEnhancers : enhancers.filter(enhancer=>!enhancerIdsInGroups.includes(enhancer.id))).length}/>
             </div>
-
-
-            <div className={classes.subscribe_container}>{
-                userSubscribes.length +
-                knodeSubscribes.length +
-                enhancerSubscribes.length !== 0 &&
-                <Divider>
-                <span className={classes.divider}>
-                    以下为订阅内容
-                </span>
-                </Divider>}{
-                enhancerSubscribes.length !== 0 &&
-                <EnhancerSubscribePanel/>}{
-                knodeSubscribes.length !== 0 &&
-                <KnodeSubscribePanel/>}{
-                userSubscribes.length !== 0 &&
-                <UserSubscribePanel/>
-            }</div>
         </div>
     );
 };
