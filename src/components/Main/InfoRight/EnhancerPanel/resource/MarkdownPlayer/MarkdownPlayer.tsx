@@ -13,7 +13,7 @@ import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {useRecoilValue} from "recoil";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
-import {updateImage} from "../ResourcePlayerUtils";
+import {updateImageToResource} from "../ResourcePlayerUtils";
 import MdPreview from "../../../../../utils/markdown/MdPreview";
 import classes from "./MarkdownPlayer.module.css";
 import TextArea from "antd/es/input/TextArea";
@@ -119,7 +119,7 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                                         md={data.content}
                                         editable={!props.readonly}
                                         onChange={cur=>setData({...data, content: cur})}
-                                        updateImage={(image)=>updateImage(image, props.meta.id!)}/>
+                                        updateImage={(image)=>updateImageToResource(image, props.meta.id!)}/>
                                 </MilkdownProvider>
                             }</div>
 

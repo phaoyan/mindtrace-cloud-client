@@ -1,3 +1,6 @@
+import ClipboardJS from 'clipboard';
+
+
 export const insertStringAt = (originalString:string, insertString:string, index:number): string=> {
     if (index < 0 || index > originalString.length) {
         return originalString;
@@ -25,9 +28,7 @@ export const base64DecodeUtf8 =  (base64String: string): string=> {
 
     // 使用TextDecoder将字节数组转换为UTF-8格式的字符串
     const decoder = new TextDecoder('utf-8');
-    const decodedUtf8String = decoder.decode(byteArray);
-
-    return decodedUtf8String;
+    return decoder.decode(byteArray);
 }
 
 
@@ -69,6 +70,47 @@ export const gradientColor = (begin: string, end: string, count: number): string
 };
 
 
-export const statisticDisplayAbbr = (num: number)=>{
-    return num < 0 ? 0 : num
+export const generateUUID = ()=>{
+    let d = new Date().getTime(); // 时间戳
+    let d2 = (performance && performance.now && performance.now() * 1000) || 0; //高精度时间戳
+
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        let r = Math.random() * 16; // 随机数
+        if (d > 0) {
+            // 使用时间戳
+            r = (d + r) % 16 | 0;
+            d = Math.floor(d / 16);
+        } else {
+            // 使用高精度时间戳
+            r = (d2 + r) % 16 | 0;
+            d2 = Math.floor(d2 / 16);
+        }
+        // 替换 'x' 为随机数，'y' 为随机数且高4比特位为 8, 9, A, 或 B
+        //eslint-disable-next-line
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
 }
+
+
+export const copyToClipboard = (txt: string) => {
+    // Create a temporary button element
+    const button = document.createElement('button');
+    button.id = "clipboardjs"
+    button.style.position = 'absolute';
+    button.style.left = '-9999em';
+    button.setAttribute('data-clipboard-text', txt);
+    const clipboard = new ClipboardJS('#clipboardjs');
+    clipboard.on('success', function(e) {
+        console.log('文本已复制:', e.text);
+        e.clearSelection();
+    });
+    clipboard.on('error', function(e) {
+        console.error('复制失败', e);
+    });
+    // Append button to the body
+    document.body.appendChild(button);
+    // Programmatically trigger the click event to copy the text
+    button.click();
+    // Clean up
+    document.body.removeChild(button);
+};

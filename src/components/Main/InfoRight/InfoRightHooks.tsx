@@ -3,7 +3,7 @@ import {useEffect} from "react";
 import {KnodeSelector, SelectedKnodeIdAtom} from "../../../recoil/home/Knode";
 import {ItemType} from "antd/es/menu/hooks/useItems";
 
-export type TabNames = "note" | "record" | "analysis" | "share";
+export type TabNames = "note" | "record" | "analysis" | "share" | "pdf";
 export const CurrentTabAtom = atom<TabNames>({
     key: "CurrentTabAtom",
     default: "note"

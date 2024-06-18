@@ -2,12 +2,20 @@ import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/
 
 import {Milkdown, useEditor} from '@milkdown/react'
 import {commonmark} from '@milkdown/preset-commonmark';
-import {katexOptionsCtx, mathBlockSchema, mathInlineSchema, remarkMathPlugin} from '@milkdown/plugin-math';
+import {
+    katexOptionsCtx,
+    mathBlockSchema,
+    mathInlineSchema,
+    remarkMathPlugin
+} from '@milkdown/plugin-math';
 
 import 'katex/dist/katex.min.css';
 import './MarkdownBasic.module.css'
+import 'prism-themes/themes/prism-nord.css'
 
+import 'prism-themes/themes/prism-nord.css'
 import {prism, prismConfig} from "@milkdown/plugin-prism";
+import html from 'refractor/lang/cshtml'
 import markdown from 'refractor/lang/markdown'
 import css from 'refractor/lang/css'
 import javascript from 'refractor/lang/javascript'
@@ -28,8 +36,7 @@ export const MilkdownEditor = (props:{
     command?: (ctx: Ctx)=>any,
     // 父组件可以通过使用一个state并修改state来告知milkdown editor需要执行command命令了
     trigger?: any,
-    latexDisplayMode?: any,
-    updateImage?: (image: File)=>Promise<string>}) => {
+    updateImage?: (image: File)=>Promise<string | undefined>}) => {
 
     // 支持图片以url方式粘贴
     const uploader: Uploader = async (files, schema) => {
@@ -46,6 +53,7 @@ export const MilkdownEditor = (props:{
         const nodes: Node[] = await Promise.all(
             images.map(async (image) => {
                 const src = await props.updateImage!(image);
+                if(!src) return schema.nodes.image.createAndFill({src: "", alt: ""}) as Node
                 const alt = image.name;
                 return schema.nodes.image.createAndFill({src, alt}) as Node;
             }),
@@ -74,7 +82,6 @@ export const MilkdownEditor = (props:{
             .use(katexOptionsCtx)
             .config(ctx => ctx.set(katexOptionsCtx.key, {
                 throwOnError: false,
-                displayMode:props.latexDisplayMode
             }))
 
             // Prism
@@ -88,6 +95,7 @@ export const MilkdownEditor = (props:{
                         refractor.register(typescript)
                         refractor.register(jsx)
                         refractor.register(tsx)
+                        refractor.register(html)
                     }
                 })
             })

@@ -169,6 +169,7 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, groupId?: number})=>{
                         disabled={readonly}/>
                 </Col>
                 <Col span={1}>{
+                    !readonly &&
                     <Popover
                         placement={"left"}
                         arrow={false}

@@ -30,6 +30,8 @@ import LocalPanel from "./LocalPanel/LocalPanel";
 import {finishMonitor, isKnodeMonitored, startMonitor} from "../../../service/api/MasteryApi";
 import {useJumpToKnode} from "../Main/MainHooks";
 import SearchPanel from "./SearchPanel/SearchPanel";
+import {ChatGPTOutlined} from "../../utils/antd/icons/Icons";
+import ChatPanel from "./ChatPanel/ChatPanel";
 
 const InfoRight = () => {
 
@@ -60,7 +62,7 @@ const InfoRight = () => {
     return (
         <ResizableBox
             className={classes.resize_box}
-            width={mainPageWidth / 2} height={document.body.scrollHeight * 0.95}
+            width={mainPageWidth / 2} height={document.body.scrollHeight * 0.92}
             handle={<div className={classes.resize_handle}/>}
             minConstraints={[mainPageWidth / 4, document.body.scrollWidth * 0.98]}
             maxConstraints={[mainPageWidth * 31 / 32, document.body.scrollWidth * 0.98]}
@@ -71,7 +73,6 @@ const InfoRight = () => {
                     <div className={classes.title}>
                         <Row>
                             <Col span={1}>
-
                                 <Dropdown menu={{
                                     items:knodeSelectionHistoryItems,
                                     //@ts-ignore
@@ -129,19 +130,25 @@ const InfoRight = () => {
                                 children: <EnhancerPanel/>
                             },{
                                 label: (<div>
-                                    {/* eslint-disable-next-line react/jsx-no-undef */}
                                     <ClockCircleOutlined />
                                     <span>记录</span>
                                 </div>),
                                 key: "record",
                                 children: <RecordPanel/>
-                            },                            {
+                            },{
                                 label: (<div>
                                     <SearchOutlined/>
                                     <span>搜索</span>
                                 </div>),
                                 key:"search",
                                 children: <SearchPanel/>
+                            },{
+                                label: (<div>
+                                    <ChatGPTOutlined/>
+                                    <span>AI</span>
+                                </div>),
+                                key: "chat",
+                                children: <ChatPanel/>
                             },{
                                 label: (<div>
                                     <BarChartOutlined/>

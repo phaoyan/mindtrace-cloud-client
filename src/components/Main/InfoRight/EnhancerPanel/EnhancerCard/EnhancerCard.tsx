@@ -2,9 +2,8 @@ import React, {useEffect, useRef, useState} from 'react';
 import classes from "./EnhancerCard.module.css";
 import {Breadcrumb, Col, Dropdown, Input, Popconfirm, Row, Tooltip} from "antd";
 import {
-    BlockOutlined,
-    BookOutlined, CopyFilled, CopyOutlined,
-    DeleteOutlined, DisconnectOutlined, DownloadOutlined, DownOutlined, FieldTimeOutlined, FormOutlined, LinkOutlined,
+    BlockOutlined, CalendarOutlined, CopyFilled, CopyOutlined,
+    DeleteOutlined, DisconnectOutlined, DownloadOutlined, DownOutlined, FieldTimeOutlined, LinkOutlined,
     MinusOutlined,
     PlusOutlined,
     ScissorOutlined, UpOutlined
@@ -13,21 +12,19 @@ import utils from "../../../../../utils.module.css"
 import {
     getEnhancerById, getEnhancerGroupsByEnhancerId,
     getKnodesByEnhancerId,
-    setEnhancerIsQuiz,
     setEnhancerTitle
 } from "../../../../../service/api/EnhancerApi";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {getResourcesFromEnhancer, removeResource} from "../../../../../service/api/ResourceApi";
 import {EnhancerCardIdClipboardAtom} from "../../../../../recoil/home/Enhancer";
 import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
-import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     CopiedResourceIdsAtom,
     EnhancerAtomFamily,
     EnhancerResourcesAtomFamily,
     ResourcePlayer, useAddEnhancerToGroup,
     useAddResource,
-    useAddResourceDropdownItems, usePasteResources,
+    useAddResourceDropdownItems, usePasteResources, useRelatedKnodeDropdownItems,
     useShiftEnhancer, useShiftEnhancerInGroup,
     useShiftResource
 } from "./EnhancerCardHooks";
@@ -61,9 +58,9 @@ export const EnhancerCard = (props: {
     const [resources, setResources] = useRecoilState(EnhancerResourcesAtomFamily(props.id))
     const [copiedResourceIds, setCopiedResourceIds] = useRecoilState(CopiedResourceIdsAtom)
     const setEnhancerIdClipboard = useSetRecoilState(EnhancerCardIdClipboardAtom)
-    const messageApi = useRecoilValue(MessageApiAtom)
     const [traceInfo, setTraceInfo] = useState<any>()
     const addResourceDropdownItems = useAddResourceDropdownItems()
+    const relatedKnodeDropdownItems = useRelatedKnodeDropdownItems(props.id)
     const handleRemove = useHandleRemoveEnhancer()
     const addResource = useAddResource(props.id)
     const shiftEnhancer = useShiftEnhancer()
@@ -130,13 +127,14 @@ export const EnhancerCard = (props: {
                                 bordered={false}/>)
                     }</Col>
                     <Col span={4} className={classes.tag_wrapper}>
+                        <CalendarOutlined style={{position:"relative", left:"-0.5em"}}/>
                         <span className={classes.date}>{dayjs(enhancer.createTime).format("YYYY-MM-DD")}</span>
                     </Col>
                     <Col span={3} className={classes.tag_wrapper}>{
                         traceInfo &&
                         traceInfo.duration &&
                         <Tooltip title={"学习时长（时：分）"}>
-                            <FieldTimeOutlined style={{position:"relative", left:"-1em"}}/>
+                            <FieldTimeOutlined style={{position:"relative", left:"-0.5em"}}/>
                             <span className={classes.date}>{formatMillisecondsToHHMM(traceInfo.duration * 1000)}</span>
                         </Tooltip>
                     }</Col>
@@ -197,12 +195,13 @@ export const EnhancerCard = (props: {
                     </Col>
                     <Col span={1} offset={1}>{
                         !readonly &&
-                        <ScissorOutlined
-                            className={utils.icon_button}
-                            onClick={()=>{
-                                setEnhancerIdClipboard([props.id, selectedKnodeId])
-                                messageApi.success("笔记剪切成功").then()
-                            }}/>
+                        <Dropdown menu={{items: relatedKnodeDropdownItems}}>
+                            <ScissorOutlined
+                                className={utils.icon_button}
+                                onClick={()=>{
+                                    setEnhancerIdClipboard([props.id, selectedKnodeId])
+                                }}/>
+                        </Dropdown>
                     }</Col>
                     <Col span={1} offset={1}>{
                         !readonly &&

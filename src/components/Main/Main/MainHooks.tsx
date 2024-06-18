@@ -19,7 +19,6 @@ import {KnodeConnectionIdTempAtom, TitleEditKnodeIdAtom} from "../KnodeTitle/Kno
 import {CurrentPageAtom, MessageApiAtom} from "../../../recoil/utils/DocumentData";
 import {User} from "../../../service/data/Gateway";
 import {LoginUserAtom, LoginUserIdSelector} from "../../Login/LoginHooks";
-import {subscribeKnode} from "../../../service/api/ShareApi";
 import {getUserPublicInfo} from "../../../service/api/LoginApi";
 import dayjs, {Dayjs} from "dayjs";
 import {EnhancerPanelCurrentPageAtom} from "../InfoRight/EnhancerPanel/EnhancerPanelHooks";
@@ -65,6 +64,12 @@ export const CurrentUserIdSelector = selector<number>({
     get: ({get})=>{
         const currentUser = get(CurrentUserAtom)
         return currentUser ? currentUser.id! : -1
+    }
+})
+export const CurrentUserIsLoginUserSelector = selector<boolean>({
+    key: "CurrentUserIsLoginUserSelector",
+    get: ({get})=>{
+        return get(CurrentUserIdSelector)===get(LoginUserIdSelector)
     }
 })
 export const ExpandedKeysAtom = atom<Key[]>({
@@ -196,16 +201,6 @@ export const useHandleRemove = ()=>{
     }
 }
 
-export const useHandleSubscribe = ()=>{
-    const knodeIdBeforeVisit = useRecoilValue(KnodeIdBeforeVisitAtom)
-    const messageApi = useRecoilValue(MessageApiAtom)
-    return async (knodeId: number)=>{
-        if(!knodeIdBeforeVisit) return
-        await subscribeKnode(knodeIdBeforeVisit[0], knodeId)
-        messageApi.success("订阅知识点成功")
-    }
-}
-
 export const useHandleConnect = (knodeId: number)=>{
     const [knodeConnectionTemp, setConnectionTemp] = useRecoilState(KnodeConnectionIdTempAtom)
     const [knode, setKnode] = useRecoilState(KnodeSelector(knodeId))
@@ -245,7 +240,7 @@ export const useKnodeShiftUp = ()=>{
         const brotherIds = stem.branchIds
         const index = brotherIds.indexOf(selectedId)
         if(index === 0) return
-        swapBranchIndex(stem.id, index, index - 1)
+        await swapBranchIndex(stem.id, index, index - 1)
         setKtreeFlat(ktreeFlat=>{
             return ktreeFlat.map(knode=>{
                 if(knode.id === selectedId)
@@ -270,7 +265,7 @@ export const useKnodeShiftDown = ()=>{
         const brotherIds = stem.branchIds
         const index = brotherIds.indexOf(selectedId)
         if(index === brotherIds.length - 1) return
-        swapBranchIndex(stem.id, index, index + 1)
+        await swapBranchIndex(stem.id, index, index + 1)
         setKtreeFlat((ktreeFlat)=>{
             return ktreeFlat.map(knode=>{
                 if(knode.id === selectedId)

@@ -2,13 +2,29 @@ import dayjs from "dayjs";
 import axios from "axios";
 import {ENHANCER_HOST} from "../../../../../service/api/EnhancerApi";
 
-export const updateImage = async (image: File, resourceId: number)=>{
+export const updateImageToResource = async (image: File, resourceId: number)=>{
     if(image.type === "image/png")
         image = await convertImageToJPEG(image)
     const name = dayjs().valueOf().toString()
     const formData = new FormData()
     formData.append("file", image)
     return await axios.post(`${ENHANCER_HOST}/resource/${resourceId}/data/${name}/file`, formData).then(({data})=>data)
+}
+
+export const updateImageBase64 = async (image: File)=>{
+    if(image.type === "image/png")
+        image = await convertImageToJPEG(image)
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        reader.onloadend = () => {
+            const base64data = reader.result as string;
+            resolve(base64data);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+    });
 }
 
 const convertImageToJPEG = (imageFile: File): Promise<File> => {

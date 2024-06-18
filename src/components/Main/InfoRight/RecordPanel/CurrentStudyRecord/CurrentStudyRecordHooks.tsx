@@ -17,8 +17,6 @@ import {
 import {HistoryStudyRecordKeyAtom, LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
-import {useAddEnhancer} from "../../EnhancerPanel/EnhancerCard/EnhancerCardHooks";
-import {CurrentTabAtom} from "../../InfoRightHooks";
 import {getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
 export const CurrentStudyAtom = atom<CurrentStudy | undefined>({
     key: "CurrentStudyAtom",
@@ -159,15 +157,5 @@ export const useRemoveEnhancerId = ()=>{
         if(!currentStudy) return
         setCurrentStudy({...currentStudy, enhancerIds: currentStudy.enhancerIds.filter(id=>id!==enhancerId)})
         await removeTraceEnhancerRelCurrent(enhancerId)
-    }
-}
-
-export const useAddEnhancerToCurrentStudy = ()=>{
-    const addEnhancer = useAddEnhancer()
-    const addEnhancerId = useAddEnhancerId()
-    const [,setCurrentTab] = useRecoilState(CurrentTabAtom)
-    return async (data: any)=>{
-        await addEnhancerId((await addEnhancer(data))!)
-        setCurrentTab("note")
     }
 }

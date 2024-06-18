@@ -3,8 +3,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {Enhancer} from "../../../../service/data/Enhancer";
 import {
-    copyEnhancer, getEnhancerGroupsByKnodeId,
-    getEnhancersForKnode,
+    copyEnhancer,
     getEnhancersForOffsprings,
     scissorEnhancer
 } from "../../../../service/api/EnhancerApi";
@@ -26,7 +25,7 @@ import {
 import {CopiedMilestoneIdAtom} from "../RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
 import {copyMilestoneAsEnhancerToKnode} from "../../../../service/api/TracingApi";
 import dayjs from "dayjs";
-import {EnhancerPanelCurrentPageAtom} from "./EnhancerPanelHooks";
+import {EnhancerPanelCurrentPageAtom, useInitEnhancerPanelData} from "./EnhancerPanelHooks";
 import {
     EnhancerGroup,
     EnhancerGroupsForSelectedKnodeAtom,
@@ -37,8 +36,8 @@ const EnhancerPanel = () => {
 
     const readonly = useRecoilValue(ReadonlyModeAtom)
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
-    const [enhancers, setEnhancers] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
-    const [enhancerGroups, setEnhancerGroups] = useRecoilState<EnhancerGroup[]>(EnhancerGroupsForSelectedKnodeAtom)
+    const [enhancers, ] = useRecoilState<Enhancer[]>(EnhancersForSelectedKnodeAtom)
+    const [enhancerGroups, ] = useRecoilState<EnhancerGroup[]>(EnhancerGroupsForSelectedKnodeAtom)
     const enhancerIdsInGroups = useRecoilValue(SelectedKnodeEnhancerIdsInGroupSelector);
     const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
     const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)
@@ -52,14 +51,7 @@ const EnhancerPanel = () => {
     const pageSize = 16
 
     // selectedKnodeId -> enhancers
-    useEffect(() => {
-        const effect = async ()=>{
-            if(!selectedKnodeId) return
-            setEnhancers((await getEnhancersForKnode(selectedKnodeId)))
-            setEnhancerGroups(await getEnhancerGroupsByKnodeId(selectedKnodeId))
-        }; effect().then()
-        // eslint-disable-next-line
-    }, [selectedKnodeId, enhancerPanelKey])
+    useInitEnhancerPanelData()
     useEffect(()=>{
         const effect = async ()=>{
             if(offspringMode)
@@ -90,7 +82,7 @@ const EnhancerPanel = () => {
                                             onClick: addEnhancerGroup
                                         }
                                     ],
-                                    onClick: addEnhancer}}>
+                                    onClick: (data)=>addEnhancer(data.key)}}>
                                 <PlusOutlined className={utils.icon_button}/>
                             </Dropdown>{
                             enhancerIdClipboard &&
@@ -130,7 +122,7 @@ const EnhancerPanel = () => {
                         }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
                         </>
                     }</Col>
-                    <Col span={5}>
+                    <Col span={4} offset={1}>
                         <span className={classes.placeholder}>{
                             offspringMode ?
                                 "包括子知识笔记":
@@ -138,7 +130,10 @@ const EnhancerPanel = () => {
                         }</span>
                     </Col>
                     <Col span={1}>
-                        <Switch checked={offspringMode} onChange={(checked)=>setOffspringMode(checked)}/>
+                        <Switch checked={offspringMode} onChange={(checked)=> {
+                            setOffspringMode(checked)
+                            setCurrentPage(1)
+                        }}/>
                     </Col>
                 </Row>
             </div>

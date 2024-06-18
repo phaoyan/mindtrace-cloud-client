@@ -21,12 +21,15 @@ import {
     addEnhancerGroupRel,
     addEnhancerGroupToKnode,
     addEnhancerToKnode, getEnhancersByGroupId,
-    getEnhancersForKnode, setEnhancerIndexInEnhancerGroup,
+    getEnhancersForKnode, scissorEnhancer, setEnhancerIndexInEnhancerGroup,
     setEnhancerIndexInKnode,
     setResourceIndexInEnhancer
 } from "../../../../../service/api/EnhancerApi";
 import {EnhancersForSelectedKnodeAtom} from "../../../../../recoil/home/Enhancer";
-import {SelectedKnodeIdAtom} from "../../../../../recoil/home/Knode";
+import {
+    SelectedKnodeIdAtom, SelectedKnodeStemKtreeSelector,
+    SelectedKtreeSelector
+} from "../../../../../recoil/home/Knode";
 import NoteLinkPlayer from "../resource/NoteLinkPlayer/NoteLinkPlayer";
 import {LoginUserIdSelector} from "../../../../Login/LoginHooks";
 import {EnhancerPanelKeyAtom} from "../../../../../recoil/utils/DocumentData";
@@ -121,18 +124,39 @@ export const useAddResourceDropdownItems = (disableNoteLink?: boolean)=>{
     return res
 }
 
+export const useRelatedKnodeDropdownItems = (enhancerId: number)=>{
+    const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
+    const selectedKnodeStem = useRecoilValue(SelectedKnodeStemKtreeSelector)
+    const selectedKtree = useRecoilValue(SelectedKtreeSelector)
+    const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
+    const res = []
+    selectedKnodeStem && res.push(selectedKnodeStem.knode)
+    selectedKnodeStem && res.push(...selectedKnodeStem.branches.map(ktree=>ktree.knode))
+    selectedKtree     && res.push(...selectedKtree.branches.map(ktree=>ktree.knode))
+    return res
+        .filter(knode=>!!knode)
+        .filter(knode=>knode.id!==selectedKnodeId)
+        .map(knode=>({
+            key: knode!.id,
+            label: knode!.title,
+            onClick: async ()=>{
+                await scissorEnhancer(enhancerId,selectedKnodeId, knode!.id)
+                setEnhancerPanelKey(enhancerPanelKey+1)
+            }}))
+}
+
 export const useAddEnhancer = ()=>{
     const selectedKnodeId = useRecoilValue(SelectedKnodeIdAtom)
     const [, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
     const [currentStudy, ] = useRecoilState(CurrentStudyAtom)
     const addEnhancerIdToCurrentStudy = useAddEnhancerId()
     const addKnodeIdToCurrentStudy = useAddKnodeId()
-    return async (data: any)=>{
-        if(data.key === ResourceType.ENHANCER_GROUP) return
+    return async (type?: string)=>{
+        if(type === ResourceType.ENHANCER_GROUP) return
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
         await setEnhancerIndexInKnode(selectedKnodeId, enhancer.id, 0)
-        await addResource(enhancer.id, {type: data.key})
         setEnhancers(await getEnhancersForKnode(selectedKnodeId))
+        type && await addResource(enhancer.id, {type: type})
         if(!!currentStudy){
             await addEnhancerIdToCurrentStudy(enhancer.id)
             await addKnodeIdToCurrentStudy(selectedKnodeId)
@@ -187,7 +211,6 @@ export const useAddEnhancerToGroup = (enhancerId: number)=>{
         setEnhancerPanelKey((key)=>key + 1)
     }
 }
-
 
 export interface Resource {
     id?: number,

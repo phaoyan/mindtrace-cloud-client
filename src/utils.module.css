@@ -75,6 +75,27 @@
     width: 20vw;
 }
 
+.ghost_horizontal_divider_top{
+    position: absolute;
+    margin-top: 0;
+    width: 20vw;
+}
+.ghost_horizontal_divider_bottom{
+    position: absolute;
+    margin-bottom: 0;
+    width: 20vw;
+}
+.ghost_horizontal_divider_top{
+    position: absolute;
+    margin-top: 0;
+    width: 20vw;
+}
+.ghost_horizontal_divider_bottom{
+    position: absolute;
+    margin-bottom: 0;
+    width: 20vw;
+}
+
 .small_horizontal_divider{
     margin: 0.5em;
 }
@@ -122,4 +143,27 @@
 .form_prompt{
     color: #666666;
 
+}
+
+
+.flex_center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.color_666{
+    color: #666666;
+}
+
+.color_999{
+    color: #999999;
+}
+
+.margin_bottom_1em{
+    margin-bottom: 1em;
+}
+
+.folded{
+    color: #999999;
 }

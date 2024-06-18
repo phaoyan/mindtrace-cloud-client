@@ -4,12 +4,16 @@ import {
 } from "../../../../../../service/api/ResourceApi";
 import classes from "./MindtraceHubResourcePlayer.module.css"
 import {Col, Input, message, Row, Tooltip, Upload} from "antd";
-import {FileTextOutlined, ShareAltOutlined, UploadOutlined} from "@ant-design/icons";
+import {DownloadOutlined, FileTextOutlined, UploadOutlined} from "@ant-design/icons";
 import utils from "../../../../../../utils.module.css"
 import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {ENHANCER_HOST} from "../../../../../../service/api/EnhancerApi";
 import TextArea from "antd/es/input/TextArea";
+
+export const getResourceUrl = (resourceId: number | string, remark: string)=>{
+    return `${ENHANCER_HOST}/resource/${resourceId}/data/data/file?fileName=${remark}`
+}
 
 const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) => {
     const [data, setData] = useState<{data: boolean, remark: string, description: string}>({data: false, remark: "", description: ""})
@@ -37,14 +41,16 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
             <Row>
                 <Col span={1} offset={1} className={classes.option}>{
                         data.data &&
-                        <a target={"_blank"} rel={"noreferrer"} href={`${ENHANCER_HOST}/resource/${props.meta.id}/data/data/file?fileName=${data.remark}`}>
-                            <Tooltip title={"点击跳转"}>
-                                <ShareAltOutlined className={utils.icon_button}/>
-                            </Tooltip>
+                        <a
+                            className={`${utils.color_666}`}
+                            target={"_blank"} rel={"noreferrer"}
+                            href={getResourceUrl(props.meta.id!, data.remark)}>
+                            <DownloadOutlined className={utils.icon_button}/>
                         </a>}{
                         !data.data &&
                         <Upload
                             name={"file"}
+                            className={`${utils.color_666}`}
                             action={`${ENHANCER_HOST}/resource/${props.meta.id}/data/data/file`}
                             withCredentials={true}
                             onChange={async (resp)=>{
@@ -73,9 +79,9 @@ const MindtraceHubResourcePlayer = (props:{meta: Resource, readonly?: boolean}) 
                 </Col>
             </Row>
             <Row>
-                <Col span={1} offset={1}>
-                    <FileTextOutlined className={utils.icon_button}/>
-                </Col>
+                <Col span={1} offset={1}>{
+                    <FileTextOutlined className={`${utils.icon_button} ${utils.color_666}`}/>
+                }</Col>
                 <Col span={22}>{
                     <TextArea
                         rows={2}

@@ -54,6 +54,19 @@ export const SelectedKtreeSelector = selector<Ktree | undefined>({
         }
     },
 })
+
+export const SelectedKnodeStemKtreeSelector = selector<Ktree | undefined>({
+    key: "SelectedKnodeStemKtreeSelector",
+    get: ({get})=>{
+        let temp = [get(KtreeSelector)]
+        while (temp.length !== 0) {
+            let cur = temp.pop()!
+            if (cur.knode.id === get(SelectedKnodeSelector)?.stemId) return cur
+            else temp = [...temp, ...cur.branches]
+        }
+    }
+})
+
 export const KtreeAntdSelector = selector<KtreeAntd[]>({
     key: "KtreeAntd",
     get: ({get})=> convertKtreeAntd([get(KtreeSelector)])
@@ -102,7 +115,6 @@ export const SelectedKnodeStemSelector = selector<Knode | undefined>({
     set: ({get, set}, newValue)=>{
         const stemId = get(SelectedKnodeSelector)?.stemId
         if(!stemId) return
-        console.log("EMMM", get(KnodeSelector(stemId)))
         set(KnodeSelector(stemId), newValue)
     }
 })

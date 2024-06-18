@@ -3,14 +3,14 @@ import {ENHANCER_HOST} from "./EnhancerApi";
 import {Resource} from "../../components/Main/InfoRight/EnhancerPanel/EnhancerCard/EnhancerCardHooks";
 
 
-export const addResource = async (enhancerId: number, data: any): Promise<Resource>=>{
+export const addResource = async (enhancerId: number | string, data: any): Promise<Resource>=>{
     return await axios.post(`${ENHANCER_HOST}/enhancer/${enhancerId}/resource`, data).then(({data})=>data)
 }
 
 export const addEnhancerResourceRel = async (enhancerId: number, resourceId: number)=>{
     await axios.put(`${ENHANCER_HOST}/rel/enhancer/resource?enhancerId=${enhancerId}&resourceId=${resourceId}`)
 }
-export const getResourcesFromEnhancer = async (enhancerId: number): Promise<Resource[]> =>{
+export const getResourcesFromEnhancer = async (enhancerId: number | string): Promise<Resource[]> =>{
     return await axios.get(`${ENHANCER_HOST}/enhancer/${enhancerId}/resource`).then(({data})=>data)
 }
 
@@ -34,7 +34,7 @@ export const getAllDataFromResource = async (resourceId: number): Promise<any> =
     return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/data`).then(({data})=>data)
 }
 
-export const getDataFromResource = async (resourceId:number, dataName: string): Promise<any>=>{
+export const getDataFromResource = async (resourceId:number | string, dataName: string): Promise<any>=>{
     return await axios.get(`${ENHANCER_HOST}/resource/${resourceId}/data/${dataName}`).then(({data})=>data)
 }
 

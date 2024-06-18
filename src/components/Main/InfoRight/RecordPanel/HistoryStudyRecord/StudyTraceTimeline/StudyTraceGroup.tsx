@@ -35,7 +35,7 @@ const StudyTraceGroup = (props: {group: TraceGroup, time: string}) => {
     useEffect(()=>{
         const duration = sum(mapping[props.group.id].map(record=>record.data.seconds))
         setDuration(duration)
-        const lastTraceId = mapping[props.group.id][mapping[props.group.id].length-1].data.id
+        const lastTraceId = mapping[props.group.id][0].data.id
         lastTraceId in accumulateDuration &&
         setAccDuration(accumulateDuration[lastTraceId])
         //eslint-disable-next-line

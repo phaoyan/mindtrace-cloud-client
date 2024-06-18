@@ -25,7 +25,7 @@ const GuestSearch = () => {
                 </div>
             </div>
             <a className={classes.ipc_info} href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">
-                互联网IPC备案 : 赣2024020351 审核通过日期 : 2024-01-17
+                互联网ICP备案 : 赣2024020351 审核通过日期 : 2024-01-17
             </a>
         </div>
     );

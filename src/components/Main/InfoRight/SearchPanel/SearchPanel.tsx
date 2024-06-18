@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Checkbox, Col, Divider, Input, Pagination, Row, Spin, Tooltip} from "antd";
+import {Checkbox, Col, Divider, Input, InputNumber, Pagination, Row, Spin, Tooltip} from "antd";
 import {SearchOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import {
@@ -15,10 +15,8 @@ import classes from "./SearchPanel.module.css";
 
 const SearchPanel = () => {
     const [searching, ] = useRecoilState(SearchPanelSearchingAtom)
-    const [options, setOptions] = useRecoilState(SearchOptionsAtom)
     const [searchTxt, setSearchTxt] = useState("")
     const searchResource = useSearchResourcesBySimilar()
-    const setResourceTypeLimit = useSetResourceTypeLimit();
     const [enhancerIds, ] = useRecoilState(SimilarResourcesRelatedEnhancerIdsAtom)
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 8
@@ -44,35 +42,9 @@ const SearchPanel = () => {
                     <Divider className={utils.ghost_horizontal_divider}/>
                 </Col>
             </Row>
-            <Row>
-                <Col span={22} offset={1} className={classes.options}>
-                    <Checkbox
-                        checked={options.showMineOnly}
-                        onChange={(e)=>setOptions({...options, showMineOnly: e.target.checked})}>
-                        只看自己
-                    </Checkbox>
-                    <Checkbox
-                        checked={options.resourceTypeLimits.includes(ResourceType.MARKDOWN)}
-                        onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.MARKDOWN, checked)}>
-                        知识概述
-                    </Checkbox>
-                    <Checkbox
-                        checked={options.resourceTypeLimits.includes(ResourceType.QUIZCARD)}
-                        onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.QUIZCARD, checked)}>
-                        知识卡片
-                    </Checkbox>
-                    <Checkbox
-                        checked={options.resourceTypeLimits.includes(ResourceType.LINKOUT)}
-                        onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.LINKOUT, checked)}>
-                        资源链接
-                    </Checkbox>
-                    <Checkbox
-                        checked={options.resourceTypeLimits.includes(ResourceType.MINDTRACE_HUB_RESOURCE)}
-                        onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.MINDTRACE_HUB_RESOURCE, checked)}>
-                        云端资源
-                    </Checkbox>
-                </Col>
-            </Row>
+            <div style={{marginTop:"0.2em"}}>
+                <SearchOptions/>
+            </div>
             <br/>
             <div>{
                 enhancerIds
@@ -88,5 +60,48 @@ const SearchPanel = () => {
         </div>
     );
 };
+
+export const SearchOptions = ()=>{
+    const setResourceTypeLimit = useSetResourceTypeLimit();
+    const [options, setOptions] = useRecoilState(SearchOptionsAtom)
+    return (
+        <Row>
+            <Col span={22} className={classes.options}>
+                <Tooltip title={"笔记数限制"}>
+                    <InputNumber
+                        style={{scale:"90%", marginRight:"1em"}}
+                        size={"small"} min={5}
+                        defaultValue={options.count}
+                        onChange={(value)=>value && setOptions({...options, count: value})}/>
+                </Tooltip>
+                <Checkbox
+                    checked={options.showMineOnly}
+                    onChange={(e)=>setOptions({...options, showMineOnly: e.target.checked})}>
+                    只看自己
+                </Checkbox>
+                <Checkbox
+                    checked={options.resourceTypeLimits.includes(ResourceType.MARKDOWN)}
+                    onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.MARKDOWN, checked)}>
+                    知识概述
+                </Checkbox>
+                <Checkbox
+                    checked={options.resourceTypeLimits.includes(ResourceType.QUIZCARD)}
+                    onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.QUIZCARD, checked)}>
+                    知识卡片
+                </Checkbox>
+                <Checkbox
+                    checked={options.resourceTypeLimits.includes(ResourceType.LINKOUT)}
+                    onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.LINKOUT, checked)}>
+                    资源链接
+                </Checkbox>
+                <Checkbox
+                    checked={options.resourceTypeLimits.includes(ResourceType.MINDTRACE_HUB_RESOURCE)}
+                    onChange={({target: {checked}})=>setResourceTypeLimit(ResourceType.MINDTRACE_HUB_RESOURCE, checked)}>
+                    云端资源
+                </Checkbox>
+            </Col>
+        </Row>
+    )
+}
 
 export default SearchPanel;

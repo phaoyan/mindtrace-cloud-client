@@ -1,0 +1,23 @@
+.main{
+    min-height: 20em;
+}
+.send{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.title{
+    font-style: oblique;
+    font-size: 1.3em;
+    color: #666666;
+    font-weight: bold;
+}
+.markdown_wrapper{
+    background-color: #eee;
+    border-radius: 0.5em;
+    padding: 0.2em 0.5em;
+    opacity: 40%;
+}
+.card{
+    color: #666666;
+}

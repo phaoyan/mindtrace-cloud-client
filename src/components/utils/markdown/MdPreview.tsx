@@ -11,7 +11,7 @@ import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-cypher';
 import 'prismjs/components/prism-csv';
 import 'prismjs/components/prism-cmake';
-import 'prismjs/themes/prism-twilight.css';
+import 'prismjs/themes/prism-dark.css';
 import rehypePrism from 'rehype-prism';
 import "katex/dist/katex.min.css"
 

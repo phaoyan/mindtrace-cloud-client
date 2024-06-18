@@ -11,7 +11,7 @@ import {LatexDarkOutlined, LatexLightOutlined} from "../../../../../utils/antd/i
 import {Resource} from "../../EnhancerCard/EnhancerCardHooks";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
-import {updateImage} from "../ResourcePlayerUtils";
+import {updateImageToResource} from "../ResourcePlayerUtils";
 import TextArea from "antd/es/input/TextArea";
 import MdPreview from "../../../../../utils/markdown/MdPreview";
 
@@ -116,7 +116,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                                 md={data.front}
                                 editable={!props.readonly}
                                 onChange={cur => setData({...data, front: cur})}
-                                updateImage={(image)=>updateImage(image, props.meta.id!)}/>
+                                updateImage={(image)=>updateImageToResource(image, props.meta.id!)}/>
                             </MilkdownProvider>
                         }</div>
                     </div>:
@@ -142,7 +142,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                                 md={data.back}
                                 editable={!props.readonly}
                                 onChange={cur=>setData({...data, back: cur})}
-                                updateImage={(image)=>updateImage(image, props.meta.id!)}/>
+                                updateImage={(image)=>updateImageToResource(image, props.meta.id!)}/>
                             </MilkdownProvider>
                         }</div>
                     </div>
