@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
-import "prismjs"
+import rehypePrism from 'rehype-prism';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-c';
@@ -11,8 +11,8 @@ import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-cypher';
 import 'prismjs/components/prism-csv';
 import 'prismjs/components/prism-cmake';
-import 'prismjs/themes/prism-dark.css';
-import rehypePrism from 'rehype-prism';
+import 'prismjs/themes/prism-twilight.css';
+import "./MdPreview.css"
 import "katex/dist/katex.min.css"
 
 // 用于 markdown 预览

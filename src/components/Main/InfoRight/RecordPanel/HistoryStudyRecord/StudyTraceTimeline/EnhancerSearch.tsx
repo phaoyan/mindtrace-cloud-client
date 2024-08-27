@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Breadcrumb, Col, Divider, Input, Row, Tooltip} from "antd";
 import {
-    RelEnhancerTitlesFamily,
-    useAddEnhancerRel,
-    useRemoveEnhancerRel
+    EnhancerSearchTxtAtom,
+    useAddEnhancerRel, useAddEnhancerRelByGroup,
 } from "./StudyTraceRecordHooks";
 import {StudyTrace} from "../../../../../../service/data/Tracing";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -17,12 +16,11 @@ import {getChainStyleTitle} from "../../../../../../service/api/KnodeApi";
 import {breadcrumbTitle} from "../../../../../../service/data/Knode";
 import MdPreview from "../../../../../utils/markdown/MdPreview";
 
-const EnhancerSearch = (props:{trace:StudyTrace}) => {
+const EnhancerSearch = (props:{traces:StudyTrace[]}) => {
     const loginUserId = useRecoilValue(LoginUserIdSelector)
-    const removeEnhancerRel = useRemoveEnhancerRel(props.trace)
-    const addEnhancerRel = useAddEnhancerRel(props.trace)
-    const [relEnhancerTitles, ] = useRecoilState(RelEnhancerTitlesFamily(props.trace.id))
-    const [searchTxt, setSearchTxt] = useState<string>()
+    const addEnhancerRelOnce = useAddEnhancerRel(props.traces[0])
+    const addEnhancerRelByGroup = useAddEnhancerRelByGroup()
+    const [searchTxt, setSearchTxt] = useRecoilState(EnhancerSearchTxtAtom)
     const [resultEnhancers, setResultEnhancers] = useState<Enhancer[]>([])
     const [enhancerRelatedKnodeDataList, setEnhancerRelatedKnodeDataList] = useState<{enhancerId: number, knodeChainTitle: string[]}[]>([])
     useEffect(()=>{
@@ -37,16 +35,6 @@ const EnhancerSearch = (props:{trace:StudyTrace}) => {
     }, [resultEnhancers])
     return (
         <div className={classes.container}>
-            <div>{
-                relEnhancerTitles.map(data=>
-                    <Tooltip key={data.enhancerId} title={"点击删除"}>
-                        <span
-                            className={classes.enhancer_title}
-                            onClick={()=>removeEnhancerRel(props.trace.id, data.enhancerId)}>
-                            {data.title}
-                        </span>
-                    </Tooltip>)
-            }</div>
             <Row>
                 <Col span={2} style={{display:"flex", justifyContent:"center", alignItems: "center"}}>
                     <SearchOutlined/>
@@ -73,7 +61,10 @@ const EnhancerSearch = (props:{trace:StudyTrace}) => {
                                 <Tooltip title={"添加笔记"}>
                                     <PlusOutlined
                                         className={utils.icon_button_normal}
-                                        onClick={()=>addEnhancerRel(props.trace.id, enhancer.id)}/>
+                                        onClick={()=> props.traces.length === 1 ?
+                                            addEnhancerRelOnce(props.traces[0].id, enhancer.id) :
+                                            addEnhancerRelByGroup(enhancer.id, props.traces)}
+                                    />
                                 </Tooltip>
                             </Col>
                             <Col span={22}>

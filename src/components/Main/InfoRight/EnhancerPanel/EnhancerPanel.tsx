@@ -22,8 +22,6 @@ import {
     useAddEnhancerGroup,
     useAddResourceDropdownItems
 } from "./EnhancerCard/EnhancerCardHooks";
-import {CopiedMilestoneIdAtom} from "../RecordPanel/HistoryStudyRecord/MilestonePanel/MilestonePanelHooks";
-import {copyMilestoneAsEnhancerToKnode} from "../../../../service/api/TracingApi";
 import dayjs from "dayjs";
 import {EnhancerPanelCurrentPageAtom, useInitEnhancerPanelData} from "./EnhancerPanelHooks";
 import {
@@ -41,7 +39,6 @@ const EnhancerPanel = () => {
     const enhancerIdsInGroups = useRecoilValue(SelectedKnodeEnhancerIdsInGroupSelector);
     const [enhancerPanelKey, setEnhancerPanelKey] = useRecoilState(EnhancerPanelKeyAtom)
     const [enhancerIdClipboard, setEnhancerIdClipboard] = useRecoilState(EnhancerCardIdClipboardAtom)
-    const [copiedMilestoneId, setCopiedMilestoneId] = useRecoilState(CopiedMilestoneIdAtom)
     const [offspringMode, setOffspringMode] = useState<boolean>(false)
     const [offspringEnhancers, setOffspringEnhancers] = useState<Enhancer[]>([])
     const [currentPage, setCurrentPage] = useRecoilState(EnhancerPanelCurrentPageAtom)
@@ -107,19 +104,8 @@ const EnhancerPanel = () => {
                                             setEnhancerIdClipboard(undefined)
                                         }}/>
                                 </Tooltip>
-                            </>}{
-                            copiedMilestoneId &&
-                            <Tooltip title={"粘贴笔记"}>
-                                <CopyOutlined
-                                    className={utils.icon_button}
-                                    style={{marginLeft:"2em"}}
-                                    onClick={ async ()=>{
-                                        await copyMilestoneAsEnhancerToKnode(copiedMilestoneId,selectedKnodeId)
-                                        setEnhancerPanelKey(enhancerPanelKey+1)
-                                        setCopiedMilestoneId(undefined)
-                                    }}/>
-                            </Tooltip>
-                        }<span className={classes.placeholder}>在这里添加笔记 . . . </span>
+                            </>}
+                            <span className={classes.placeholder}>在这里添加笔记 . . . </span>
                         </>
                     }</Col>
                     <Col span={4} offset={1}>

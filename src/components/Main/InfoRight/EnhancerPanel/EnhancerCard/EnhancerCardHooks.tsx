@@ -36,7 +36,6 @@ import {EnhancerPanelKeyAtom} from "../../../../../recoil/utils/DocumentData";
 import {
     CurrentStudyAtom,
     useAddEnhancerId,
-    useAddKnodeId
 } from "../../RecordPanel/CurrentStudyRecord/CurrentStudyRecordHooks";
 import KnodeLinkPlayer from "../resource/KnodeLinkPlayer/KnodeLinkPlayer";
 
@@ -150,7 +149,6 @@ export const useAddEnhancer = ()=>{
     const [, setEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom)
     const [currentStudy, ] = useRecoilState(CurrentStudyAtom)
     const addEnhancerIdToCurrentStudy = useAddEnhancerId()
-    const addKnodeIdToCurrentStudy = useAddKnodeId()
     return async (type?: string)=>{
         if(type === ResourceType.ENHANCER_GROUP) return
         const enhancer = await addEnhancerToKnode(selectedKnodeId)
@@ -159,7 +157,6 @@ export const useAddEnhancer = ()=>{
         type && await addResource(enhancer.id, {type: type})
         if(!!currentStudy){
             await addEnhancerIdToCurrentStudy(enhancer.id)
-            await addKnodeIdToCurrentStudy(selectedKnodeId)
         }
         return enhancer.id
     }

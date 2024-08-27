@@ -99,7 +99,7 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                         </div>:
                         <>
                             {data.content.trim().length === 0 && <span className={general.placeholder}>知识概述 . . . </span>}
-                            <div className={milkdown.markdown} key={editorKey}>{
+                            <div key={editorKey}>{
                                 doublePanel ?
                                 <Row className={classes.double_txt}>
                                     <Col span={12}>
@@ -114,13 +114,16 @@ const MarkdownPlayer = (props: {meta: Resource, readonly? : boolean}) => {
                                         <MdPreview>{data.content}</MdPreview>
                                     </Col>
                                 </Row>    :
-                                <MilkdownProvider>
-                                    <MilkdownEditor
-                                        md={data.content}
-                                        editable={!props.readonly}
-                                        onChange={cur=>setData({...data, content: cur})}
-                                        updateImage={(image)=>updateImageToResource(image, props.meta.id!)}/>
-                                </MilkdownProvider>
+                                <div  className={milkdown.markdown}>
+                                    <MilkdownProvider>
+                                        <MilkdownEditor
+                                            md={data.content}
+                                            editable={!props.readonly}
+                                            onChange={cur=>setData({...data, content: cur})}
+                                            updateImage={(image)=>updateImageToResource(image, props.meta.id!)}/>
+                                    </MilkdownProvider>
+                                </div>
+
                             }</div>
 
                         </>

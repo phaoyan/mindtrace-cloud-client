@@ -52,7 +52,7 @@ const QuizcardPlayer = (props: { meta: Resource, readonly? : boolean}) => {
                 setData(JSON.parse((base64DecodeUtf8(resp["data.json"]))))
             }
             setLoading(false)
-        }; init()
+        }; init().then()
         //eslint-disable-next-line
     },[])
 

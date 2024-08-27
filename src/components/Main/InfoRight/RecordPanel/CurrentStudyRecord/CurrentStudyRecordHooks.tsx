@@ -2,22 +2,18 @@ import {atom, useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {CurrentStudy, StudyTrace} from "../../../../../service/data/Tracing";
 import {
     addTraceEnhancerRelCurrent,
-    addTraceKnodeRel,
     continueCurrentStudy,
     editCurrentStudyTitle,
-    getTraceEnhancerRels,
-    getTraceKnodeRels,
+    getEnhancerIdsByTraceId,
     pauseCurrentStudy,
     removeCurrentStudy,
     removeTraceEnhancerRelCurrent,
-    removeTraceKnodeRel,
     settleCurrentStudy,
     startCurrentStudy
 } from "../../../../../service/api/TracingApi";
 import {HistoryStudyRecordKeyAtom, LoadedTracesAtom} from "../HistoryStudyRecord/HistoryStudyRecordHooks";
 import dayjs from "dayjs";
 import {MessageApiAtom} from "../../../../../recoil/utils/DocumentData";
-import {getKnodesByEnhancerId} from "../../../../../service/api/EnhancerApi";
 export const CurrentStudyAtom = atom<CurrentStudy | undefined>({
     key: "CurrentStudyAtom",
     default: undefined
@@ -50,7 +46,7 @@ export const useSettleCurrentStudy = ()=>{
             messageApi.error("时间不能为负")
             return
         }
-        if(currentStudy.knodeIds.length === 0){
+        if(currentStudy.enhancerIds.length === 0){
             messageApi.error("请至少选择一个知识点")
             return
         }
@@ -101,24 +97,11 @@ export const useSetTitle = ()=>{
     }
 }
 
-export const useAddKnodeId = ()=>{
-    const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    return async (knodeId:number)=>{
-        setCurrentStudy((cur)=>{
-            if(!cur || cur.knodeIds.includes(knodeId)) return cur
-            addTraceKnodeRel(knodeId)
-            return {...cur, knodeIds: [...cur.knodeIds, knodeId]}
-        })
-    }
-}
-
 export const useAddEnhancerId = ()=>{
     const [, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    const addKnodeId = useAddKnodeId()
     return async (enhancerId: number)=>{
         setCurrentStudy((cur)=>{
             if(!cur || enhancerId in cur.enhancerIds) return cur
-            getKnodesByEnhancerId(enhancerId).then((knodes)=> knodes.forEach(knode=>addKnodeId(knode.id)))
             addTraceEnhancerRelCurrent(enhancerId)
             return {...cur, enhancerIds: [...cur.enhancerIds, enhancerId]}
         })
@@ -126,30 +109,17 @@ export const useAddEnhancerId = ()=>{
 }
 
 export const useLastStudyInfo = ()=>{
-    const addKnodeId = useAddKnodeId()
     const addEnhancerId = useAddEnhancerId()
     const setTitle = useSetTitle()
     return async (trace: StudyTrace)=> {
-
-        let knodeIds = await getTraceKnodeRels(trace.id)
-        let enhancerIds = await getTraceEnhancerRels(trace.id)
+        let enhancerIds = await getEnhancerIdsByTraceId(trace.id)
         await setTitle(trace.title)
         await editCurrentStudyTitle(trace.title)
-        for(let knodeId of knodeIds)
-            await addKnodeId(knodeId)
         for (let enhancerId of enhancerIds)
             await addEnhancerId(enhancerId)
     }
 }
 
-export const useRemoveKnodeId = ()=>{
-    const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)
-    return async (knodeId: number)=>{
-        if(!currentStudy) return
-        setCurrentStudy({...currentStudy, knodeIds: currentStudy.knodeIds.filter(id=>id!==knodeId)})
-        await removeTraceKnodeRel(knodeId)
-    }
-}
 
 export const useRemoveEnhancerId = ()=>{
     const [currentStudy, setCurrentStudy] = useRecoilState(CurrentStudyAtom)

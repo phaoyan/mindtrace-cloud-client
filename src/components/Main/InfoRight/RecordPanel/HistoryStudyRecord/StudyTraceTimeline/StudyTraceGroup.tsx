@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {TraceGroup} from "../../../../../../service/data/Tracing";
-import {Col, Input, Pagination, Popconfirm, Row, Timeline} from "antd";
-import {DeleteOutlined} from "@ant-design/icons";
+import {Col, Input, Pagination, Popconfirm, Popover, Row, Timeline} from "antd";
+import {DeleteOutlined, SearchOutlined} from "@ant-design/icons";
 import classes from "../HistoryStudyRecord.module.css";
 import dayjs from "dayjs";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -17,6 +17,7 @@ import {AccumulateDurationAtom, HistoryStudyRecordKeyAtom} from "../HistoryStudy
 import {FinishedOutlined} from "../../../../../utils/antd/icons/Icons";
 import {formatMillisecondsToHHMM, formatMillisecondsToHHMMSS} from "../../../../../../service/utils/TimeUtils";
 import {sum} from "lodash";
+import EnhancerSearch from "./EnhancerSearch";
 
 const StudyTraceGroup = (props: {group: TraceGroup, time: string}) => {
     const readonly = useReadonly(props.group.userId)
@@ -79,7 +80,7 @@ const StudyTraceGroup = (props: {group: TraceGroup, time: string}) => {
                 </Col>
             </Row>
             <Row>
-                <Col span={20} offset={1}>
+                <Col span={11} offset={1}>
                     <Input
                         value={title}
                         onChange={({target:{value}})=>setTitle(value)}
@@ -92,6 +93,16 @@ const StudyTraceGroup = (props: {group: TraceGroup, time: string}) => {
                         placeholder={". . . "}
                         disabled={readonly}/>
                 </Col>
+                <Col span={1}>{
+                    !readonly &&
+                    mapping[props.group.id].length !== 0 &&
+                    <Popover
+                        placement={"left"}
+                        arrow={false}
+                        content={<EnhancerSearch traces={mapping[props.group.id].map(element=>element.data)}/>}>
+                        <SearchOutlined className={utils.icon_button_normal} style={{scale:"120%"}}/>
+                    </Popover>
+                }</Col>
             </Row>
             <Row>
                 <Col span={24}>{

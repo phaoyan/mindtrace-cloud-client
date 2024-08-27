@@ -1,0 +1,15 @@
+pre {
+    background-color: black;
+    padding: 1em;
+    border-radius: 0.5em;
+    overflow-x: auto;
+    font-size: 0.9em;
+}
+pre > code{
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 1em;
+    background-color: black;
+    color: white;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}

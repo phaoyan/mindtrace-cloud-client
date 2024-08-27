@@ -6,7 +6,7 @@ import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {
     CurrentStudyAtom,
     useAddEnhancerId,
-    useAddKnodeId, useLastStudyInfo,
+    useLastStudyInfo,
     useSetTitle
 } from "../../CurrentStudyRecord/CurrentStudyRecordHooks";
 import React, {useEffect, useState} from "react";
@@ -14,8 +14,8 @@ import {
     AccumulateDurationAtom,
 } from "../HistoryStudyRecordHooks";
 import {
-    getTraceEnhancerRels,
-    getTraceKnodeRels,
+    getEnhancerIdsByTraceId,
+    getKnodeIdsByTraceId,
     restartCurrentStudy,
     updateStudyTrace
 } from "../../../../../../service/api/TracingApi";
@@ -40,8 +40,7 @@ import {
     RelKnodeChainTitlesFamily,
     TraceEnhancerRelAtomFamily,
     TraceKnodeRelAtomFamily,
-    useCalculateTitle,
-    useJumpToEnhancer,
+    useJumpToEnhancer, useRemoveEnhancerRel,
     useRemoveTraceRecord
 } from "./StudyTraceRecordHooks";
 import EnhancerSearch from "./EnhancerSearch";
@@ -59,19 +58,18 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, groupId?: number})=>{
     const [relEnhancerTitles, setRelEnhancerTitles] = useRecoilState(RelEnhancerTitlesFamily(props.trace.id))
     const [grouping, setGrouping] = useRecoilState(StudyTraceGroupingAtom)
     const removeTraceRecord = useRemoveTraceRecord()
-    const calculateTitle = useCalculateTitle()
     const jumpToEnhancer = useJumpToEnhancer()
     const [title, setTitle] = useState<string>("")
     const addEnhancerIdToCurrentStudy = useAddEnhancerId()
-    const addKnodeIdToCurrentStudy = useAddKnodeId()
     const setCurrentStudyTitle = useSetTitle()
     const lastStudyInfo = useLastStudyInfo()
     const removeTraceGroupRel = useRemoveTraceGroupRel()
+    const removeTraceEnhancerRel = useRemoveEnhancerRel(props.trace);
     useEffect(()=>{
         const effect = async ()=>{
-            setKnodeRels(await getTraceKnodeRels(props.trace.id))
-            setEnhancerRels(await getTraceEnhancerRels(props.trace.id))
-            setTitle(await calculateTitle(props.trace))
+            setKnodeRels(await getKnodeIdsByTraceId(props.trace.id))
+            setEnhancerRels(await getEnhancerIdsByTraceId(props.trace.id))
+            setTitle(props.trace.title)
         }; effect().then()
         //eslint-disable-next-line
     }, [props.trace])
@@ -173,13 +171,20 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, groupId?: number})=>{
                     <Popover
                         placement={"left"}
                         arrow={false}
-                        content={<EnhancerSearch trace={props.trace}/>}>
+                        content={<EnhancerSearch traces={[props.trace]}/>}>
                         <SearchOutlined className={utils.icon_button_normal} style={{scale:"120%"}}/>
                     </Popover>
                 }</Col>
                 <Col span={11}>{
                     relEnhancerTitles.map(data=> <span key={data.enhancerId} style={{marginRight:"1em"}}>
-                        <Tooltip key={data.enhancerId} title={"点击跳转"}>
+                        <Tooltip key={data.enhancerId} title={
+                            <div>
+                                <span>点击跳转&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                                <DeleteOutlined
+                                    className={utils.icon_button_normal}
+                                    onClick={()=>removeTraceEnhancerRel(props.trace.id, data.enhancerId)}/>
+                            </div>
+                        }>
                             <span
                                 className={classes.enhancer_title}
                                 onClick={()=>jumpToEnhancer(data.enhancerId)}>
@@ -209,14 +214,8 @@ export const StudyTraceRecord = (props:{trace: StudyTrace, groupId?: number})=>{
                                 <SwapOutlined
                                     className={utils.icon_button_normal}
                                     onClick={()=>{setSelectedKnodeId(data.knodeId); setCurrentTab("note")}}/>
-                            </Tooltip>{
-                            currentStudy &&
-                            <Tooltip title={"添加到学习记录"}>
-                                <EditOutlined
-                                    className={utils.icon_button_normal}
-                                    onClick={()=>addKnodeIdToCurrentStudy(data.knodeId)}/>
                             </Tooltip>
-                        }</div>))
+                        </div>))
                 }</Col>
             </Row>
         </div>

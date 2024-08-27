@@ -19,12 +19,6 @@ export interface TraceGroup{
     createTime: string
 }
 
-export interface TraceCoverage{
-    id: number,
-    traceId: number,
-    knodeId: number
-}
-
 export interface CurrentStudy{
     trace: StudyTrace,
     knodeIds: number[],

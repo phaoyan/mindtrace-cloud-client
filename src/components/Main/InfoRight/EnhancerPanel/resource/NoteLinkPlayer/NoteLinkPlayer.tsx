@@ -8,14 +8,12 @@ import {
 import {base64DecodeUtf8} from "../../../../../../service/utils/JsUtils";
 import PlainLoading from "../../../../../utils/general/PlainLoading";
 import {useRecoilState} from "recoil";
-import {NoteLinkAtom, NoteLinkDataAtomFamily, useJumpToMilestone, useLinkNote} from "./NoteLinkPlayerHooks";
+import {NoteLinkAtom, NoteLinkDataAtomFamily, useLinkNote} from "./NoteLinkPlayerHooks";
 import classes from "./NoteLinkPlayer.module.css"
 import utils from "../../../../../../utils.module.css"
 import {LinkOutlined, SendOutlined} from "@ant-design/icons";
 import {Col, Row} from "antd";
 import {getEnhancersByResourceId} from "../../../../../../service/api/EnhancerApi";
-import {CurrentTabAtom} from "../../../InfoRightHooks";
-import {getMilestoneByResourceId, getResourcesFromMilestone} from "../../../../../../service/api/TracingApi";
 import {useJumpToEnhancer} from "../../../RecordPanel/HistoryStudyRecord/StudyTraceTimeline/StudyTraceRecordHooks";
 
 const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
@@ -24,9 +22,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
     const [loading, setLoading] = useState(true)
     const [displayingResources, setDisplayingResources] = useState<Resource[]>()
     const [link, ] = useRecoilState(NoteLinkAtom)
-    const [currentTab, ] = useRecoilState(CurrentTabAtom);
     const jumpToEnhancer = useJumpToEnhancer()
-    const jumpToMilestone = useJumpToMilestone()
     const linkNote = useLinkNote(props.meta.id!)
 
     useEffect(()=>{
@@ -39,13 +35,11 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                     props.meta.id!,
                     "data.json",
                     JSON.stringify({
-                        fromId: currentTab === "note" ?
-                            (await getEnhancersByResourceId(props.meta.id!))[0].id :
-                            (await getMilestoneByResourceId(props.meta.id!)).id,
+                        fromId: (await getEnhancersByResourceId(props.meta.id!))[0].id,
                         toId: undefined,
                         fromResourceId: props.meta.id,
                         toResourceId: undefined,
-                        fromType: currentTab === "note" ? "enhancer" : "milestone",
+                        fromType: "enhancer",
                         toType: undefined
                     }))
                 resp = await getAllDataFromResource(props.meta.id!)
@@ -59,7 +53,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
         const effect = async ()=>{
             if(data && data.toId && data.toResourceId)
                 setDisplayingResources(
-                    (data.toType === "enhancer" ? await getResourcesFromEnhancer(data.toId) : await getResourcesFromMilestone(data.toId))
+                    (await getResourcesFromEnhancer(data.toId))
                     .filter(resource=>resource.id !== data.toResourceId))
         }; effect().then()
     }, [data])
@@ -73,7 +67,7 @@ const NoteLinkPlayer = (props:{meta: Resource, readonly?: boolean}) => {
                     data.toId ?
                     <SendOutlined
                         className={utils.icon_button}
-                        onClick={()=>data.toType === "enhancer" ? jumpToEnhancer(data.toId!) : jumpToMilestone(data.toId!)}/> :
+                        onClick={()=>jumpToEnhancer(data.toId!)}/> :
                     <LinkOutlined
                         style={{color: link?.resourceId === data.fromResourceId ? "#44D7C1" : "#666"}}
                         className={utils.icon_button}

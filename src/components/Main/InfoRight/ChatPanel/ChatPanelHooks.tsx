@@ -339,7 +339,21 @@ export const useSaveChatMessageToEnhancer = ()=>{
 
 export const buildMarkdown = (messages: ChatMessage[]): string=>{
     return messages
-        .map((message)=>`-- *${message.role}*\n ${message.content}\n\n`)
+        .map((message)=> {
+            let txt
+            if(typeof message.content === "string")
+                txt = message.content
+            else{
+                txt = ""
+                for(let msg of message.content){
+                    if(msg.type==="text")
+                        txt = `${txt}\n${msg.text}`
+                    else if(msg.type==="image_url")
+                        txt = `${txt}\n![img](${msg.image_url.url})`
+                }
+            }
+            return `-- *${message.role}*\n ${txt}\n\n`
+        })
         .reduce((acc,cur)=>acc+cur)
 }
 

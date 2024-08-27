@@ -1,8 +1,4 @@
 import {atom, atomFamily, useRecoilState,} from "recoil";
-import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
-import {CurrentTabAtom} from "../../../InfoRightHooks";
-import {getMilestoneById} from "../../../../../../service/api/TracingApi";
-import {StatisticDisplayAtom} from "../../../RecordPanel/HistoryStudyRecord/HistoryStudyRecordHooks";
 import {addDataToResource} from "../../../../../../service/api/ResourceApi";
 
 export const NoteLinkDataAtomFamily = atomFamily<{
@@ -21,18 +17,6 @@ export const NoteLinkAtom = atom<{ resourceId: number, placeId: number, placeTyp
     key: "NoteLinkAtom",
     default: undefined
 })
-
-export const useJumpToMilestone = () => {
-    const [, setSelectedKnodeId] = useRecoilState(SelectedKnodeIdAtom)
-    const [, setCurrentTab] = useRecoilState(CurrentTabAtom)
-    const [, setStatisticDisplay] = useRecoilState(StatisticDisplayAtom);
-    return async (milestoneId: number) => {
-        const milestone = await getMilestoneById(milestoneId);
-        setSelectedKnodeId(milestone.knodeId)
-        setCurrentTab("record")
-        setStatisticDisplay("milestone")
-    }
-}
 
 export const useLinkNote = (resourceId: number) => {
     const [data, setData] = useRecoilState(NoteLinkDataAtomFamily(resourceId))

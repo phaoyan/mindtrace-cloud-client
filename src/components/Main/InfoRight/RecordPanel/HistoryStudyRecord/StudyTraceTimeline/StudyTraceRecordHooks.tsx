@@ -1,8 +1,7 @@
-import {atomFamily, useRecoilState, useRecoilValue} from "recoil";
+import {atom, atomFamily, useRecoilState, useRecoilValue} from "recoil";
 import {
-    addMilestoneTraceRel, addTraceEnhancerRel,
-    getStudyTracesInMilestone,
-    getTraceKnodeRels, removeMilestoneTraceRel,
+    addTraceEnhancerRel,
+    getKnodeIdsByTraceId,
     removeStudyTrace, removeTraceEnhancerRel,
 } from "../../../../../../service/api/TracingApi";
 import {StudyTrace} from "../../../../../../service/data/Tracing";
@@ -11,12 +10,7 @@ import {SelectedKnodeIdAtom} from "../../../../../../recoil/home/Knode";
 import {CurrentTabAtom} from "../../../InfoRightHooks";
 import {MessageApiAtom} from "../../../../../../recoil/utils/DocumentData";
 import {getKnodesByEnhancerId} from "../../../../../../service/api/EnhancerApi";
-import {
-    MilestoneTracesAtomFamily,
-    SelectedMilestoneIdAtom,
-    SelectedMilestoneTracesSelector
-} from "../MilestonePanel/MilestonePanelHooks";
-import {LoadedTracesAtom} from "../HistoryStudyRecordHooks";
+import {HistoryStudyRecordKeyAtom, LoadedTracesAtom} from "../HistoryStudyRecordHooks";
 
 export const TraceKnodeRelAtomFamily = atomFamily<number[], number>({
     key: "TraceKnodeRelAtomFamily",
@@ -38,6 +32,11 @@ export const RelEnhancerTitlesFamily = atomFamily<{enhancerId: number, title: st
     default: []
 })
 
+export const EnhancerSearchTxtAtom = atom<string>({
+    key: "EnhancerSearchTxtAtom",
+    default: undefined
+})
+
 export const useRemoveTraceRecord = ()=>{
     const [studyTraces, setStudyTraces] = useRecoilState(LoadedTracesAtom)
     return async (traceId: number)=>{
@@ -50,7 +49,7 @@ export const useCalculateTitle = ()=>{
     return async (trace: StudyTrace)=>{
         if(!trace) return ""
         if(trace.title) return trace.title
-        const coverages = await getTraceKnodeRels(trace.id);
+        const coverages = await getKnodeIdsByTraceId(trace.id);
         if(coverages.length === 0) return ""
         const chainStyleTitle = await getChainStyleTitle(coverages[0]);
         if(chainStyleTitle.length === 0) return ""
@@ -89,24 +88,12 @@ export const useAddEnhancerRel = (trace:StudyTrace)=>{
     }
 }
 
-export const useAddMilestoneTraceRel = ()=>{
-    const selectedMilestoneId = useRecoilValue(SelectedMilestoneIdAtom)
-    const [, setMilestoneTraces] = useRecoilState(SelectedMilestoneTracesSelector)
-    const [, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
-    return async (traceId: number)=>{
-        if(!selectedMilestoneId) return
-        await addMilestoneTraceRel(selectedMilestoneId, traceId)
-        setMilestoneTraces(await getStudyTracesInMilestone(selectedMilestoneId))
-        setLoadedTraces(traces=>traces.map(tr=>tr.id === traceId ? {...tr, milestoneId: selectedMilestoneId} : tr))
+export const useAddEnhancerRelByGroup = ()=>{
+    const [, setComponentKey] = useRecoilState(HistoryStudyRecordKeyAtom)
+    return async (enhancerId: number, traces: StudyTrace[])=>{
+        for (let trace of traces.filter(tr=>!!tr))
+            await addTraceEnhancerRel(trace.id, enhancerId)
+        setComponentKey(key=>key+1)
     }
 }
 
-export const useRemoveMilestoneTraceRel = (traceId: number, milestoneId?: number)=>{
-    const [traces, setTraces] = useRecoilState(MilestoneTracesAtomFamily(milestoneId))
-    const [, setLoadedTraces] = useRecoilState(LoadedTracesAtom)
-    return async ()=>{
-        await removeMilestoneTraceRel(milestoneId!, traceId)
-        setTraces(traces.filter(trace=>trace.id !== traceId))
-        setLoadedTraces(traces=>traces.map(tr=>tr.id === traceId ? {...tr, milestoneId: undefined} : tr))
-    }
-}
