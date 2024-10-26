@@ -23,6 +23,7 @@ import Login from "./components/Login/Login";
 import Intro from "./components/Intro/Intro";
 
 const App = ()=> {
+
     const [loading, setLoading] = useState(true)
     const isLogin = useRecoilValue(IsLogin)
     const [loginUser, setLoginUser] = useRecoilState(LoginUserAtom)
@@ -59,6 +60,8 @@ const App = ()=> {
         !currentUser && loginUser && setCurrentUser(loginUser)
         //eslint-disable-next-line
     }, [currentUser, loginUser])
+
+
 
     if(loading) return <></>
     return (

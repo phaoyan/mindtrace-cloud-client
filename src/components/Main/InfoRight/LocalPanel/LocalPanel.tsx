@@ -1,6 +1,6 @@
 import React from 'react';
-import {Col, Divider, Row, Tooltip, Upload} from "antd";
-import {DownloadOutlined, UploadOutlined} from "@ant-design/icons";
+import {Col, Row, Tooltip} from "antd";
+import {DownloadOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import classes from "./LocalPanel.module.css"
 import {LOCAL_HOST} from "../../../../service/api/LocalApi";

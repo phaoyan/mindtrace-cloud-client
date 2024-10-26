@@ -10,7 +10,6 @@ import {Col, Divider, Dropdown, Row, Tooltip} from "antd";
 import classes from "./ChatPanel.module.css"
 import {ChatGPTOutlined} from "../../../utils/antd/icons/Icons";
 import {
-    BellOutlined,
     BranchesOutlined,
     CopyOutlined,
     DeleteOutlined,
@@ -57,13 +56,10 @@ const ChatMessageCard = (props: {message: ChatMessage}) => {
             <Row>
                 <Col span={1}>{
                     props.message.role === "assistant" && <ChatGPTOutlined/>}{
-                    props.message.role === "user" && <UserOutlined/>}{
-                    props.message.role === "system" && <BellOutlined/>
-                }</Col>
+                    props.message.role === "user" && <UserOutlined/>}
+                </Col>
                 <Col span={22}>{
-                    !currentSession.foldedMessageIds.includes(props.message.id) ?
-                        txts.map((txt, i)=>(<MdPreview key={i}>{txt}</MdPreview>)):
-                        <span className={utils.folded}> . . . </span>
+                    txts.map((txt, i)=>(<MdPreview key={i}>{txt}</MdPreview>))
                 }</Col>
             </Row>
             <Row>
@@ -107,17 +103,15 @@ const ChatMessageCard = (props: {message: ChatMessage}) => {
                             onClick={()=>txts.forEach(txt=>saveChatMessage(txt))}/>
                     </Dropdown>
                 </Col>
-                <Col span={1}>
-                    <Tooltip title={"折叠该文本"}>{
-                        !currentSession.foldedMessageIds.includes(props.message.id) ?
-                            <FolderOutlined
-                                className={utils.icon_button_normal}
-                                onClick={()=>foldChatMessage(props.message.id)}/>:
-                            <FolderFilled
-                                className={utils.icon_button_normal}
-                                onClick={()=>unfoldChatMessage(props.message.id)}/>
-                    }</Tooltip>
-                </Col>
+                <Col span={1}>{
+                    !currentSession.foldedMessageIds.includes(props.message.id) ?
+                    <FolderOutlined
+                        className={utils.icon_button_normal}
+                        onClick={()=>foldChatMessage(props.message.id)}/>:
+                    <FolderFilled
+                        className={utils.icon_button_normal}
+                        onClick={()=>unfoldChatMessage(props.message.id)}/>
+                }</Col>
                 <Col span={1}>
                     <DeleteOutlined
                         className={utils.icon_button_normal}

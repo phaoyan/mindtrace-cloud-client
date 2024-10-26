@@ -2,6 +2,8 @@ import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/
 
 import {Milkdown, useEditor} from '@milkdown/react'
 import {commonmark} from '@milkdown/preset-commonmark';
+import { gfm } from '@milkdown/kit/preset/gfm';
+import { tableBlock } from '@milkdown/kit/component/table-block'
 import {
     katexOptionsCtx,
     mathBlockSchema,
@@ -74,12 +76,15 @@ export const MilkdownEditor = (props:{
                 }))
             })
             .use(commonmark)
+            // .use(gfm)
+            // .use(tableBlock)
 
             // LaTeX
             .use(remarkMathPlugin)
             .use(mathInlineSchema)
             .use(mathBlockSchema)
             .use(katexOptionsCtx)
+
             .config(ctx => ctx.set(katexOptionsCtx.key, {
                 throwOnError: false,
             }))

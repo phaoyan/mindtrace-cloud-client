@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Col, Divider, Dropdown, Input, Popover, Row, TimePicker, Tooltip} from "antd";
+import {Col, Dropdown, Input, Popover, Row, TimePicker, Tooltip} from "antd";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     CurrentStudyAtom, useAddEnhancerId,
@@ -38,7 +38,6 @@ const CurrentStudyRecord = () => {
     const settleCurrentStudy = useSettleCurrentStudy()
     const pauseCurrentStudy = usePauseCurrentStudy()
     const continueCurrentStudy = useContinueCurrentStudy()
-    const [, currentEnhancers] = useRecoilState(EnhancersForSelectedKnodeAtom);
     const [loadedTraces,] = useRecoilState(LoadedTracesAtom)
     const calculateDuration = useCalculateDuration()
     const setTitle = useSetTitle()

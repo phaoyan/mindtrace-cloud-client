@@ -25,8 +25,8 @@ const GuestSearch = () => {
                 </div>
             </div>
             <div className={classes.ipc_info}>
-                <a href="https://beian.miit.gov.cn/" target="_blank">ICP备案号：</a>
-                <a href="https://beian.miit.gov.cn/" target="_blank">赣ICP备2024020351号-1</a>
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel={"noreferrer"} style={{color: "grey"}}>ICP备案号：</a>
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel={"noreferrer"} style={{color: "grey"}}>赣ICP备2024020351号-1</a>
             </div>
         </div>
     );

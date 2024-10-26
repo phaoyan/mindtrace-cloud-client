@@ -14,13 +14,18 @@ import 'prismjs/components/prism-cmake';
 import 'prismjs/themes/prism-twilight.css';
 import "./MdPreview.css"
 import "katex/dist/katex.min.css"
+import remarkGfm from "remark-gfm";
 
 // 用于 markdown 预览
 const MdPreview = ({...props}) => {
     return (
             <ReactMarkdown
-                components={props.components}
-                remarkPlugins={[remarkMath]}
+                components={{
+                    img(props){
+                        return <img {...props} style={{maxWidth:'100%'}} alt={""}/>
+                    }
+                }}
+                remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex, rehypeRaw, rehypePrism]}
                 children={props.children}/>
     );

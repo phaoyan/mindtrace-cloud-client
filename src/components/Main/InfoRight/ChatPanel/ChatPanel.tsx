@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {Col, Divider, Dropdown, Input, Row, Spin, Tooltip} from "antd";
+import React, {useEffect, useRef, useState} from 'react';
+import {Col, Divider, Dropdown, Input, Row, Select, Spin, Tooltip} from "antd";
 import {
-    AppstoreOutlined,
+    AppstoreOutlined, ArrowDownOutlined, ArrowUpOutlined,
     BarsOutlined, BellFilled, BellOutlined, BulbFilled, BulbOutlined, CloseOutlined,
     DeleteOutlined, DoubleRightOutlined, FontSizeOutlined,
     SaveOutlined,
@@ -11,13 +11,12 @@ import utils from "../../../../utils.module.css"
 import classes from "./ChatPanel.module.css";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    ChatLoadingAtom, ChatPanelImageBase64MessageListAtom,
+    ChatLoadingAtom, ChatModel, ChatOutputBufferAtom, ChatPanelImageBase64MessageListAtom,
     ChatPanelTxtAtom, ChatSearchModeAtom,
-    ChatSessionListAtom,
-    ChatSessionListDropdownItemSelector, ChatSystemModeAtom,
+    ChatSessionListDropdownItemSelector, ChatSystemModeAtom, CurrentChatModelAtom,
     CurrentChatSessionIdAtom,
     CurrentChatSessionSelector,
-    CurrentEnhancerDropdownItemsSelector, MarkdownInputKeyAtom, useChatForTitle,
+    CurrentEnhancerDropdownItemsSelector, MarkdownInputKeyAtom, useChatForTitle, useChatModelSelectItems,
     useCreateChatSession,
     useImportEnhancerInfo,
     useRemoveChatSession,
@@ -33,12 +32,19 @@ import {SearchOptions} from "../SearchPanel/SearchPanel";
 import {updateImageBase64} from "../EnhancerPanel/resource/ResourcePlayerUtils";
 import MdPreview from "../../../utils/markdown/MdPreview";
 import {generateUUID} from "../../../../service/utils/JsUtils";
+import {SSEControllerAtom} from "../../../../service/api/ChatApi";
 
 
 const ChatPanel = () => {
+
+    const bottomFocusRef = useRef<any>(null)
+    const topFocusRef    = useRef<any>(null)
+    const controller = useRecoilValue(SSEControllerAtom);
+    const [outputBuffer, ] = useRecoilState(ChatOutputBufferAtom);
     const [txt, setTxt] = useRecoilState(ChatPanelTxtAtom)
     const [imgs, setImgs] = useRecoilState(ChatPanelImageBase64MessageListAtom);
     const [title, setTitle] = useState("")
+    const [model, setModel] = useRecoilState(CurrentChatModelAtom)
     const [markdownMode, setMarkdownMode] = useState(false)
     const [markdownInputKey, ] = useRecoilState(MarkdownInputKeyAtom);
     const [systemMode, setSystemMode] = useRecoilState(ChatSystemModeAtom)
@@ -46,9 +52,9 @@ const ChatPanel = () => {
     const [loading, setLoading] = useRecoilState(ChatLoadingAtom);
     const [currentSession, setCurrentSession] = useRecoilState(CurrentChatSessionSelector);
     const enhancerDropdownItems = useRecoilValue(CurrentEnhancerDropdownItemsSelector);
-    const [sessions, ] = useRecoilState(ChatSessionListAtom);
     const [, setCurrentSessionId] = useRecoilState(CurrentChatSessionIdAtom);
     const sessionDropdownItems = useRecoilValue(ChatSessionListDropdownItemSelector);
+    const chatModelSelectItems = useChatModelSelectItems();
     const saveChatSession = useSaveChatSession();
     const saveChatSessionToEnhancer = useSaveChatSessionToEnhancer();
     const createChatSession = useCreateChatSession();
@@ -69,6 +75,12 @@ const ChatPanel = () => {
                     <Dropdown
                         placement={"bottom"}
                         menu={{items:[{
+                                key: "GotoBottom",
+                                label: (
+                                    <ArrowDownOutlined
+                                        className={utils.icon_button}
+                                        onClick={()=>bottomFocusRef.current && bottomFocusRef.current.focus()}/>
+                                )},{
                                 key: "Title",
                                 label: (
                                     <FontSizeOutlined
@@ -79,7 +91,7 @@ const ChatPanel = () => {
                                 label: (
                                     <DeleteOutlined
                                         className={utils.icon_button}
-                                        onClick={()=>sessions.length >= 2 && removeChatSession(currentSession.id)}/>
+                                        onClick={()=>removeChatSession(currentSession.id)}/>
                                 )},
                         ]}}>
                         <AppstoreOutlined className={utils.icon_button}/>
@@ -87,6 +99,7 @@ const ChatPanel = () => {
                 </Col>
                 <Col span={15}>
                     <Input
+                        ref={topFocusRef}
                         value={title}
                         className={classes.title}
                         onChange={({target: {value}})=>setTitle(value)}
@@ -98,10 +111,18 @@ const ChatPanel = () => {
             <Row className={classes.main}>
                 <Col span={24}>{
                     currentSession.messages.map(message=><ChatMessageCard key={message.id} message={message}/>)
+                    .concat(outputBuffer !== "" ?
+                        <ChatMessageCard key={"-1"} message={{id: "-1", role:"assistant", content: outputBuffer}}/>:
+                        <div key={-1}></div>)
                 }</Col>
             </Row>
             <br/>
             <Row>
+                <Col span={1} className={`${utils.flex_center} ${utils.margin_bottom_1em}`}>
+                    <ArrowUpOutlined
+                        className={`${utils.icon_button} ${utils.color_666}`}
+                        onClick={()=>topFocusRef.current && topFocusRef.current.focus()}/>
+                </Col>
                 <Col span={1} className={`${utils.flex_center} ${utils.margin_bottom_1em}`}>
                     <Dropdown menu={{items: enhancerDropdownItems, onClick: (data)=>saveChatSessionToEnhancer(data.key)}}>
                         <SaveOutlined
@@ -136,7 +157,14 @@ const ChatPanel = () => {
                         <DoubleRightOutlined className={`${utils.icon_button} ${utils.color_666}`}/>
                     </Dropdown>
                 </Col>
-
+                <Col span={5} className={`${utils.margin_bottom_1em}`}>
+                    <Select
+                        ref={bottomFocusRef}
+                        defaultValue={model}
+                        options={chatModelSelectItems}
+                        maxTagTextLength={18}
+                        onChange={(value: ChatModel)=>setModel(value)}/>
+                </Col>
             </Row>
             {searchMode && <SearchOptions/>}
             <Row>
@@ -157,7 +185,7 @@ const ChatPanel = () => {
                         onClick={()=>setMarkdownMode(true)}/>
                 }</Col>
                 <Col span={20}>
-                    <>{
+                    <div>{
                         markdownMode ?
                         <div className={classes.markdown_wrapper} key={markdownInputKey}>
                             <MilkdownProvider>
@@ -178,7 +206,7 @@ const ChatPanel = () => {
                             onPressEnter={async ()=> await sendMessage(txt)}
                             bordered={false}
                             placeholder={"开始聊天 . . . "}/>
-                    }</>
+                    }</div>
                     <Divider className={utils.ghost_horizontal_divider}/>
                 </Col>
                 <Col span={2} className={utils.flex_center}>{
@@ -188,7 +216,10 @@ const ChatPanel = () => {
                             onClick={async ()=> await sendMessage(txt)}/>:
                         <div
                             className={utils.icon_button_normal}
-                            onClick={()=>setLoading(false)}>
+                            onClick={()=> {
+                                setLoading(false)
+                                controller.abort()
+                            }}>
                             <Spin/>
                         </div>
                 }</Col>

@@ -13,7 +13,6 @@ import {
     SelectedKnodeIdAtom
 } from "../../../recoil/home/Knode";
 import {
-    MainPageHeightAtom,
     MainPageWidthAtom
 } from "../../../recoil/utils/DocumentData";
 import {MilkdownEditor} from "../../utils/markdown/MilkdownEditor";

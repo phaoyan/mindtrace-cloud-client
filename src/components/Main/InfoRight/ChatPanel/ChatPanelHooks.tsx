@@ -1,6 +1,6 @@
 import {atom, DefaultValue, selector, useRecoilState, useRecoilValue} from "recoil";
 import {base64DecodeUtf8, generateUUID} from "../../../../service/utils/JsUtils";
-import {CHAT_HOST, getResponse} from "../../../../service/api/ChatApi";
+import {getResponse, useGetStreamResponse} from "../../../../service/api/ChatApi";
 import {MessageOutlined, PlusOutlined} from "@ant-design/icons";
 import utils from "../../../../utils.module.css"
 import {MessageApiAtom} from "../../../../recoil/utils/DocumentData";
@@ -19,23 +19,13 @@ import {RESOURCE_SIMILAR_THRESHOLD, useResourceFilter} from "../SearchPanel/Sear
 import {SelectedKnodeIdAtom} from "../../../../recoil/home/Knode";
 import {getChainStyleTitle} from "../../../../service/api/KnodeApi";
 import {CurrentUserIsLoginUserSelector} from "../../Main/MainHooks";
-
-
-
-
-export const wrapSystemMessage = (txt: string): ChatMessage=>{
-    return {
-        id: generateUUID(),
-        role: "system",
-        content: txt
-    }
-}
+import {useEffect} from "react";
 
 export const wrapAssistantMessage = (txt: string): ChatMessage=>{
     return {
         id: generateUUID(),
         role: "assistant",
-        content: txt
+        content: txt,
     }
 }
 
@@ -43,7 +33,7 @@ export const wrapUserMessage = (txt: string): ChatMessage=>{
     return {
         id: generateUUID(),
         role: "user",
-        content: txt
+        content: txt,
     }
 }
 
@@ -62,25 +52,34 @@ export const wrapCompleteUserMessage = (txt: string, imgs: string[]): ChatMessag
                     "url": img
                 }
             }))
-        ]
+        ],
     }
 }
 
 export const prompts = {
-    latex: "请在回复中包含任何特殊公式或符号时，用双dollar符包裹起来。请在整个对话中都保持这个规则。\n例如：$x^2+y^2=z$;  $\\frac{a}{b}$;  $a\\rightarrow b$;",
-    stepByStep: "Let's Think step by step."
+    latex: "Latex inline: $x^2$ \n\n Latex block: $$e=mc^2$$",
+    language: "Language: Chinese 简体中文",
+    helper: "你好！有什么可以帮助你的吗？",
+    stepByStep: "Let's Think step by step.",
 }
 
 export const initialPrompts = ()=> [
-    wrapSystemMessage(prompts.latex),
-    wrapSystemMessage(prompts.stepByStep),
-    wrapAssistantMessage("你好！有什么可以帮助你的吗？")
+    {
+        ...wrapUserMessage(prompts.latex),
+        ignore: true
+    },{
+        ...wrapUserMessage(prompts.language)
+    },{
+        ...wrapAssistantMessage(prompts.helper),
+        ignore: true
+    }
 ]
 
 export interface ChatMessage{
     id: string
-    role: "user" | "assistant" | "system",
-    content: string | any[]
+    role: "user" | "assistant",
+    content: string | any[],
+    ignore?: boolean
 }
 
 export interface ChatSession{
@@ -91,6 +90,56 @@ export interface ChatSession{
 }
 
 const defaultUUID = generateUUID()
+
+
+export type ChatModel = "gpt-4o-mini" | "gpt-4o-2024-08-06" | "o1-mini" | "o1-preview" | "o1-mini-2024-09-12" | "o1-preview-2024-09-12"
+
+export const supportStream = (model: ChatModel)=>{
+    const map = {
+        "gpt-4o-mini" : true,
+        "gpt-4o-2024-08-06" : true,
+        "o1-mini" : false,
+        "o1-preview" : false,
+        "o1-mini-2024-09-12" : false,
+        "o1-preview-2024-09-12" : false,
+    }
+    return map[model]
+}
+
+
+export const useChatModelSelectItems = ()=>{
+    return [
+        {
+            value: "gpt-4o-mini",
+            label: <span>gpt-4o-mini</span>
+        },{
+            value: "gpt-4o-2024-08-06",
+            label: <span>gpt-4o-2024-08-06</span>
+        },{
+            value: "o1-mini-2024-09-12",
+            label: <span>o1-mini-2024-09-12</span>
+        },{
+            value: "o1-preview-2024-09-12",
+            label: <span>o1-preview-2024-09-12</span>
+        },{
+            value: "o1-mini",
+            label: <span>o1-mini</span>
+        },{
+            value: "o1-preview",
+            label: <span>o1-preview</span>
+        }
+    ]
+}
+
+export const ChatOutputBufferAtom = atom<string>({
+    key: "ChatOutputBufferAtom",
+    default: ""
+})
+
+export const CurrentChatModelAtom = atom<ChatModel>({
+    key: "CurrentChatModelAtom",
+    default: "gpt-4o-mini"
+})
 
 export const ChatSystemModeAtom = atom<boolean>({
     key: "ChatSystemModeAtom",
@@ -187,11 +236,13 @@ export const useCreateChatSession = ()=>{
     const [, setCurrentSessionId] = useRecoilState(CurrentChatSessionIdAtom);
     return ()=>{
         const sessionId = generateUUID();
-        setSessions(session=>[...session, {
+        const newSession = {
             id: sessionId,
             title: "会话 " + sessions.length,
             messages: initialPrompts(),
-            foldedMessageIds:[]}])
+            foldedMessageIds:[]
+        }
+        setSessions(session=>[...session, newSession])
         setCurrentSessionId(sessionId)
     }
 }
@@ -200,8 +251,14 @@ export const useRemoveChatSession = ()=>{
     const [sessions, setSessions] = useRecoilState(ChatSessionListAtom)
     const [currentSessionId, setCurrentSessionId] = useRecoilState(CurrentChatSessionIdAtom);
     return (id: string)=>{
-        if(sessions.length <= 1) return
         const updatedSessions = sessions.filter(session=>session.id!==id);
+        if(updatedSessions.length === 0)
+            updatedSessions.push({
+                id: generateUUID(),
+                title: "会话 " + sessions.length,
+                messages: initialPrompts(),
+                foldedMessageIds:[]
+            })
         if(currentSessionId===id)
             setCurrentSessionId(updatedSessions[0].id)
         setSessions(updatedSessions)
@@ -242,7 +299,6 @@ export const useSaveChatSession = ()=>{
     const editMode = useRecoilValue(CurrentUserIsLoginUserSelector);
     const [selectedMessageIds, setSelectedMessageIds] = useRecoilState(CurrentChatSessionSelectedMessageIdsAtom);
     const messageApi = useRecoilValue(MessageApiAtom);
-    const chatSystemMode = useRecoilValue(ChatSystemModeAtom)
     const [currentSession, ] = useRecoilState(CurrentChatSessionSelector);
     const saveChatMessage = useSaveChatMessage();
     return async ()=>{
@@ -250,12 +306,12 @@ export const useSaveChatSession = ()=>{
             messageApi.info("只能在自己的账号内保存数据")
             return
         }
-        let messages
+        let messages: ChatMessage[]
         if(selectedMessageIds.length !== 0){
             messages = currentSession.messages.filter(message=>selectedMessageIds.includes(message.id))
-        }else{
-            messages = currentSession.messages.filter(message=>chatSystemMode || message.role!=="system")
-        }
+        }else
+            messages = currentSession.messages
+        messages = messages.filter(msg=>!msg.ignore)
         let content = buildMarkdown(messages)
         await saveChatMessage(content)
         setSelectedMessageIds([])
@@ -264,7 +320,6 @@ export const useSaveChatSession = ()=>{
 
 export const useSaveChatSessionToEnhancer = ()=>{
     const editMode = useRecoilValue(CurrentUserIsLoginUserSelector);
-    const chatSystemMode = useRecoilValue(ChatSystemModeAtom)
     const messageApi = useRecoilValue(MessageApiAtom);
     const [currentSession, ] = useRecoilState(CurrentChatSessionSelector);
     const [selectedMessageIds, setSelectedMessageIds] = useRecoilState(CurrentChatSessionSelectedMessageIdsAtom);
@@ -274,12 +329,12 @@ export const useSaveChatSessionToEnhancer = ()=>{
             messageApi.info("只能在自己的账号内保存数据")
             return
         }
-        let messages
+        let messages: ChatMessage[]
         if(selectedMessageIds.length !== 0){
             messages = currentSession.messages.filter(message=>selectedMessageIds.includes(message.id))
-        }else{
-            messages = currentSession.messages.filter(message=>chatSystemMode || message.role!=="system")
-        }
+        }else
+            messages = currentSession.messages
+        messages = messages.filter(msg=>!msg.ignore)
         const resource = await addResource(enhancerId, {type: ResourceType.MARKDOWN});
         await addDataToResource(resource.id!, "content.md", buildMarkdown(messages))
         await addDataToResource(resource.id!, "config.json",  JSON.stringify({hide: false, latexDisplayMode: false}))
@@ -347,12 +402,12 @@ export const buildMarkdown = (messages: ChatMessage[]): string=>{
                 txt = ""
                 for(let msg of message.content){
                     if(msg.type==="text")
-                        txt = `${txt}\n${msg.text}`
+                        txt = txt === "" ? `${msg.text}` : `${txt}\n${msg.text}`
                     else if(msg.type==="image_url")
                         txt = `${txt}\n![img](${msg.image_url.url})`
                 }
             }
-            return `-- *${message.role}*\n ${txt}\n\n`
+            return `**${message.role}**\n ${txt}\n\n`
         })
         .reduce((acc,cur)=>acc+cur)
 }
@@ -384,7 +439,7 @@ export const translateResourceToChatMessage = async (resource: Resource): Promis
     return {
         id: generateUUID(),
         role: "user",
-        content: content
+        content: content,
     }
 }
 
@@ -426,15 +481,25 @@ export const useSearchResourcesToChatMessage = ()=>{
 }
 
 export const useChatOnce = ()=>{
+    const getStreamResponse = useGetStreamResponse();
+    const [buffer, setBuffer] = useRecoilState(ChatOutputBufferAtom);
     const [currentSession, setCurrentSession] = useRecoilState(CurrentChatSessionSelector)
+    const chatModel = useRecoilValue(CurrentChatModelAtom);
     const [, setTxt] = useRecoilState(ChatPanelTxtAtom);
     const [, setMarkdownInputKey] = useRecoilState(MarkdownInputKeyAtom);
     const [imgs, setImgs] = useRecoilState(ChatPanelImageBase64MessageListAtom);
     const [loading, setLoading] = useRecoilState(ChatLoadingAtom);
-    const messageApi = useRecoilValue(MessageApiAtom)
+
+    useEffect(()=>{
+        if(!loading && buffer !== ""){
+            setBuffer("")
+            setCurrentSession(session=>({...session, messages: session.messages.concat(wrapAssistantMessage(buffer))}))
+        }
+        //eslint-disable-next-line
+    }, [loading])
+
     return async (txt: string)=>{
         if(!currentSession) return
-        if(loading) messageApi.warning("AI 响应中 . . . ")
         setLoading(true)
         let messages: ChatMessage[] = [...currentSession.messages].filter(message=>message.content!=="")
         txt.trim().length !== 0 && (messages = messages.concat([wrapCompleteUserMessage(txt, imgs)]))
@@ -442,33 +507,32 @@ export const useChatOnce = ()=>{
         setMarkdownInputKey(key=>key+1)
         setImgs([])
         setCurrentSession({...currentSession, messages: messages})
-        const chatMessage = await getResponse(messages.filter(message=>!currentSession.foldedMessageIds.includes(message.id)));
-        messages = messages.concat([wrapAssistantMessage(chatMessage.content as string)])
-        setLoading(false)
-        setCurrentSession(session=>({...session, messages: messages}))
-    }
-}
+        const sendMessage = messages.filter(message=>!currentSession.foldedMessageIds.includes(message.id))
 
-export const useChatOneByStream = ()=>{
-    const [currentSession, setCurrentSession] = useRecoilState(CurrentChatSessionSelector)
-    const [, setTxt] = useRecoilState(ChatPanelTxtAtom);
-    const [loading, setLoading] = useRecoilState(ChatLoadingAtom);
-    const messageApi = useRecoilValue(MessageApiAtom)
-    return async (txt: string)=>{
-        if(!currentSession) return
-        if(loading) messageApi.warning("AI 响应中 . . . ")
-        setLoading(true)
-        setTxt("")
-        let messages: ChatMessage[] = [...currentSession.messages].filter(message=>message.content!=="")
-        txt.trim().length !== 0 && (messages = messages.concat([wrapUserMessage(txt)]))
-        setCurrentSession({...currentSession, messages: messages})
-        const eventSource = new EventSource(`${CHAT_HOST}/chat/stream`);
-        eventSource.onmessage = ()=>{
-            setCurrentSession({...currentSession, messages:[] })
-        }
-
-        setLoading(false)
-        setCurrentSession(session=>({...session, messages: messages}))
+        setBuffer("")
+        getStreamResponse(
+            sendMessage, chatModel,
+            (e: any)=>{
+            if(e.data==="[DONE]") return;
+            let support = supportStream(chatModel)
+            if(support){
+                const delta = JSON.parse(e.data).choices[0].delta.content
+                if(!delta) return
+                setBuffer(buffer=>buffer+delta)
+            }else{
+                // const data = JSON.parse(e.data).choices[0].message.content
+                // setBuffer(buffer=>buffer+data)
+                setBuffer(buffer=> {
+                    return buffer + e.data
+                })
+            }
+        },()=>{
+            let support = supportStream(chatModel)
+            if(!support) setBuffer((buffer)=> {
+                return JSON.parse(buffer).choices[0].message.content
+            })
+            setLoading(false)
+        })
     }
 }
 
@@ -486,7 +550,7 @@ export const useChatForTitle = ()=>{
 export const useAddSystemMessage = ()=>{
     const [, setCurrentSession] = useRecoilState(CurrentChatSessionSelector);
     return (txt: string)=>{
-        setCurrentSession(cur => ({...cur, messages: cur.messages.concat([wrapSystemMessage(txt)])}))
+        setCurrentSession(cur => ({...cur, messages: cur.messages.concat([wrapUserMessage(txt)])}))
     }
 }
 
